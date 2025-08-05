@@ -1,0 +1,39 @@
+# Gradle
+.gradle/
+build/
+*/build/
+local.properties
+
+# IDE (IntelliJ IDEA/Android Studio)
+.idea/
+*.iml
+.DS_Store # macOS specific
+
+# Kotlin Multiplatform specific
+.kotlin/
+.externalNativeBuild/
+.cxx/
+
+# iOS specific (if applicable)
+iosApp/build/
+iosApp/*.xcworkspace/
+iosApp/*.xcodeproj/xcuserdata/
+iosApp/*.xcodeproj/project.xcworkspace/
+iosApp/*.xcodeproj/xcshareddata/
+Pods/ # if using CocoaPods
+*.xcarchive/
+*.ipa
+
+# Android specific (if applicable)
+app/build/
+app/local.properties
+captures/
+*.jks # Keystore files
+
+# Other
+*.log
+*.swp
+*~
+# Sensitive files (e.g., API keys, passwords)
+*.env
+secrets.kt # If generating secrets locally

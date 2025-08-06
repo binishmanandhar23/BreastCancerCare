@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "851598494336",
+    "project_id": "breastcancercare-bfa5c",
+    "storage_bucket": "breastcancercare-bfa5c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851598494336:android:f31f062f7f4949d7d53465",
+        "android_client_info": {
+          "package_name": "com.breastcancer.breastcancercare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtwEtXSbxbYv3jeL4j33-F9cJ1nYbBazk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

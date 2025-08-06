@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+
+    id("com.google.gms.google-services")
 }
 
 kotlin {
@@ -32,6 +34,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.firebase.config)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -43,6 +46,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.material.icons.extended)
+            implementation("dev.gitlive:firebase-database:2.1.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

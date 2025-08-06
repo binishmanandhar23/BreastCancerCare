@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F886F012E438EEB00BB1E31 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1F886F002E438EEB00BB1E31 /* FirebaseCore */; };
 		1FFEC4262E436BDE00656F0D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1FFEC4252E436BDE00656F0D /* FirebaseAnalytics */; };
 		1FFEC4282E436BDE00656F0D /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 1FFEC4272E436BDE00656F0D /* FirebaseDatabase */; };
 		1FFEC42A2E436BDE00656F0D /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 1FFEC4292E436BDE00656F0D /* FirebaseRemoteConfig */; };
@@ -49,6 +50,7 @@
 			files = (
 				1FFEC42A2E436BDE00656F0D /* FirebaseRemoteConfig in Frameworks */,
 				1FFEC4282E436BDE00656F0D /* FirebaseDatabase in Frameworks */,
+				1F886F012E438EEB00BB1E31 /* FirebaseCore in Frameworks */,
 				1FFEC4262E436BDE00656F0D /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -97,6 +99,7 @@
 				1FFEC4252E436BDE00656F0D /* FirebaseAnalytics */,
 				1FFEC4272E436BDE00656F0D /* FirebaseDatabase */,
 				1FFEC4292E436BDE00656F0D /* FirebaseRemoteConfig */,
+				1F886F002E438EEB00BB1E31 /* FirebaseCore */,
 			);
 			productName = iosApp;
 			productReference = B9DA97B12DC1472C00A4DA20 /* BreastCancerCare.app */;
@@ -404,6 +407,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1F886F002E438EEB00BB1E31 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FFEC4242E436BDE00656F0D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
 		1FFEC4252E436BDE00656F0D /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1FFEC4242E436BDE00656F0D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

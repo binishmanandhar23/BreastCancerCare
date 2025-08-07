@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 
     id("com.google.gms.google-services")
 }
@@ -53,7 +54,7 @@ kotlin {
             implementation(libs.material.icons.extended)
 
             /*Kotlin Coroutines*/
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+            implementation(libs.kotlinx.coroutines.core)
 
 
             /*Firebase Database*/
@@ -67,11 +68,19 @@ kotlin {
 
             /*Calendar*/
             implementation(libs.calendar)
+
+            /*Room*/
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.sqlite.bundled)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
     }
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 android {
@@ -109,6 +118,7 @@ dependencies {
     add("kspIosX64", libs.koin.ksp.compiler)
     add("kspIosArm64", libs.koin.ksp.compiler)
     add("kspIosSimulatorArm64", libs.koin.ksp.compiler)
+    ksp(libs.androidx.room.compiler)
 }
 
 // Enables compile-time validation for Koin configuration.

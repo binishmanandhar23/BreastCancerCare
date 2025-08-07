@@ -2,18 +2,14 @@ package com.breastcancer.breastcancercare
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -32,15 +28,16 @@ import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun App() {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { Tabs.entries.size })
     val selectedTabIndex by remember(pagerState.currentPage) { derivedStateOf { pagerState.currentPage } }
+
+
     Box(modifier = Modifier.fillMaxSize()) {
-        HorizontalPager(modifier = Modifier.fillMaxSize(), state = pagerState) {
+        HorizontalPager(modifier = Modifier.fillMaxSize(), state = pagerState, beyondViewportPageCount = 1) {
             when (Tabs.entries[selectedTabIndex].text) {
                 Tabs.Home.text -> HomeScreen()
                 Tabs.Calendar.text -> CalendarScreen()

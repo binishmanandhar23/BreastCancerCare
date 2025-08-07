@@ -8,8 +8,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.breastcancer.breastcancercare.di.initKoin
 import com.breastcancer.breastcancercare.theme.DarkAppColorScheme
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
+import org.koin.android.ext.koin.androidContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

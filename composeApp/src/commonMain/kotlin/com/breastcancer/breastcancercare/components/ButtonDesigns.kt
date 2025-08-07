@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun BottomBarIcon(imageVector: ImageVector, text: String, tint: Color = MaterialTheme.colorScheme.primary, onClick: (() -> Unit)? = null){
+fun BottomBarIcon(imageVector: ImageVector, text: String, tint: Color = MaterialTheme.colorScheme.onBackground, onClick: (() -> Unit)? = null){
     Column(modifier = Modifier.clickable(onClick = onClick?: {}), verticalArrangement = Arrangement.spacedBy(5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(
             imageVector = imageVector,
@@ -65,7 +65,7 @@ fun CenterButton(modifier: Modifier = Modifier, onSizeChange: ((IntSize) -> Unit
             }.onSizeChanged(onSizeChange ?: {})
     ) {
         Icon(
-            imageVector = Icons.Default.AttachMoney,
+            imageVector = Icons.Default.Add,
             contentDescription = "Add icon",
             modifier = Modifier
                 .padding(19.dp),

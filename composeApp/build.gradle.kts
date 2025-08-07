@@ -64,6 +64,9 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.composeVM)
             api(libs.koin.annotations)
+
+            /*Calendar*/
+            implementation(libs.calendar)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

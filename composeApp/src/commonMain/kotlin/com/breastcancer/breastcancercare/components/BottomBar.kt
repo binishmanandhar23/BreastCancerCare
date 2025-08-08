@@ -28,7 +28,7 @@ import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 
 @Composable
-fun BottomBar(outerModifier: Modifier = Modifier.fillMaxWidth(), innerModifier: Modifier = Modifier.fillMaxWidth(),  onHome: () -> Unit, onCalendar: () -> Unit) {
+fun BottomBar(outerModifier: Modifier = Modifier.fillMaxWidth(), innerModifier: Modifier = Modifier.fillMaxWidth(),  onHome: () -> Unit, onCalendar: () -> Unit, onFAQ: () -> Unit) {
     val density = LocalDensity.current
     var buttonSize by remember { mutableStateOf(DpSize(0.dp, 0.dp)) }
     Box(modifier = outerModifier) {
@@ -40,7 +40,7 @@ fun BottomBar(outerModifier: Modifier = Modifier.fillMaxWidth(), innerModifier: 
             BottomBarIcon(imageVector = Icons.Default.Home, text = "Home", onClick = onHome)
             BottomBarIcon(imageVector = Icons.Default.CalendarMonth, text = "Calendar", onClick = onCalendar)
             Spacer(Modifier.size(buttonSize))
-            BottomBarIcon(imageVector = Icons.Default.QuestionAnswer, text = "FAQ")
+            BottomBarIcon(imageVector = Icons.Default.QuestionAnswer, text = "FAQ", onClick = onFAQ)
             BottomBarIcon(imageVector = Icons.Default.Settings, text = "Settings")
         }
         CenterButton(modifier = Modifier.padding(bottom = 50.dp).align(Alignment.TopCenter), onSizeChange = { size ->

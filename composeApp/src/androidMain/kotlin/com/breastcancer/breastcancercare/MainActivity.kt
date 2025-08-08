@@ -15,12 +15,12 @@ import org.koin.android.ext.koin.androidContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             val darkTheme = isSystemInDarkTheme()
             MaterialTheme(
-                colorScheme = if(darkTheme) DarkAppColorScheme else LightAppColorScheme
+                colorScheme = if(darkTheme) DarkAppColorScheme else LightAppColorScheme,
             ) {
                 App()
             }

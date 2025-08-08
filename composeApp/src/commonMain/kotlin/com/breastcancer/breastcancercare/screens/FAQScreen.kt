@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -60,15 +61,16 @@ fun FAQScreen(
         verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items(items = faqs ?: emptyList()) {
+        itemsIndexed(items = faqs ?: emptyList()) { key, item ->
+            val color = if (key % 2 == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
             Card(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = DefaultHorizontalPadding),
-                shape = MaterialTheme.shapes.medium,
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(containerColor = color),
             ) {
-                Column {
-                    Text(it.question)
-                    Text(it.answer)
+                Column(modifier = Modifier.padding(horizontal = DefaultHorizontalPadding, vertical = DefaultVerticalPadding)) {
+                    Text(item.question, color = MaterialTheme.colorScheme.onPrimary)
+                    Text(item.answer, color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         }

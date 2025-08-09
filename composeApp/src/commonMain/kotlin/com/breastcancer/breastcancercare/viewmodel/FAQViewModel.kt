@@ -27,9 +27,27 @@ class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             faqRepository.insertAll(
                 listOf(
-                    FAQDTO(1, "Question 1", "Answer 1"),
-                    FAQDTO(2, "Question 2", "Answer 2"),
-                    FAQDTO(3, "Question 3", "Answer 3"),
+                    FAQDTO(
+                        1,
+                        "What do I do if I find a lump?",
+                        "In young women, breasts can feel much lumpier around the time of the menstrual cycle. If a lump persists after one menstrual cycle, contact your doctor. In older women, who have gone through the menopause, contact your doctor as soon as possible.\n" +
+                                "\n" +
+                                "All breasts have areas of lumpiness that fluctuate with the menstrual cycle, however if lumps are irregular, unchanging or slowly enlarging or new you should contact your doctor."
+                    ),
+                    FAQDTO(2, "Are most breast lumps found to be cancerous?", "Nearly 80% of breast lumps are benign (not cancerous). Lumpy breasts are very common and they can change with different times of the menstrual cycle. Any lump that is new or unusual should be checked by a doctor."),
+                    FAQDTO(3, "When I’m checking my breasts, am I looking for lumps?", "A lump in the breast is only one change that may indicate breast cancer. All women regardless of age are encouraged to be breast aware. Click here to find out how.\n" +
+                            "\n" +
+                            "The changes you should look for include;\n" +
+                            "\n" +
+                            "A lump or lumpiness\n" +
+                            "An area that feels different to the rest of the breast\n" +
+                            "An area of thickening\n" +
+                            "Changes to the skin such as dimpling, puckering or redness\n" +
+                            "Nipple discharge or bleeding from the nipple\n" +
+                            "Nipple itchiness, scaly skin or ulcers around the nipple\n" +
+                            "New nipple inversion\n" +
+                            "New and persistent pain\n" +
+                            "If you notice any of the above changes please consult your GP or health professional as soon as possible."),
                 )
             )
         }

@@ -30,6 +30,7 @@ import com.breastcancer.breastcancercare.components.snackbar.rememberSnackBarSta
 import com.breastcancer.breastcancercare.screens.CalendarScreen
 import com.breastcancer.breastcancercare.screens.FAQScreen
 import com.breastcancer.breastcancercare.screens.HomeScreen
+import com.breastcancer.breastcancercare.screens.SettingsScreen
 import com.breastcancer.breastcancercare.screens.Tabs
 import com.breastcancer.breastcancercare.theme.DefaultElevation
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
@@ -66,6 +67,7 @@ fun App() {
                                     loaderState = loaderState,
                                     snackBarState = customSnackBarState
                                 )
+                                Tabs.Settings.text -> SettingsScreen()
                             }
                         }
                         BottomBar(

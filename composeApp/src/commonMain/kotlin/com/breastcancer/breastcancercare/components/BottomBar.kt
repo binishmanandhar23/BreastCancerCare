@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.material.icons.filled.Settings
@@ -38,18 +40,18 @@ fun BottomBar(outerModifier: Modifier = Modifier.fillMaxWidth(), innerModifier: 
             verticalAlignment = Alignment.CenterVertically
         ) {
             BottomBarIcon(imageVector = Icons.Default.Home, text = "Home", onClick = onHome)
-            BottomBarIcon(imageVector = Icons.Default.CalendarMonth, text = "Calendar", onClick = onCalendar)
+            BottomBarIcon(imageVector = Icons.Default.Event, text = "Events", onClick = onCalendar)
             Spacer(Modifier.size(buttonSize))
-            BottomBarIcon(imageVector = Icons.Default.QuestionAnswer, text = "FAQ", onClick = onFAQ)
+            BottomBarIcon(imageVector = Icons.Default.Info, text = "Info", onClick = onFAQ)
             BottomBarIcon(imageVector = Icons.Default.Settings, text = "Settings")
         }
-        CenterButton(modifier = Modifier.padding(bottom = 50.dp).align(Alignment.TopCenter), onSizeChange = { size ->
+        /*CenterButton(modifier = Modifier.padding(bottom = 50.dp).align(Alignment.TopCenter), onSizeChange = { size ->
             density.convertIntSizeToDpSize(size){
                 buttonSize = it
             }
         }, onClick = {
 
-        })
+        })*/
     }
 }
 

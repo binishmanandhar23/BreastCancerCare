@@ -75,7 +75,7 @@ private fun MainContents(
         modifier = modifier.fillMaxWidth(),
         targetState = visible,
         transitionSpec = {
-            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up) + fadeIn() with slideOutOfContainer(
+            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up) + fadeIn() togetherWith slideOutOfContainer(
                 AnimatedContentTransitionScope.SlideDirection.Down
             ) + fadeOut()
         },

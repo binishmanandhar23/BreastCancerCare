@@ -13,7 +13,7 @@ import com.breastcancer.breastcancercare.database.local.entity.ProgramEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
-@Database(entities = [FAQEntity::class, ProgramEntity::class, EventEntity::class], version = 3)
+@Database(entities = [FAQEntity::class, ProgramEntity::class, EventEntity::class], version = 4)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getFAQDAO(): FAQDAO
@@ -30,5 +30,6 @@ fun getAppDatabase(builder: RoomDatabase.Builder<AppDatabase>): AppDatabase =
     builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
+        .fallbackToDestructiveMigration(false)
         .build()
 

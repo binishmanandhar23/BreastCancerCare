@@ -5,7 +5,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,13 +27,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
@@ -50,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.TransformOrigin
@@ -66,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.database.local.types.EventType
+import com.breastcancer.breastcancercare.models.EventDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
@@ -103,6 +105,8 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
     val selectedTab by calendarViewModel.selectedTab.collectAsStateWithLifecycle()
     val selectedDate by calendarViewModel.selectedDate.collectAsStateWithLifecycle()
     val onDateClicked: (selectedDate: LocalDate) -> Unit = calendarViewModel::changeSelectedDate
+
+    val selectedDayEvents by calendarViewModel.selectedDayEvents.collectAsStateWithLifecycle()
 
     Box(modifier = Modifier.fillMaxSize()) {
         VerticalCalendar(
@@ -156,6 +160,7 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
         BottomInfoCard(
             modifier = Modifier.align(alignment = Alignment.BottomCenter),
             selectedTab = selectedTab,
+            selectedDayEvents = selectedDayEvents,
             onTabSelected = {
                 calendarViewModel.changeTab(it)
             }
@@ -244,8 +249,9 @@ private fun MonthHeader(calendarMonth: CalendarMonth) {
 fun BottomInfoCard(
     modifier: Modifier = Modifier,
     selectedTab: Int,
-    openHeightFraction: Float = 0.7f,     // sheet height
-    closedVisibleFraction: Float = 0.3f,  // visible part when closed
+    openHeightFraction: Float = 0.8f,     // sheet height
+    closedVisibleFraction: Float = 0.4f,  // visible part when closed
+    selectedDayEvents: List<EventDTO>,
     onTabSelected: (index: Int) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
@@ -344,6 +350,7 @@ fun BottomInfoCard(
                 EventSection(
                     modifier = Modifier.fillMaxWidth(),
                     selectedTab = selectedTab,
+                    selectedDayEvents = selectedDayEvents,
                     onTabSelected = onTabSelected
                 )
             }
@@ -355,10 +362,11 @@ fun BottomInfoCard(
 private fun EventSection(
     modifier: Modifier = Modifier,
     selectedTab: Int,
+    selectedDayEvents: List<EventDTO>,
     onTabSelected: (index: Int) -> Unit
 ) {
     Column {
-        TabRow(modifier = modifier, selectedTabIndex = selectedTab, tabs = {
+        TabRow(modifier = modifier, containerColor = MaterialTheme.colorScheme.background, selectedTabIndex = selectedTab, tabs = {
             Tab(selected = EventType.Event.ordinal == selectedTab, onClick = {
                 onTabSelected(
                     EventType.Event.ordinal
@@ -374,5 +382,34 @@ private fun EventSection(
                 Text(modifier = Modifier.padding(10.dp), text = " Programs")
             }
         })
+        AnimatedContent(selectedDayEvents.isEmpty(), label = "Events") { empty ->
+            if (empty)
+                EmptyContainer(modifier = Modifier.fillMaxWidth(), eventType = EventType.Event)
+            else
+                selectedDayEvents.forEach {
+                    Text(it.name)
+                }
+        }
+    }
+}
+
+@Composable
+private fun EmptyContainer(modifier: Modifier, eventType: EventType) {
+    Box(modifier = modifier) {
+        Column(
+            modifier = Modifier.fillMaxWidth().alpha(0.5f)
+                .padding(
+                    horizontal = DefaultHorizontalPadding,
+                    vertical = DefaultVerticalPadding * 2
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding)
+        ) {
+            Icon(imageVector = Icons.Outlined.HourglassEmpty, contentDescription = "Empty Icon")
+            Text(
+                text = "Oops! \nIt seems that there are no ${if (eventType == EventType.Event) "events" else "programs"} on this day.",
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }

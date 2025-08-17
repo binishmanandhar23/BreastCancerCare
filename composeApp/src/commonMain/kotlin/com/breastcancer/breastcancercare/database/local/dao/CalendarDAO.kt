@@ -13,6 +13,9 @@ interface CalendarDAO {
     @Query("SELECT * FROM evententity")
     fun getAllEvents(): Flow<List<EventEntity>>
 
+    @Query("SELECT * FROM evententity WHERE date = :date")
+    fun getEventsFromSelectedDate(date: String): Flow<List<EventEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllEvents(events: List<EventEntity>)
 

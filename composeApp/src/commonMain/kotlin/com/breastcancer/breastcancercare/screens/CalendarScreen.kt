@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
@@ -62,10 +65,12 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.EventProgramDesign
 import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.models.EventDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
@@ -106,7 +111,7 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
     val selectedDate by calendarViewModel.selectedDate.collectAsStateWithLifecycle()
     val onDateClicked: (selectedDate: LocalDate) -> Unit = calendarViewModel::changeSelectedDate
 
-    val selectedDayEvents by calendarViewModel.selectedDayEvents.collectAsStateWithLifecycle()
+    val selectedDayEvents by calendarViewModel.allEvents.collectAsStateWithLifecycle()
 
     Box(modifier = Modifier.fillMaxSize()) {
         VerticalCalendar(
@@ -351,6 +356,7 @@ fun BottomInfoCard(
                     modifier = Modifier.fillMaxWidth(),
                     selectedTab = selectedTab,
                     selectedDayEvents = selectedDayEvents,
+                    bottomSpacer = with(LocalDensity.current) { offsetAnim.value.toDp() },
                     onTabSelected = onTabSelected
                 )
             }
@@ -363,10 +369,11 @@ private fun EventSection(
     modifier: Modifier = Modifier,
     selectedTab: Int,
     selectedDayEvents: List<EventDTO>,
+    bottomSpacer: Dp,
     onTabSelected: (index: Int) -> Unit
 ) {
-    Column {
-        TabRow(modifier = modifier, containerColor = MaterialTheme.colorScheme.background, selectedTabIndex = selectedTab, tabs = {
+    Column(modifier = modifier) {
+        TabRow(modifier = Modifier.fillMaxWidth().padding(bottom = DefaultVerticalPadding), containerColor = MaterialTheme.colorScheme.background, selectedTabIndex = selectedTab, tabs = {
             Tab(selected = EventType.Event.ordinal == selectedTab, onClick = {
                 onTabSelected(
                     EventType.Event.ordinal
@@ -382,12 +389,19 @@ private fun EventSection(
                 Text(modifier = Modifier.padding(10.dp), text = " Programs")
             }
         })
-        AnimatedContent(selectedDayEvents.isEmpty(), label = "Events") { empty ->
-            if (empty)
+        AnimatedContent(selectedDayEvents, label = "Events") { events ->
+            if (events.isEmpty())
                 EmptyContainer(modifier = Modifier.fillMaxWidth(), eventType = EventType.Event)
             else
-                selectedDayEvents.forEach {
-                    Text(it.name)
+                LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding)) {
+                    items(events) { events ->
+                        EventProgramDesign(modifier = Modifier.fillMaxWidth(), programEventDTO = events, onClick = {
+
+                        })
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(bottomSpacer + 100.dp))
+                    }
                 }
         }
     }

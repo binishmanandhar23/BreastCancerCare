@@ -3,21 +3,22 @@ package com.breastcancer.breastcancercare.models
 import androidx.room.PrimaryKey
 import com.breastcancer.breastcancercare.database.local.entity.EventEntity
 import com.breastcancer.breastcancercare.database.local.types.EventType
+import com.breastcancer.breastcancercare.models.interfaces.ProgramEventDTO
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
 data class EventDTO(
-    val id: Long,
-    val name: String,
-    val description: String,
-    val date: LocalDate,
-    val startTime: LocalTime? = null,
-    val endTime: LocalTime? = null,
-    val location: String? = null,
-    val isFeatured: Boolean = false,
-    val eventType: EventType = EventType.Event,
-    val isOnline: Boolean = (location == null)
-)
+    override val id: Long,
+    override val name: String,
+    override val description: String,
+    override val date: LocalDate,
+    override val startTime: LocalTime? = null,
+    override val endTime: LocalTime? = null,
+    override val location: String? = null,
+    override val eventType: EventType = EventType.Event,
+    override val isOnline: Boolean = (location == null),
+    val isFeatured: Boolean = false
+): ProgramEventDTO
 
 
 fun EventEntity.toEventDTO() = EventDTO(

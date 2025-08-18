@@ -22,6 +22,9 @@ interface CalendarDAO {
     @Query("SELECT * FROM programentity")
     fun getAllPrograms(): Flow<List<ProgramEntity>>
 
+    @Query("SELECT * FROM programentity WHERE date = :date")
+    fun getProgramsFromSelectedDate(date: String): Flow<List<ProgramEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllPrograms(events: List<ProgramEntity>)
 }

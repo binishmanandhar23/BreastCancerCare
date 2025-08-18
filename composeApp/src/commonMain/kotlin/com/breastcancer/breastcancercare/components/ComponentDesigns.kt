@@ -8,10 +8,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +31,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.models.EventDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramEventDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
@@ -80,7 +88,7 @@ fun EventProgramDesign(modifier: Modifier, programEventDTO: ProgramEventDTO, onC
                     modifier = Modifier.height(with(LocalDensity.current) { finalHeight.toDp() })
                         .width(4.dp)
                         .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = if(programEventDTO.isFeatured) 1f else 0f),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = if (programEventDTO.isFeatured) 1f else 0f),
                             shape = MaterialTheme.shapes.medium
                         )
                 )
@@ -89,6 +97,8 @@ fun EventProgramDesign(modifier: Modifier, programEventDTO: ProgramEventDTO, onC
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                if (programEventDTO is EventDTO && programEventDTO.isFeatured)
+                    FeaturedLabel()
                 Row {
                     Text(
                         text = programEventDTO.date.format(LocalDate.Format {
@@ -143,5 +153,48 @@ fun EventProgramDesign(modifier: Modifier, programEventDTO: ProgramEventDTO, onC
                 )
             }
         }
+    }
+}
+
+@Composable
+fun EventProgramTabRow(modifier: Modifier = Modifier, eventType: EventType) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Box(
+            modifier = Modifier.size(10.dp).background(
+                color = if (eventType == EventType.Program) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                shape = CircleShape
+            )
+        )
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = if (eventType == EventType.Program) "Programs" else "Events"
+        )
+    }
+}
+
+@Composable
+fun FeaturedLabel(modifier: Modifier = Modifier) = Card(
+    modifier = modifier,
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+    shape = MaterialTheme.shapes.extraLarge
+) {
+    Row(
+        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Icon(
+            modifier = Modifier.size(12.dp),
+            imageVector = Icons.Default.Bookmark,
+            contentDescription = "Featured"
+        )
+        Text(
+            "Featured",
+            style = LocalTextStyle.current.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        )
     }
 }

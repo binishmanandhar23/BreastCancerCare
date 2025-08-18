@@ -22,6 +22,7 @@ fun LazyColumnWithStickyFooter(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     stickyFooter: @Composable (BoxScope.() -> Unit)? = null,
     bottomSpacer: Dp = 100.dp,
+    forceSpacer: Boolean = false,
     content: LazyListScope.() -> Unit
 ) {
     Box(modifier = modifier) {
@@ -32,7 +33,7 @@ fun LazyColumnWithStickyFooter(
             verticalArrangement = verticalArrangement,
             content = {
                 content(this)
-                if (stickyFooter != null)
+                if (stickyFooter != null || forceSpacer)
                     item {
                         Spacer(modifier = Modifier.size(bottomSpacer))
                     }

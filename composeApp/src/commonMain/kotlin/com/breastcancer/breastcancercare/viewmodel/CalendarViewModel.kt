@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.breastcancer.breastcancercare.database.local.entity.EventEntity
 import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.models.EventDTO
-import com.breastcancer.breastcancercare.models.toEventDTO
+import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.repo.CalendarRepository
 import com.kizitonwose.calendar.core.now
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +13,8 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -30,37 +31,55 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
     private var _allEvents = MutableStateFlow<List<EventDTO>>(emptyList())
     val allEvents = _allEvents.asStateFlow()
 
+    private var _allPrograms = MutableStateFlow<List<ProgramDTO>>(emptyList())
+    val allPrograms = _allPrograms.asStateFlow()
+
     private var _selectedDayEvents = MutableStateFlow<List<EventDTO>>(emptyList())
     val selectedDayEvents = _selectedDayEvents.asStateFlow()
+
+    private var _selectedDayPrograms = MutableStateFlow<List<ProgramDTO>>(emptyList())
+    val selectedDayPrograms = _selectedDayPrograms.asStateFlow()
+
+    private var _allDatesWithEvents = MutableStateFlow<List<String>>(emptyList())
+    val allDatesWithEvents = _allDatesWithEvents.asStateFlow()
+
+    private var _allDatesWithPrograms= MutableStateFlow<List<String>>(emptyList())
+    val allDatesWithPrograms = _allDatesWithPrograms.asStateFlow()
 
     init {
         populateData()
         getAllEventsAndPrograms()
         getAllEventsOnSelectedDate()
+        findAllDatesWithEventsAndPrograms()
     }
 
     fun changeTab(index: Int) {
-        _selectedTab.value = index
+        _selectedTab.update { index }
     }
 
 
     fun changeSelectedDate(date: LocalDate) {
-        _selectedDate.value = date
+        _selectedDate.update { date }
     }
 
-    fun getAllEventsAndPrograms() =
-        viewModelScope.launch(Dispatchers.IO) {
-            calendarRepository.calendarDAO.getAllEvents().collect { events ->
-                _allEvents.value = events.map { event -> event.toEventDTO() }
-            }
+    fun getAllEventsAndPrograms() = viewModelScope.launch(Dispatchers.IO) {
+        calendarRepository.getAllEvents().collect { events ->
+            _allEvents.update { events }
         }
+        calendarRepository.getAllPrograms().collect { programs ->
+            _allPrograms.update {  programs }
+        }
+    }
 
     private fun getAllEventsOnSelectedDate() = viewModelScope.launch(Dispatchers.IO) {
         selectedDate.collectLatest { date ->
-            calendarRepository.calendarDAO.getEventsFromSelectedDate(date.toString())
+            calendarRepository.getEventsFromSelectedDate(date = date)
                 .collect { events ->
-                    _selectedDayEvents.value = events.map { event -> event.toEventDTO() }
+                    _selectedDayEvents.update { events }
                 }
+            calendarRepository.getProgramsFromSelectedDate(date = date).collect { programs ->
+                _selectedDayPrograms.update { programs }
+            }
         }
     }
 
@@ -264,6 +283,18 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
                 )
 
             )
+        }
+    }
+
+    private fun findAllDatesWithEventsAndPrograms() = viewModelScope.launch(Dispatchers.IO) {
+        allEvents.collect { events ->
+            _allDatesWithEvents.update { events.map { it.date.toString() }.distinct() }
+        }
+    }.also {
+        viewModelScope.launch(Dispatchers.IO){
+            allPrograms.collect { programs ->
+                _allDatesWithPrograms.update { programs.map { it.date.toString() }.distinct() }
+            }
         }
     }
 }

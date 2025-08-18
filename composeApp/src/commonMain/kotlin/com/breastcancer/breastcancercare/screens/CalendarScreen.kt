@@ -231,16 +231,28 @@ fun Day(
                     LocalTextStyle.current.copy(fontWeight = if (day.date == currentDate || selected) FontWeight.Bold else FontWeight.Normal)
             )
 
-            Box(
-                modifier = Modifier.offset(y = 10.dp).size(7.dp).background(
-                    color = when {
-                        hasEvents -> MaterialTheme.colorScheme.primary
-                        hasPrograms -> MaterialTheme.colorScheme.tertiary
-                        else -> MaterialTheme.colorScheme.background.copy(alpha = 0f)
-                    },
-                    shape = CircleShape
-                ).align(Alignment.BottomCenter)
-            )
+            Row(
+                modifier = Modifier.offset(y = 10.dp).align(Alignment.BottomCenter),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                when {
+                    hasEvents -> Box(
+                        modifier = Modifier.size(7.dp).background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape
+                        )
+                    )
+
+                    hasPrograms ->
+                        Box(
+                            modifier = Modifier.size(7.dp).background(
+                                color = MaterialTheme.colorScheme.tertiary,
+                                shape = CircleShape
+                            )
+                        )
+                }
+            }
         }
     }
     Box(

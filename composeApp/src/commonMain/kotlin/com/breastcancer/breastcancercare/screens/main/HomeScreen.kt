@@ -1,4 +1,4 @@
-package com.breastcancer.breastcancercare.screens
+package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -19,10 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import breastcancercare.composeapp.generated.resources.Res
-import breastcancercare.composeapp.generated.resources.compose_multiplatform
 import com.breastcancer.breastcancercare.Greeting
+import com.breastcancer.breastcancercare.Res
 import com.breastcancer.breastcancercare.components.DefaultSpacerSize
+import com.breastcancer.breastcancercare.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 
 @Composable

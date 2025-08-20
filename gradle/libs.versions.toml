@@ -5,7 +5,7 @@ android-minSdk = "24"
 android-targetSdk = "35"
 androidx-activity = "1.10.1"
 androidx-appcompat = "1.7.1"
-androidx-core = "1.16.0"
+androidx-core = "1.17.0"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.9.1"
 androidx-testExt = "1.2.1"
@@ -13,17 +13,20 @@ composeMultiplatform = "1.8.2"
 #Firebase android
 firebase-android-bom = "33.10.0" #Need to use 33.10.0 because of the gitlive library
 junit = "4.13.2"
-kotlin = "2.2.0"
+kotlin = "2.2.10"
 kotlinxCoroutinesCore = "1.10.2"
 materialIconsExtended = "1.7.3"
-koin = "4.1.0"
+koin = "4.1.0-RC1"
 koinAnnotations = "2.1.0"
-ksp = "2.2.0-2.0.2"
+ksp = "2.2.10-2.0.2"
 calendar = "2.8.0"
 
 #Room
 sqlite = "2.5.0"
 androidx-room = "2.7.2"
+
+#Precompose
+precompose = "1.7.0-alpha03"
 
 
 [libraries]
@@ -43,6 +46,7 @@ androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecyc
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 
 #Calendar
 calendar = {module = "com.kizitonwose.calendar:compose-multiplatform", version.ref = "calendar"}

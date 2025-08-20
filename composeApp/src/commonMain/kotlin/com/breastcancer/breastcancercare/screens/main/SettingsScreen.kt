@@ -1,4 +1,4 @@
-package com.breastcancer.breastcancercare.screens
+package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.runtime.Composable
 

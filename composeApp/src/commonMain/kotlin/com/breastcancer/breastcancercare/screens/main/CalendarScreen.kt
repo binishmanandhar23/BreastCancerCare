@@ -1,4 +1,4 @@
-package com.breastcancer.breastcancercare.screens
+package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable

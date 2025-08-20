@@ -3,7 +3,6 @@ package com.breastcancer.breastcancercare
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,80 +26,65 @@ import com.breastcancer.breastcancercare.components.loader.CustomLoader
 import com.breastcancer.breastcancercare.components.loader.rememberLoaderState
 import com.breastcancer.breastcancercare.components.snackbar.CustomSnackBar
 import com.breastcancer.breastcancercare.components.snackbar.rememberSnackBarState
-import com.breastcancer.breastcancercare.screens.CalendarScreen
-import com.breastcancer.breastcancercare.screens.FAQScreen
-import com.breastcancer.breastcancercare.screens.HomeScreen
-import com.breastcancer.breastcancercare.screens.SettingsScreen
+import com.breastcancer.breastcancercare.screens.main.CalendarScreen
+import com.breastcancer.breastcancercare.screens.main.FAQScreen
+import com.breastcancer.breastcancercare.screens.main.HomeScreen
+import com.breastcancer.breastcancercare.screens.Screens
+import com.breastcancer.breastcancercare.screens.main.SettingsScreen
 import com.breastcancer.breastcancercare.screens.Tabs
+import com.breastcancer.breastcancercare.screens.main.MainScreen
+import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.theme.DefaultElevation
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
 import kotlinx.coroutines.launch
+import moe.tlaster.precompose.PreComposeApp
+import moe.tlaster.precompose.navigation.NavHost
+import moe.tlaster.precompose.navigation.rememberNavigator
 
 @Composable
 fun App() {
-    val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(pageCount = { Tabs.entries.size })
-    val selectedTabIndex by remember(pagerState.currentPage) { derivedStateOf { pagerState.currentPage } }
+
+    val loaderState = rememberLoaderState()
+    val customSnackBarState = rememberSnackBarState()
 
     Scaffold { innerPadding ->
-        Surface(modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())) {
-            val loaderState = rememberLoaderState()
-            val customSnackBarState = rememberSnackBarState()
-            CustomLoader(loaderState = loaderState) {
-                CustomSnackBar(
-                    text = "",
-                    snackBarState = customSnackBarState,
-                    useBox = true
-                ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        HorizontalPager(
-                            modifier = Modifier.fillMaxSize(),
-                            state = pagerState,
-                            beyondViewportPageCount = 1
+        Surface(
+            modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())
+        ) {
+            PreComposeApp {
+                val navigator = rememberNavigator()
+                MaterialTheme {
+                    CustomLoader(loaderState = loaderState) {
+                        CustomSnackBar(
+                            text = "",
+                            snackBarState = customSnackBarState,
+                            useBox = true
                         ) {
-                            when (Tabs.entries[selectedTabIndex].text) {
-                                Tabs.Home.text -> HomeScreen()
-                                Tabs.Calendar.text -> CalendarScreen()
-                                Tabs.FAQ.text -> FAQScreen(
-                                    loaderState = loaderState,
-                                    snackBarState = customSnackBarState
-                                )
-                                Tabs.Settings.text -> SettingsScreen()
+                            NavHost(
+                                navigator = navigator,
+                                initialRoute = Screens.Onboarding.screen
+                            ) {
+                                scene(route = Screens.Onboarding.screen) {
+                                    OnboardingScreen(
+                                        loaderState = loaderState,
+                                        customSnackBarState = customSnackBarState,
+                                        onLogin = {
+                                            navigator.navigate(Screens.Main.screen)
+                                        },
+                                        onRegister = {
+                                        }
+                                    )
+                                }
+                                scene(route = Screens.Main.screen) {
+                                    MainScreen(
+                                        loaderState = loaderState,
+                                        customSnackBarState = customSnackBarState
+                                    )
+                                }
                             }
                         }
-                        BottomBar(
-                            outerModifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter)
-                                .padding(horizontal = 15.dp, vertical = 15.dp),
-                            innerModifier = Modifier.fillMaxWidth()
-                                .shadow(
-                                    elevation = DefaultElevation,
-                                    shape = RoundedCornerShape(RoundedCornerSize)
-                                )
-                                .background(color = MaterialTheme.colorScheme.background)
-                                .padding(
-                                    PaddingValues(
-                                        horizontal = DefaultHorizontalPadding,
-                                        vertical = DefaultVerticalPadding
-                                    )
-                                ),
-                            onHome = {
-                                scope.launch {
-                                    pagerState.animateScrollToPage(Tabs.Home.ordinal)
-                                }
-                            },
-                            onCalendar = {
-                                scope.launch {
-                                    pagerState.animateScrollToPage(Tabs.Calendar.ordinal)
-                                }
-                            },
-                            onFAQ = {
-                                scope.launch {
-                                    pagerState.animateScrollToPage(Tabs.FAQ.ordinal)
-                                }
-                            }
-                        )
                     }
                 }
             }

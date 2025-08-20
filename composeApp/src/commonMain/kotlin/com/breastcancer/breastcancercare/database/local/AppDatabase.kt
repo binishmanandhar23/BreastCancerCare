@@ -7,18 +7,22 @@ import androidx.room.RoomDatabaseConstructor
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.breastcancer.breastcancercare.database.local.dao.CalendarDAO
 import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
+import com.breastcancer.breastcancercare.database.local.dao.OnboardingDAO
 import com.breastcancer.breastcancercare.database.local.entity.EventEntity
 import com.breastcancer.breastcancercare.database.local.entity.FAQEntity
 import com.breastcancer.breastcancercare.database.local.entity.ProgramEntity
+import com.breastcancer.breastcancercare.database.local.entity.UserEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
-@Database(entities = [FAQEntity::class, ProgramEntity::class, EventEntity::class], version = 4)
+@Database(entities = [FAQEntity::class, ProgramEntity::class, EventEntity::class, UserEntity::class], version = 5)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getFAQDAO(): FAQDAO
 
     abstract fun getCalendarDAO(): CalendarDAO
+
+    abstract fun getOnboardingDAO(): OnboardingDAO
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

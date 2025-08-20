@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
@@ -21,7 +20,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -32,7 +31,7 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
@@ -47,6 +46,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(compose.animation)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
@@ -72,6 +72,9 @@ kotlin {
             /*Room*/
             implementation(libs.androidx.room.runtime)
             implementation(libs.sqlite.bundled)
+
+            /*PreCompose*/
+            implementation(libs.precompose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -124,13 +127,20 @@ dependencies {
 // Enables compile-time validation for Koin configuration.
 // Without this, issues are only caught at runtime.
 ksp {
-    arg("KOIN_CONFIG_CHECK","true")
+    arg("KOIN_CONFIG_CHECK", "true")
+}
+
+compose.resources{
+    publicResClass = false
+    packageOfResClass = "com.breastcancer.breastcancercare"
+    generateResClass = auto
 }
 
 // Ensures the KSP metadata for commonMain is generated before running native compilations.
 // Prevents missing dependency issues by forcing proper task ordering.
 project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
-    if(name != "kspCommonMainKotlinMetadata") {
+    if (name != "kspCommonMainKotlinMetadata") {
         dependsOn("kspCommonMainKotlinMetadata")
     }
 }
+

@@ -30,7 +30,7 @@ import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
 import kotlinx.coroutines.launch
 
-private enum class SubScreen { Tabs, Profile }
+private enum class SubScreen { Tabs, Profile, About }
 @Composable
 fun MainScreen(loaderState: LoaderState, customSnackBarState: SnackBarState) {
     var subScreen by rememberSaveable { mutableStateOf(SubScreen.Tabs) }
@@ -49,7 +49,11 @@ fun MainScreen(loaderState: LoaderState, customSnackBarState: SnackBarState) {
                         Tabs.Home.text -> HomeScreen()
                         Tabs.Calendar.text -> CalendarScreen()
                         Tabs.FAQ.text -> FAQScreen(loaderState = loaderState, snackBarState = customSnackBarState)
-                        Tabs.Settings.text -> SettingsScreen(onOpenProfile = { subScreen = SubScreen.Profile })
+                        Tabs.Settings.text -> SettingsScreen(
+                            onOpenProfile = { subScreen = SubScreen.Profile },
+                            onOpenAbout = { subScreen = SubScreen.About },
+                            onContactSupport = { /* TODO: wire later */ }
+                        )
                     }
                 }
 
@@ -88,6 +92,9 @@ fun MainScreen(loaderState: LoaderState, customSnackBarState: SnackBarState) {
 
             SubScreen.Profile -> {
                 ProfileScreen(onBack = { subScreen = SubScreen.Tabs })
+            }
+            SubScreen.About -> {
+                AboutScreen(onBack = { subScreen = SubScreen.Tabs })
             }
         }
     }

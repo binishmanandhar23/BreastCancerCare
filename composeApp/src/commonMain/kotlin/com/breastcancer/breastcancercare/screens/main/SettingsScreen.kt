@@ -3,13 +3,19 @@ package com.breastcancer.breastcancercare.screens.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,73 +29,75 @@ fun SettingsScreen(
     var showFeedbackDialog by rememberSaveable { mutableStateOf(false) }
     var feedbackMessage by rememberSaveable { mutableStateOf("") }
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Settings") }) }
-    ) { inner ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(inner)
-        ) {
-            Spacer(Modifier.height(8.dp))
-            SettingsSection(
-                title = "Account",
-                content = {
-                    NavRow(text = "Profile", onClick = onOpenProfile)
-                }
-            )
+    val listOfItems = listOf(
+        Pair<String, @Composable (ColumnScope.() -> Unit)>(
+            "Account",
+            {
+                NavRow(text = "Profile", onClick = onOpenProfile)
+            },
+        ),
+        Pair<String, @Composable (ColumnScope.() -> Unit)>(
+            "Notifications",
+            {
+                SwitchRow(
+                    text = "Notifications",
+                    checked = notificationsEnabled,
+                    onCheckedChange = { notificationsEnabled = it }
+                )
+            },
+        ),
+        Pair<String, @Composable (ColumnScope.() -> Unit)>(
+            "Feedback",
+            {
+                NavRow(text = "Feedback", onClick = { showFeedbackDialog = true })
+            },
+        ),
+        Pair<String, @Composable (ColumnScope.() -> Unit)>(
+            "Help",
+            {
+                NavRow(text = "About", onClick = onOpenAbout)
+                NavRow(text = "Contact support", onClick = onContactSupport)
+            },
+        )
+    )
 
-            SettingsSection(
-                title = "Notifications",
-                content = {
-                    SwitchRow(
-                        text = "Notifications",
-                        checked = notificationsEnabled,
-                        onCheckedChange = { notificationsEnabled = it }
-                    )
-                }
-            )
-
-            SettingsSection(
-                title = "Feedback",
-                content = {
-                    NavRow(text = "Feedback", onClick = { showFeedbackDialog = true })
-                }
-            )
-
-            SettingsSection(
-                title = "Help",
-                content = {
-                    NavRow(text = "About", onClick = onOpenAbout)
-                    NavRow(text = "Contact support", onClick = onContactSupport)
-                }
-            )
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = DefaultVerticalPadding, horizontal = DefaultHorizontalPadding),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        stickyHeader {
+            Text("Settings", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
         }
-
-        if (showFeedbackDialog) {
-            AlertDialog(
-                onDismissRequest = { showFeedbackDialog = false },
-                title = { Text("Send Feedback") },
-                text = {
-                    OutlinedTextField(
-                        value = feedbackMessage,
-                        onValueChange = { feedbackMessage = it },
-                        placeholder = { Text("Type your feedback...") },
-                        minLines = 4
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        // TODO: Wire up email/server send logic
-                        showFeedbackDialog = false
-                        feedbackMessage = ""
-                    }) { Text("Send") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showFeedbackDialog = false }) { Text("Cancel") }
-                }
-            )
+        items(listOfItems){ pair ->
+            SettingsSection(title = pair.first, content = pair.second)
         }
+    }
+
+    if (showFeedbackDialog) {
+        AlertDialog(
+            onDismissRequest = { showFeedbackDialog = false },
+            title = { Text("Send Feedback") },
+            text = {
+                OutlinedTextField(
+                    value = feedbackMessage,
+                    onValueChange = { feedbackMessage = it },
+                    placeholder = { Text("Type your feedback...") },
+                    minLines = 4
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    // TODO: Wire up email/server send logic
+                    showFeedbackDialog = false
+                    feedbackMessage = ""
+                }) { Text("Send") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showFeedbackDialog = false }) { Text("Cancel") }
+            }
+        )
     }
 }
 

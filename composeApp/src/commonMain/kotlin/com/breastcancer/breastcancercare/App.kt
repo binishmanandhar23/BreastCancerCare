@@ -30,14 +30,19 @@ import com.breastcancer.breastcancercare.screens.main.CalendarScreen
 import com.breastcancer.breastcancercare.screens.main.FAQScreen
 import com.breastcancer.breastcancercare.screens.main.HomeScreen
 import com.breastcancer.breastcancercare.screens.Screens
+import com.breastcancer.breastcancercare.screens.SubScreens
 import com.breastcancer.breastcancercare.screens.main.SettingsScreen
 import com.breastcancer.breastcancercare.screens.Tabs
+import com.breastcancer.breastcancercare.screens.main.AboutScreen
+import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.MainScreen
+import com.breastcancer.breastcancercare.screens.main.ProfileScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.theme.DefaultElevation
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
+import com.breastcancer.breastcancercare.utils.getNavigationRoute
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
@@ -45,7 +50,6 @@ import moe.tlaster.precompose.navigation.rememberNavigator
 
 @Composable
 fun App() {
-
     val loaderState = rememberLoaderState()
     val customSnackBarState = rememberSnackBarState()
 
@@ -66,7 +70,7 @@ fun App() {
                                 navigator = navigator,
                                 initialRoute = Screens.Onboarding.screen
                             ) {
-                                scene(route = Screens.Onboarding.screen) {
+                                scene(route = getNavigationRoute(mainScreen = Screens.Onboarding)) {
                                     OnboardingScreen(
                                         loaderState = loaderState,
                                         customSnackBarState = customSnackBarState,
@@ -77,11 +81,29 @@ fun App() {
                                         }
                                     )
                                 }
-                                scene(route = Screens.Main.screen) {
+                                scene(route = getNavigationRoute(Screens.Main)) {
                                     MainScreen(
                                         loaderState = loaderState,
-                                        customSnackBarState = customSnackBarState
+                                        customSnackBarState = customSnackBarState,
+                                        onSubScreenChange = {
+                                            navigator.navigate(getNavigationRoute(mainScreen = Screens.Main, subScreen = it))
+                                        }
                                     )
+                                }
+                                scene(route = getNavigationRoute(mainScreen = Screens.Main, subScreen = SubScreens.Contact)) {
+                                    ContactSupportScreen {
+                                        navigator.goBack()
+                                    }
+                                }
+                                scene(route = getNavigationRoute(mainScreen = Screens.Main, subScreen = SubScreens.Profile)) {
+                                    ProfileScreen {
+                                        navigator.goBack()
+                                    }
+                                }
+                                scene(route = getNavigationRoute(mainScreen = Screens.Main, subScreen = SubScreens.About)) {
+                                    AboutScreen {
+                                        navigator.goBack()
+                                    }
                                 }
                             }
                         }

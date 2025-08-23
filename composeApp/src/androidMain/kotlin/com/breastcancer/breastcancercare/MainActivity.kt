@@ -4,19 +4,22 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.breastcancer.breastcancercare.di.initKoin
+import androidx.lifecycle.ViewModelProvider
 import com.breastcancer.breastcancercare.theme.DarkAppColorScheme
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
-import org.koin.android.ext.koin.androidContext
+import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
+import dev.icerock.moko.permissions.PermissionsController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
         setContent {
             val darkTheme = isSystemInDarkTheme()
             MaterialTheme(

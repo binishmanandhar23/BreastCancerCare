@@ -21,6 +21,12 @@ koinAnnotations = "2.1.0"
 ksp = "2.2.10-2.0.2"
 calendar = "2.8.0"
 
+#Moko Permissions
+permissions = "0.20.0"
+permissionsCompose = "0.20.0"
+permissionsNotifications = "0.20.0"
+permissionsTest = "0.20.0"
+
 #Room
 sqlite = "2.5.0"
 androidx-room = "2.7.2"
@@ -46,6 +52,10 @@ androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecyc
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+permissions = { module = "dev.icerock.moko:permissions", version.ref = "permissions" }
+permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "permissionsCompose" }
+permissions-notifications = { module = "dev.icerock.moko:permissions-notifications", version.ref = "permissionsNotifications" }
+permissions-test = { module = "dev.icerock.moko:permissions-test", version.ref = "permissionsTest" }
 precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 
 #Calendar

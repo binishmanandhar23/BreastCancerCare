@@ -11,4 +11,5 @@ actual fun platformModule(): Module = module {
         val builder = getDatabaseBuilder()
         getAppDatabase(builder)
     }
+
 }

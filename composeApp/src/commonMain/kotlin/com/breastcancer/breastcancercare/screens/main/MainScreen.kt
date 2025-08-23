@@ -82,6 +82,11 @@ fun MainScreen(loaderState: LoaderState, customSnackBarState: SnackBarState){
                 scope.launch {
                     pagerState.animateScrollToPage(Tabs.FAQ.ordinal)
                 }
+            },
+            onSettings = {
+                scope.launch {
+                    pagerState.animateScrollToPage(Tabs.Settings.ordinal)
+                }
             }
         )
     }

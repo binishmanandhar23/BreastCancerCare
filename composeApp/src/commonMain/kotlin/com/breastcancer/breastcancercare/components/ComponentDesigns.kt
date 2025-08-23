@@ -1,10 +1,18 @@
 package com.breastcancer.breastcancercare.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,14 +20,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,11 +44,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.models.EventDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramEventDTO
@@ -46,6 +73,8 @@ import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.format.char
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 
 
 @OptIn(FormatStringsInDatetimeFormats::class)
@@ -197,4 +226,312 @@ fun FeaturedLabel(modifier: Modifier = Modifier) = Card(
             style = LocalTextStyle.current.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold)
         )
     }
+}
+
+@Composable
+fun CoreCustomTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    colors: TextFieldColors = TextFieldDefaults.colors(
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+    ),
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
+        color = MaterialTheme.colorScheme.onBackground,
+        fontWeight = FontWeight.W500
+    ),
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+) {
+    TextField(
+        modifier = modifier,
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = singleLine,
+        maxLines = maxLines,
+        label = label,
+        colors = colors,
+        enabled = enabled,
+        readOnly = readOnly,
+        textStyle = textStyle,
+        placeholder = placeholder,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        isError = isError,
+        visualTransformation = visualTransformation,
+        keyboardActions = keyboardActions,
+        keyboardOptions = keyboardOptions
+    )
+}
+
+@Composable
+fun CoreTextFieldWithBorders(
+    modifier: Modifier = Modifier,
+    errorText: String? = null,
+    errorIcon: ImageVector? = null,
+    errorTextColor: Color = MaterialTheme.colorScheme.error,
+    errorIconColor: Color = Color.Red,
+    content: @Composable BoxScope.() -> Unit
+) {
+    TextFieldOuterBox(
+        modifier = modifier,
+        errorText = errorText,
+        errorIcon = errorIcon,
+        errorIconColor = errorIconColor,
+        errorTextColor = errorTextColor
+    ) {
+        content(this)
+    }
+}
+
+@Composable
+fun TextFieldOuterBox(
+    modifier: Modifier = Modifier,
+    errorText: String? = null,
+    errorIcon: ImageVector? = null,
+    errorTextColor: Color = MaterialTheme.colorScheme.error,
+    errorIconColor: Color = Color.Red,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Box(
+            modifier = Modifier.border(
+                width = 0.5.dp,
+                color = MaterialTheme.colorScheme.secondary,
+                shape = MaterialTheme.shapes.small
+            ),
+            content = content
+        )
+        ErrorRow(
+            errorText = errorText,
+            errorIcon = errorIcon,
+            errorTextColor = errorTextColor,
+            errorIconColor = errorIconColor
+        )
+    }
+
+}
+
+@Composable
+fun ErrorRow(
+    errorText: String?,
+    errorIcon: ImageVector?,
+    errorTextColor: Color = MaterialTheme.colorScheme.error,
+    errorIconColor: Color = Color.Red
+) {
+    AnimatedVisibility(visible = !errorText.isNullOrEmpty()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            if (errorIcon != null)
+                Icon(imageVector = errorIcon, contentDescription = errorText, tint = errorIconColor)
+            if (!errorText.isNullOrEmpty()) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 5.dp),
+                    text = errorText,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = errorTextColor,
+                        fontWeight = FontWeight.Light
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BreastCancerSingleLineTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    errorText: String? = null,
+    errorIcon: ImageVector? = null,
+    errorTextColor: Color = MaterialTheme.colorScheme.error,
+    errorIconColor: Color = Color.Red,
+    onValueChange: (String) -> Unit,
+    label: String,
+    labelIcon: ImageVector? = null,
+    enabled: Boolean = true,
+    labelIconRes: DrawableResource? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+) {
+    CoreTextFieldWithBorders(
+        modifier = modifier,
+        errorText = errorText,
+        errorIcon = errorIcon,
+        errorTextColor = errorTextColor,
+        errorIconColor = errorIconColor
+    ) {
+        CoreCustomTextField(
+            modifier = modifier,
+            value = value,
+            onValueChange = onValueChange,
+            enabled = enabled,
+            label = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (labelIcon != null)
+                        Icon(imageVector = labelIcon, contentDescription = label)
+                    if (labelIconRes != null)
+                        Icon(
+                            painter = painterResource(labelIconRes),
+                            contentDescription = label
+                        )
+                    Text(text = label)
+                }
+            },
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            singleLine = true,
+            maxLines = 1,
+            visualTransformation = visualTransformation,
+            trailingIcon = trailingIcon,
+            leadingIcon = leadingIcon
+        )
+    }
+}
+
+@Composable
+fun BreastCancerMultiLineTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    errorText: String? = null,
+    errorIcon: ImageVector? = null,
+    errorTextColor: Color = MaterialTheme.colorScheme.error,
+    errorIconColor: Color = Color.Red,
+    onValueChange: (String) -> Unit,
+    label: String,
+    labelIcon: ImageVector? = null,
+    enabled: Boolean = true,
+    labelIconRes: DrawableResource? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    maxLines: Int = 3,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+) {
+    CoreTextFieldWithBorders(
+        modifier = modifier,
+        errorText = errorText,
+        errorIcon = errorIcon,
+        errorTextColor = errorTextColor,
+        errorIconColor = errorIconColor
+    ) {
+        CoreCustomTextField(
+            modifier = modifier,
+            value = value,
+            onValueChange = onValueChange,
+            enabled = enabled,
+            label = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (labelIcon != null)
+                        Icon(imageVector = labelIcon, contentDescription = label)
+                    if (labelIconRes != null)
+                        Icon(
+                            painter = painterResource(labelIconRes),
+                            contentDescription = label
+                        )
+                    Text(text = label)
+                }
+            },
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            maxLines = maxLines,
+            visualTransformation = visualTransformation,
+            trailingIcon = trailingIcon,
+            leadingIcon = leadingIcon
+        )
+    }
+}
+
+@Composable
+fun BreastCancerButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    allCaps: Boolean = false,
+    shape: CornerBasedShape = MaterialTheme.shapes.medium,
+    fontSize: TextUnit = MaterialTheme.typography.bodySmall.fontSize,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 22.dp, vertical = 12.dp),
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    leadingIcon: ImageVector? = null,
+    hideText: Boolean = false,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = modifier.animateContentSize(),
+        onClick = onClick,
+        contentPadding = contentPadding,
+        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
+        shape = shape
+    ) {
+        leadingIcon?.let {
+            Icon(imageVector = leadingIcon, contentDescription = text)
+            if (!hideText)
+                Spacer(modifier = Modifier.size(10.dp))
+        }
+        AnimatedVisibility(!hideText) {
+            Text(
+                text = text.let {
+                    if (allCaps)
+                        it.uppercase()
+                    else
+                        it
+                },
+                style = MaterialTheme.typography.bodySmall.copy(color = textColor, fontSize = fontSize)
+            )
+        }
+    }
+}
+
+
+@Composable
+fun AutoSizeText(
+    modifier: Modifier = Modifier,
+    text: String,
+    style: TextStyle = MaterialTheme.typography.bodyLarge
+) {
+    var resizableTextSize by remember(style) {
+        mutableStateOf(style)
+    }
+    val defaultFontSize = remember {
+        16.sp
+    }
+    var shouldDraw by remember {
+        mutableStateOf(false)
+    }
+
+    Text(modifier = modifier.drawWithContent {
+        if (shouldDraw)
+            drawContent()
+    }, text = text, style = resizableTextSize, onTextLayout = {
+        if (it.didOverflowWidth) {
+            resizableTextSize =
+                resizableTextSize.copy(fontSize = (if (resizableTextSize.fontSize.isUnspecified) defaultFontSize else resizableTextSize.fontSize) * 0.95f)
+        } else
+            shouldDraw = true
+    }, softWrap = false)
 }

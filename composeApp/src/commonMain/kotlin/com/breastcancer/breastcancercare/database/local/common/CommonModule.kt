@@ -7,6 +7,7 @@ import com.breastcancer.breastcancercare.repo.OnboardingRepository
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
+import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -15,7 +16,9 @@ fun commonModule(): Module = module {
     single<FAQRepository> { FAQRepository(get<AppDatabase>().getFAQDAO()) }
     single<CalendarRepository> { CalendarRepository(get<AppDatabase>().getCalendarDAO()) }
     single<OnboardingRepository> { OnboardingRepository(get<AppDatabase>().getOnboardingDAO()) }
+
     singleOf(::FAQViewModel)
     singleOf(::CalendarViewModel)
     singleOf(::OnboardingViewModel)
+    singleOf(::PermissionViewModel)
 }

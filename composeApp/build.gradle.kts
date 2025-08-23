@@ -75,9 +75,17 @@ kotlin {
 
             /*PreCompose*/
             implementation(libs.precompose)
+
+            /*MOKO Permission*/
+            implementation(libs.permissions)
+            // specific permissions support
+            implementation(libs.permissions.notifications)
+            // compose multiplatform
+            implementation(libs.permissions.compose) // permissions api + compose extensions
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.permissions.test)
         }
     }
 }

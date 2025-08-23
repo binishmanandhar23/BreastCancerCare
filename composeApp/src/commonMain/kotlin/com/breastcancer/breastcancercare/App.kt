@@ -43,15 +43,28 @@ import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
 import com.breastcancer.breastcancercare.utils.getNavigationRoute
+import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
+import dev.icerock.moko.permissions.Permission
+import dev.icerock.moko.permissions.PermissionsController
+import dev.icerock.moko.permissions.compose.BindEffect
+import dev.icerock.moko.permissions.compose.PermissionsControllerFactory
+import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import dev.icerock.moko.permissions.notifications.REMOTE_NOTIFICATION
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun App() {
     val loaderState = rememberLoaderState()
     val customSnackBarState = rememberSnackBarState()
+
+    val permissionViewModel = koinViewModel<PermissionViewModel>()
+    BindEffect(permissionViewModel.permissionsController)
+
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold { innerPadding ->
         Surface(
@@ -78,6 +91,9 @@ fun App() {
                                             navigator.navigate(Screens.Main.screen)
                                         },
                                         onRegister = {
+                                            coroutineScope.launch {
+                                                permissionViewModel.onRequestPermissionButtonPressed()
+                                            }
                                         }
                                     )
                                 }

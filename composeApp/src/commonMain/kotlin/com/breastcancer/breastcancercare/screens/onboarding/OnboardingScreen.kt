@@ -8,6 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Password
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +30,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.Res
@@ -34,6 +41,7 @@ import com.breastcancer.breastcancercare.components.BreastCancerSingleLineTextFi
 import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
+import com.breastcancer.breastcancercare.utils.rememberWindowSizeDp
 import com.breastcancer.breastcancercare.utils.text.ClickableText
 import com.breastcancer.breastcancercare.utils.text.TextUtils
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
@@ -52,6 +60,7 @@ fun OnboardingScreen(
     val clickHereColor = MaterialTheme.colorScheme.secondary
     val email by onboardingViewModel.email.collectAsStateWithLifecycle()
     val password by onboardingViewModel.password.collectAsStateWithLifecycle()
+    val windowSize = rememberWindowSizeDp()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -64,10 +73,16 @@ fun OnboardingScreen(
                 painter = painterResource(Res.drawable.breast_cancer_care_wa),
                 contentDescription = stringResource(Res.string.app_name)
             )
-            BreastCancerSingleLineTextField(label = "Email", value = email, onValueChange = onboardingViewModel::setEmail)
+            BreastCancerSingleLineTextField(modifier = Modifier.width(windowSize.first / 1.3f), label = "Email", value = email, leadingIcon = {
+                Icon(imageVector = Icons.Outlined.Email, contentDescription = "Email")
+            }, onValueChange = onboardingViewModel::setEmail)
             BreastCancerSingleLineTextField(
+                modifier = Modifier.width(windowSize.first / 1.3f),
                 label = "Password",
                 value = password,
+                leadingIcon = {
+                    Icon(imageVector = Icons.Outlined.Password, contentDescription = "Password")
+                },
                 onValueChange = onboardingViewModel::setPassword,
                 visualTransformation = PasswordVisualTransformation()
             )

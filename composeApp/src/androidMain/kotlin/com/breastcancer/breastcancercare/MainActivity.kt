@@ -4,16 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModelProvider
 import com.breastcancer.breastcancercare.theme.DarkAppColorScheme
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
-import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
-import dev.icerock.moko.permissions.PermissionsController
+import moe.tlaster.precompose.PreComposeApp
+import moe.tlaster.precompose.navigation.rememberNavigator
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,16 +19,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             val darkTheme = isSystemInDarkTheme()
             MaterialTheme(
-                colorScheme = if(darkTheme) DarkAppColorScheme else LightAppColorScheme,
+                colorScheme = if (darkTheme) DarkAppColorScheme else LightAppColorScheme,
             ) {
-                App()
+                PreComposeApp {
+                    App()
+                }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    App()
 }

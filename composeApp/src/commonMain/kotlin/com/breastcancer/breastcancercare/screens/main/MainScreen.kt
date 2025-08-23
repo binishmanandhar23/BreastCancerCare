@@ -11,16 +11,14 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.breastcancer.breastcancercare.components.BottomBar
 import com.breastcancer.breastcancercare.components.loader.LoaderState
@@ -32,16 +30,12 @@ import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
 import kotlinx.coroutines.launch
 
-private sealed interface SubScreen {
-    data object Tabs : SubScreen
-    data object Profile : SubScreen
-}
+private enum class SubScreen { Tabs, Profile }
 @Composable
 fun MainScreen(loaderState: LoaderState, customSnackBarState: SnackBarState) {
-    var subScreen by rememberSaveable { mutableStateOf<SubScreen>(SubScreen.Tabs) }
+    var subScreen by rememberSaveable { mutableStateOf(SubScreen.Tabs) }
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { Tabs.entries.size })
-    val selectedTabIndex by remember(pagerState.currentPage) { derivedStateOf { pagerState.currentPage } }
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (subScreen) {
@@ -50,18 +44,12 @@ fun MainScreen(loaderState: LoaderState, customSnackBarState: SnackBarState) {
                     modifier = Modifier.fillMaxSize(),
                     state = pagerState,
                     beyondViewportPageCount = 1
-                ) {
-                    when (Tabs.entries[selectedTabIndex].text) {
+                ) { page ->
+                    when (Tabs.entries[page].text) {
                         Tabs.Home.text -> HomeScreen()
                         Tabs.Calendar.text -> CalendarScreen()
-                        Tabs.FAQ.text -> FAQScreen(
-                            loaderState = loaderState,
-                            snackBarState = customSnackBarState
-                        )
-
-                        Tabs.Settings.text -> SettingsScreen(
-                            onOpenProfile = { subScreen = SubScreen.Profile }
-                        )
+                        Tabs.FAQ.text -> FAQScreen(loaderState = loaderState, snackBarState = customSnackBarState)
+                        Tabs.Settings.text -> SettingsScreen(onOpenProfile = { subScreen = SubScreen.Profile })
                     }
                 }
 

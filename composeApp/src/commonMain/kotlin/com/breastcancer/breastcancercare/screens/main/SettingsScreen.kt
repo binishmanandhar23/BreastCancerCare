@@ -20,6 +20,8 @@ import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import dev.icerock.moko.permissions.PermissionState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.*
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -162,7 +164,8 @@ private fun NavRow(
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 14.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         IconPlaceholder()
         Text(
@@ -187,15 +190,22 @@ private fun SwitchRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 14.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        IconPlaceholder()
+        Box(Modifier.alignBy { it.measuredHeight / 2 }) {
+            IconPlaceholder()
+        }
+
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .alignBy { it.measuredHeight / 2 }
         )
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+
+        Switch(checked = checked, onCheckedChange = onCheckedChange, modifier = Modifier.alignBy { it.measuredHeight / 2 })
     }
     HorizontalDivider(thickness = 0.5.dp)
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,14 +14,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
+import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
+import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
-import androidx.compose.ui.Alignment
+import dev.icerock.moko.permissions.PermissionState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    permissionState: PermissionState,
+    customSnackBarState: SnackBarState,
     onOpenProfile: () -> Unit = {},
     onOpenAbout: () -> Unit = {},
     onContactSupport: () -> Unit = {}
@@ -28,6 +34,16 @@ fun SettingsScreen(
     var notificationsEnabled by rememberSaveable { mutableStateOf(false) }
     var showFeedbackDialog by rememberSaveable { mutableStateOf(false) }
     var feedbackMessage by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(notificationsEnabled, permissionState) {
+        if ((permissionState == PermissionState.Denied
+                || permissionState == PermissionState.DeniedAlways
+                || permissionState == PermissionState.NotGranted) && notificationsEnabled
+        ) {
+            notificationsEnabled = false
+            customSnackBarState.show(overridingText = "Please grant notifications permission.", overridingDelay = SnackBarLengthMedium)
+        }
+    }
 
     val listOfItems = listOf(
         Pair<String, @Composable (ColumnScope.() -> Unit)>(
@@ -68,17 +84,21 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         stickyHeader {
-            Text("Settings", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
+            Text(
+                "Settings",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            )
         }
-        items(listOfItems){ pair ->
+        items(listOfItems) { pair ->
             SettingsSection(title = pair.first, content = pair.second)
         }
     }
 
-    if (showFeedbackDialog) {
-        AlertDialog(
-            onDismissRequest = { showFeedbackDialog = false },
-            title = { Text("Send Feedback") },
+    if (showFeedbackDialog)
+        BreastCancerAlertDialog(
+            title = "Send Feedback",
+            confirmText = "Send",
+            dismissText = "Cancel",
             text = {
                 OutlinedTextField(
                     value = feedbackMessage,
@@ -87,18 +107,14 @@ fun SettingsScreen(
                     minLines = 4
                 )
             },
-            confirmButton = {
-                TextButton(onClick = {
-                    // TODO: Wire up email/server send logic
-                    showFeedbackDialog = false
-                    feedbackMessage = ""
-                }) { Text("Send") }
+            onConfirm = {
+                feedbackMessage = ""
+                showFeedbackDialog = false
             },
-            dismissButton = {
-                TextButton(onClick = { showFeedbackDialog = false }) { Text("Cancel") }
-            }
-        )
-    }
+            onDismissRequest = {
+                feedbackMessage = ""
+                showFeedbackDialog = false
+            })
 }
 
 @Composable
@@ -146,8 +162,7 @@ private fun NavRow(
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 14.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         IconPlaceholder()
         Text(
@@ -172,22 +187,15 @@ private fun SwitchRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 14.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Box(Modifier.alignBy { it.measuredHeight / 2 }) {
-            IconPlaceholder()
-        }
-
+        IconPlaceholder()
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
-                .weight(1f)
-                .alignBy { it.measuredHeight / 2 }
+            modifier = Modifier.weight(1f)
         )
-
-        Switch(checked = checked, onCheckedChange = onCheckedChange, modifier = Modifier.alignBy { it.measuredHeight / 2 })
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
     HorizontalDivider(thickness = 0.5.dp)
 }

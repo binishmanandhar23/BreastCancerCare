@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
@@ -36,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.Res
 import com.breastcancer.breastcancercare.app_name
 import com.breastcancer.breastcancercare.breast_cancer_care_wa
+import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
 import com.breastcancer.breastcancercare.components.BreastCancerButton
 import com.breastcancer.breastcancercare.components.BreastCancerSingleLineTextField
 import com.breastcancer.breastcancercare.components.loader.LoaderState
@@ -88,7 +90,7 @@ fun OnboardingScreen(
             )
             BreastCancerButton(text = "Login", onClick = onLogin)
             ClickableText(textStyle = TextStyle.Default.copy(fontSize = 12.sp), onClick = {
-                onRegister()
+
             }) {
                 append("New Member? ")
                 withClickable("register") {

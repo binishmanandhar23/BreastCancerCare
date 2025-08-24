@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -33,7 +34,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
@@ -501,7 +504,10 @@ fun BreastCancerButton(
                     else
                         it
                 },
-                style = MaterialTheme.typography.bodySmall.copy(color = textColor, fontSize = fontSize)
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = textColor,
+                    fontSize = fontSize
+                )
             )
         }
     }
@@ -535,3 +541,31 @@ fun AutoSizeText(
             shouldDraw = true
     }, softWrap = false)
 }
+
+@Composable
+fun BreastCancerAlertDialog(
+    title: String,
+    text: @Composable (() -> Unit)? = null,
+    confirmText: String = "Ok",
+    dismissText: String? = "Cancel",
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit
+) = AlertDialog(
+    onDismissRequest = onDismissRequest,
+    title = {
+        Text(text = title, style = MaterialTheme.typography.titleMedium)
+    },
+    text = text,
+    confirmButton = {
+        BreastCancerButton(text = confirmText, onClick = onConfirm)
+    },
+    dismissButton = {
+        if (dismissText != null)
+            BreastCancerButton(
+                text = dismissText,
+                onClick = onDismissRequest,
+                backgroundColor = MaterialTheme.colorScheme.background,
+                textColor = MaterialTheme.colorScheme.onBackground
+            )
+    }
+)

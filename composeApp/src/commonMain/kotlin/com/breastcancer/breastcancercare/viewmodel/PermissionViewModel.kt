@@ -9,6 +9,7 @@ import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.PermissionsController
 import dev.icerock.moko.permissions.notifications.REMOTE_NOTIFICATION
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -17,27 +18,30 @@ class PermissionViewModel(
 ) : ViewModel(){
 
     private val permissionType = Permission.REMOTE_NOTIFICATION
-    val permissionState = MutableStateFlow(PermissionState.NotDetermined)
+    private var _permissionState = MutableStateFlow(PermissionState.NotDetermined)
+    val permissionState = _permissionState.asStateFlow()
+
+    private var _permissionImportantDialog = MutableStateFlow(false)
+    val permissionImportantDialog = _permissionImportantDialog.asStateFlow()
 
     init {
         viewModelScope.launch {
-            permissionState.update { permissionsController.getPermissionState(permissionType) }
-            println(permissionState)
+            _permissionState.update { permissionsController.getPermissionState(permissionType) }
         }
     }
 
-    /**
-     * An example of using [PermissionsController] in common code.
-     */
+
     fun onRequestPermissionButtonPressed() {
         requestPermission(permissionType)
     }
+
+    fun showDialog() = _permissionImportantDialog.update { true }
+    fun dismissDialog() = _permissionImportantDialog.update { false }
 
     private fun requestPermission(permission: Permission) {
         viewModelScope.launch {
             try {
                 permissionsController.getPermissionState(permission)
-                    .also { println("pre provide $it") }
 
                 // Calls suspend function in a coroutine to request some permission.
                 permissionsController.providePermission(permission)
@@ -47,20 +51,10 @@ class PermissionViewModel(
             } catch (deniedException: DeniedException) {
 
             } finally {
-                permissionState.update {
+                _permissionState.update {
                     permissionsController.getPermissionState(permission)
-                        .also { println("post provide $it") }
                 }
             }
         }
-    }
-
-    interface EventListener {
-
-        fun onSuccess()
-
-        fun onDenied(exception: DeniedException)
-
-        fun onDeniedAlways(exception: DeniedAlwaysException)
     }
 }

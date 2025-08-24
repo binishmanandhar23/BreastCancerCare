@@ -5,12 +5,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
 import com.breastcancer.breastcancercare.components.loader.CustomLoader
 import com.breastcancer.breastcancercare.components.loader.rememberLoaderState
 import com.breastcancer.breastcancercare.components.snackbar.CustomSnackBar
@@ -24,6 +28,7 @@ import com.breastcancer.breastcancercare.screens.main.ProfileScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.utils.getNavigationRoute
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
+import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.PreComposeApp
@@ -37,11 +42,28 @@ import org.koin.core.logger.Logger
 fun App() {
     val loaderState = rememberLoaderState()
     val customSnackBarState = rememberSnackBarState()
-
     val permissionViewModel = koinViewModel<PermissionViewModel>()
-    BindEffect(permissionViewModel.permissionsController)
+    val permissionState by permissionViewModel.permissionState.collectAsStateWithLifecycle()
+    val permissionImportantDialog by permissionViewModel.permissionImportantDialog.collectAsStateWithLifecycle()
 
+    BindEffect(permissionViewModel.permissionsController)
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(permissionState) {
+        println("Permission State: ${permissionState.name}")
+        when (permissionState) {
+            PermissionState.NotDetermined ->
+                coroutineScope.launch {
+                    permissionViewModel.onRequestPermissionButtonPressed()
+                }
+
+            PermissionState.Denied -> permissionViewModel.showDialog()
+            else -> {
+
+            }
+        }
+    }
+
 
     Scaffold { innerPadding ->
         Surface(
@@ -69,14 +91,13 @@ fun App() {
                                         navigator.navigate(Screens.Main.screen)
                                     },
                                     onRegister = {
-                                        coroutineScope.launch {
-                                            permissionViewModel.onRequestPermissionButtonPressed()
-                                        }
+
                                     }
                                 )
                             }
                             scene(route = getNavigationRoute(Screens.Main)) {
                                 MainScreen(
+                                    permissionState = permissionState,
                                     loaderState = loaderState,
                                     customSnackBarState = customSnackBarState,
                                     onSubScreenChange = {
@@ -88,6 +109,23 @@ fun App() {
                                         )
                                     }
                                 )
+                                if (permissionImportantDialog)
+                                    BreastCancerAlertDialog(
+                                        title = "Important!",
+                                        text = {
+                                            Text("It is very important that you grant the notifications permission to receive notifications regarding events and programs from us.\nPlease grant the permission to receive updates.")
+                                        },
+                                        confirmText = "Grant",
+                                        dismissText = "Cancel",
+                                        onDismissRequest = {
+                                            permissionViewModel.dismissDialog()
+                                        },
+                                        onConfirm = {
+                                            coroutineScope.launch {
+                                                permissionViewModel.onRequestPermissionButtonPressed()
+                                            }
+                                            permissionViewModel.dismissDialog()
+                                        })
                             }
                             scene(
                                 route = getNavigationRoute(

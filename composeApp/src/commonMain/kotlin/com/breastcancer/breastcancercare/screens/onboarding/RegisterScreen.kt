@@ -18,27 +18,52 @@ import com.breastcancer.breastcancercare.components.BreastCancerButton
 import com.breastcancer.breastcancercare.components.BreastCancerSingleLineTextField
 import com.breastcancer.breastcancercare.utils.rememberWindowSizeDp
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Color
+import com.breastcancer.breastcancercare.components.BreastCancerToolbar
+import com.breastcancer.breastcancercare.components.loader.LoaderState
+import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
+import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
+import com.breastcancer.breastcancercare.states.LoginUIState
+import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
+import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun RegisterScreen(
-    onBack: () -> Unit = {}
+    onboardingViewModel: OnboardingViewModel = koinViewModel(),
+    customSnackBarState: SnackBarState,
+    loaderState: LoaderState,
+    onBack: () -> Unit,
+    registrationSuccessful: () -> Unit
 ) {
     val (screenW, _) = rememberWindowSizeDp()
 
-    var first by rememberSaveable { mutableStateOf("") }
-    var last by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var pw by rememberSaveable { mutableStateOf("") }
-    var confirm by rememberSaveable { mutableStateOf("") }
-    var agree by rememberSaveable { mutableStateOf(false) }
+    val pw by onboardingViewModel.password.collectAsStateWithLifecycle()
+    val confirm by onboardingViewModel.confirmPassword.collectAsStateWithLifecycle()
+    val agree by onboardingViewModel.agree.collectAsStateWithLifecycle()
+    val passwordValid by onboardingViewModel.passwordValid.collectAsStateWithLifecycle()
+    val emailValid by onboardingViewModel.emailValid.collectAsStateWithLifecycle()
+    val userDTO by onboardingViewModel.userDTO.collectAsStateWithLifecycle()
+    val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
 
-    val emailValid = remember(email) { email.contains("@") && email.contains(".") }
-    val pwMatch = remember(pw, confirm) { pw == confirm }
-    val pwTooShort = remember(pw) { pw.isNotEmpty() && pw.length < 6 }
-    val canSubmit = first.isNotBlank() && last.isNotBlank() &&
-            emailValid && pw.length >= 6 && pwMatch && agree
+    LaunchedEffect(loginUIState) {
+        when (loginUIState) {
+            is LoginUIState.Success -> {
+                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
+                loaderState.hide()
+                registrationSuccessful()
+            }
+            is LoginUIState.Error -> {
+                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
+                loaderState.hide()
+            }
+            is LoginUIState.Loading -> loaderState.show()
+            else -> loaderState.hide()
+        }
+    }
+
     val tfColors = TextFieldDefaults.colors(
         focusedContainerColor = Color.Transparent,
         unfocusedContainerColor = Color.Transparent,
@@ -59,8 +84,7 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Text("Create your account", style = MaterialTheme.typography.headlineLarge)
-
+        BreastCancerToolbar(onBack = onBack)
         Card(
             modifier = Modifier.width(formWidth),
             shape = RoundedCornerShape(20.dp),
@@ -76,9 +100,14 @@ fun RegisterScreen(
                 BreastCancerSingleLineTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = "First name",
-                    value = first,
-                    leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = "First name") },
-                    onValueChange = { first = it },
+                    value = userDTO.firstName,
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Person,
+                            contentDescription = "First name"
+                        )
+                    },
+                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO.copy(firstName = it)) },
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused
@@ -87,9 +116,9 @@ fun RegisterScreen(
                 BreastCancerSingleLineTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = "Last name",
-                    value = last,
+                    value = userDTO.lastName,
                     leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = "Last name") },
-                    onValueChange = { last = it },
+                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO.copy(lastName = it)) },
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused
@@ -98,46 +127,48 @@ fun RegisterScreen(
                 BreastCancerSingleLineTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = "Email",
-                    value = email,
+                    value = userDTO.email,
                     leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email") },
-                    onValueChange = { email = it },
+                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO = userDTO.copy(email = it)) },
                     colors = tfColors,
                     borderColor = borderNormal,
-                    focusedBorderColor = borderFocused
+                    focusedBorderColor = borderFocused,
+                    errorText = if (!emailValid) "Invalid email" else null,
+                    errorIcon = Icons.Default.Error,
                 )
-                if (!emailValid && email.isNotBlank()) {
-                    Text("Please enter a valid email.", color = MaterialTheme.colorScheme.error)
-                }
+
                 BreastCancerSingleLineTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = "Password",
                     value = pw,
-                    leadingIcon = { Icon(Icons.Outlined.Password, contentDescription = "Password") },
-                    onValueChange = { pw = it },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Password,
+                            contentDescription = "Password"
+                        )
+                    },
+                    onValueChange = onboardingViewModel::updatePassword,
                     visualTransformation = PasswordVisualTransformation(),
                     colors = tfColors,
                     borderColor = borderNormal,
-                    focusedBorderColor = borderFocused
+                    focusedBorderColor = borderFocused,
+                    errorText = if (!passwordValid) "Passwords must match and be at least 6 characters long." else null,
+                    errorIcon = Icons.Default.Error,
                 )
-                if (pwTooShort) {
-                    Text("Password must be at least 6 characters.", color = MaterialTheme.colorScheme.error)
-                }
 
                 BreastCancerSingleLineTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = "Confirm password",
                     value = confirm,
                     leadingIcon = { Icon(Icons.Outlined.Password, contentDescription = "Confirm") },
-                    onValueChange = { confirm = it },
+                    onValueChange = onboardingViewModel::updateConfirmPassword,
                     visualTransformation = PasswordVisualTransformation(),
                     colors = tfColors,
                     borderColor = borderNormal,
-                    focusedBorderColor = borderFocused
+                    focusedBorderColor = borderFocused,
+                    errorText = if (!passwordValid) "Passwords must match and be at least 6 characters long." else null,
+                    errorIcon = Icons.Default.Error,
                 )
-
-                if (!pwMatch && confirm.isNotBlank()) {
-                    Text("Passwords do not match.", color = MaterialTheme.colorScheme.error)
-                }
 
                 Row(
                     modifier = Modifier
@@ -146,25 +177,27 @@ fun RegisterScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Checkbox(checked = agree, onCheckedChange = { agree = it })
+                    Checkbox(checked = agree, onCheckedChange = onboardingViewModel::toggleAgree)
                     Text("I agree to the Terms & Privacy")
                 }
             }
         }
 
-        val safeOnClick = { if (canSubmit) onBack() }
         Box(
             modifier = Modifier.width(formWidth),
             contentAlignment = Alignment.Center
         ) {
             BreastCancerButton(
                 text = "Create account",
-                onClick = safeOnClick
+                enabled = agree,
+                onClick = onboardingViewModel::onSubmit,
+                onDisabledClick = {
+                    customSnackBarState.show(
+                        overridingText = "Please agree to the Terms & Conditions before proceeding.",
+                        overridingDelay = SnackBarLengthMedium
+                    )
+                }
             )
-        }
-
-        TextButton(onClick = onBack) {
-            Text("Back to login")
         }
     }
 }

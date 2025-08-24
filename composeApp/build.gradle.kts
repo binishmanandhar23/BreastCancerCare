@@ -151,4 +151,10 @@ project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
         dependsOn("kspCommonMainKotlinMetadata")
     }
 }
+configurations.all {
+    resolutionStrategy.force(
+        "androidx.compose.animation:animation:1.6.7",
+        "androidx.compose.animation:animation-core:1.6.7",
+    )
+} // To resolve No object found: SeekableTransition issue found in androidx.compose.animation:animation-core
 

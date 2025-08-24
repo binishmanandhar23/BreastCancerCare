@@ -39,6 +39,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.HourglassEmpty
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -47,7 +48,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -402,7 +402,7 @@ fun BottomInfoCard(
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable(
                             interactionSource = interaction,
-                            indication = ripple(bounded = false)
+                            indication = rememberRipple(bounded = false)
                         ) {
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.VirtualKey)
                             animateToOffset(if (isOpen) closedOffsetPx else 0f)

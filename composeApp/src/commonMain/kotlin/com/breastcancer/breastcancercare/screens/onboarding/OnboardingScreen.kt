@@ -60,7 +60,7 @@ fun OnboardingScreen(
     onRegister: () -> Unit
 ) {
     val clickHereColor = MaterialTheme.colorScheme.secondary
-    val email by onboardingViewModel.email.collectAsStateWithLifecycle()
+    val userDTO by onboardingViewModel.userDTO.collectAsStateWithLifecycle()
     val password by onboardingViewModel.password.collectAsStateWithLifecycle()
     val windowSize = rememberWindowSizeDp()
 
@@ -75,9 +75,14 @@ fun OnboardingScreen(
                 painter = painterResource(Res.drawable.breast_cancer_care_wa),
                 contentDescription = stringResource(Res.string.app_name)
             )
-            BreastCancerSingleLineTextField(modifier = Modifier.width(windowSize.first / 1.3f), label = "Email", value = email, leadingIcon = {
-                Icon(imageVector = Icons.Outlined.Email, contentDescription = "Email")
-            }, onValueChange = onboardingViewModel::setEmail)
+            BreastCancerSingleLineTextField(
+                modifier = Modifier.width(windowSize.first / 1.3f),
+                label = "Email",
+                value = userDTO.email,
+                leadingIcon = {
+                    Icon(imageVector = Icons.Outlined.Email, contentDescription = "Email")
+                },
+                onValueChange = { onboardingViewModel.updateUserDTO(userDTO = userDTO.copy(email = it)) })
             BreastCancerSingleLineTextField(
                 modifier = Modifier.width(windowSize.first / 1.3f),
                 label = "Password",
@@ -85,11 +90,12 @@ fun OnboardingScreen(
                 leadingIcon = {
                     Icon(imageVector = Icons.Outlined.Password, contentDescription = "Password")
                 },
-                onValueChange = onboardingViewModel::setPassword,
+                onValueChange = onboardingViewModel::updatePassword,
                 visualTransformation = PasswordVisualTransformation()
             )
             BreastCancerButton(text = "Login", onClick = onLogin)
-            ClickableText(textStyle = TextStyle.Default.copy(fontSize = 12.sp),
+            ClickableText(
+                textStyle = TextStyle.Default.copy(fontSize = 12.sp),
                 onClick = { tag ->
                     if (tag == "register") {
                         onRegister()

@@ -1,6 +1,7 @@
 package com.breastcancer.breastcancercare.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -76,6 +77,7 @@ import kotlinx.datetime.format.char
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -83,6 +85,8 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.IconButton
 
 
 @OptIn(FormatStringsInDatetimeFormats::class)
@@ -428,7 +432,10 @@ fun BreastCancerSingleLineTextField(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (labelIcon != null) Icon(imageVector = labelIcon, contentDescription = label)
-                    if (labelIconRes != null) Icon(painter = painterResource(labelIconRes), contentDescription = label)
+                    if (labelIconRes != null) Icon(
+                        painter = painterResource(labelIconRes),
+                        contentDescription = label
+                    )
                     Text(text = label)
                 }
             },
@@ -514,12 +521,15 @@ fun BreastCancerButton(
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
     leadingIcon: ImageVector? = null,
+    enabled: Boolean = true,
     hideText: Boolean = false,
+    onDisabledClick: (() -> Unit)? = null,
     onClick: () -> Unit
 ) {
+    val backgroundColor by animateColorAsState(if (enabled) backgroundColor else MaterialTheme.colorScheme.outline)
     Button(
         modifier = modifier.animateContentSize(),
-        onClick = onClick,
+        onClick = { if (enabled) onClick() else onDisabledClick?.invoke() },
         contentPadding = contentPadding,
         colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
         shape = shape
@@ -602,3 +612,27 @@ fun BreastCancerAlertDialog(
             )
     }
 )
+
+@Composable
+fun BreastCancerToolbar(
+    modifier: Modifier = Modifier.fillMaxWidth().padding(
+        horizontal = DefaultHorizontalPadding
+    ),
+    onBack: () -> Unit
+) = Row(
+    modifier = modifier,
+    horizontalArrangement = Arrangement.spacedBy(12.dp),
+    verticalAlignment = Alignment.CenterVertically
+) {
+    Icon(
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onBack
+        ), imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back Button"
+    )
+    Text(
+        "Create your account",
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+    )
+}

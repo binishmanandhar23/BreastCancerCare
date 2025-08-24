@@ -83,8 +83,6 @@ fun App() {
                             initialRoute = Screens.Onboarding.screen
                         ) {
                             scene(route = getNavigationRoute(mainScreen = Screens.Onboarding)) {
-                                val owner = LocalLifecycleOwner.current
-                                println("Owner: $owner")
                                 OnboardingScreen(
                                     loaderState = loaderState,
                                     customSnackBarState = customSnackBarState,
@@ -140,7 +138,12 @@ fun App() {
                                 )
                             ) {
                                 RegisterScreen(
-                                    onBack = { navigator.goBack() }
+                                    customSnackBarState = customSnackBarState,
+                                    loaderState = loaderState,
+                                    onBack = { navigator.goBack() },
+                                    registrationSuccessful = {
+                                        navigator.navigate(Screens.Main.screen)
+                                    }
                                 )
                             }
                             scene(

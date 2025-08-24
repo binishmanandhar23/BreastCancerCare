@@ -35,11 +35,12 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     init {
         viewModelScope.launch {
             _loginUIState.update { LoginUIState.Loading }
-            if(onboardingRepository.isLoggedIn())
+            if (onboardingRepository.isLoggedIn())
                 onboardingRepository.getLoggedInUser().collect { userDTO ->
-                    _loginUIState.update {
-                        LoginUIState.Success("Welcome Back! ${userDTO.firstName}")
-                    }
+                    if (userDTO != null)
+                        _loginUIState.update {
+                            LoginUIState.Success("Welcome Back! ${userDTO.firstName}")
+                        }
                 }
             else
                 _loginUIState.update { LoginUIState.Initial }
@@ -47,8 +48,12 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         }
     }
 
-    fun updatePassword(password: String) = _password.update { password }.also { updatePasswordValid(true) }
-    fun updateConfirmPassword(password: String) = _confirmPassword.update { password }.also { updatePasswordValid(true) }
+    fun updatePassword(password: String) =
+        _password.update { password }.also { updatePasswordValid(true) }
+
+    fun updateConfirmPassword(password: String) =
+        _confirmPassword.update { password }.also { updatePasswordValid(true) }
+
     fun toggleAgree(checked: Boolean) = _agree.update { checked }
 
     fun updateEmailValid(valid: Boolean) = _emailValid.update { valid }
@@ -61,14 +66,34 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
             updateEmailValid(true)
         }
 
-    fun onSubmit() {
+    fun onLogin() {
+        viewModelScope.launch {
+            checkEmailValidity().let { valid ->
+                updateEmailValid(valid)
+                if (valid)
+                    onboardingRepository.getUser(userDTO.value.email).collect { user ->
+                        if (user == null)
+                            _loginUIState.update { LoginUIState.Error("User not found") }
+                        else {
+                            if (user.password == userDTO.value.password) {
+                                onboardingRepository.setLoggedInUser(user)
+                                _loginUIState.update { LoginUIState.Success("Welcome Back! ${user.firstName}") }
+                                reset()
+                            } else
+                                _loginUIState.update { LoginUIState.Error("Incorrect Password") }
+                        }
+                    }
+            }
+        }
+    }
+
+    fun onRegister() {
         val first = userDTO.value.firstName
         val last = userDTO.value.lastName
-        val email = userDTO.value.email
         val pw = password.value
         val cpw = confirmPassword.value
         updatePasswordValid(pw == cpw && pw.isNotEmpty() && pw.length > 6)
-        updateEmailValid(email.contains("@") && email.contains("."))
+        updateEmailValid(checkEmailValidity())
         val canSubmit = first.isNotBlank() && last.isNotBlank() &&
                 emailValid.value && passwordValid.value && agree.value
         if (canSubmit)
@@ -76,10 +101,21 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
                 try {
                     onboardingRepository.insertUser(userDTO.value)
                     _loginUIState.update { LoginUIState.Success("Welcome! $first") }
-                } catch (e: Exception){
+                    reset()
+                } catch (e: Exception) {
                     _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }
                 }
             }
     }
+
+    fun onLogOut() = viewModelScope.launch {
+        onboardingRepository.logOut()
+        _loginUIState.update { LoginUIState.LoggedOut }
+    }
+
+    fun checkEmailValidity(): Boolean =
+        userDTO.value.email.let { email -> email.contains("@") && email.contains(".") }
+
+    fun reset() = _userDTO.update { UserDTO() }.also { _password.update { "" } }
 
 }

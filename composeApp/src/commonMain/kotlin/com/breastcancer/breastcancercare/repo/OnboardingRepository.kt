@@ -4,6 +4,7 @@ import com.breastcancer.breastcancercare.database.local.dao.OnboardingDAO
 import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.models.toDTO
 import com.breastcancer.breastcancercare.models.toEntity
+import com.breastcancer.breastcancercare.models.toLoggedInEntity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 
@@ -25,9 +26,15 @@ class OnboardingRepository(val onboardingDAO: OnboardingDAO) {
 
     suspend fun getIdForUserEntity() = onboardingDAO.getMaxId()
 
-    suspend fun checkIfEmailExists(email: String) = onboardingDAO.emailExistsIgnoreCase(email = email)
+    suspend fun checkIfEmailExists(email: String) =
+        onboardingDAO.emailExistsIgnoreCase(email = email)
 
     suspend fun isLoggedIn() = onboardingDAO.isLoggedIn()
 
-    fun getLoggedInUser() = onboardingDAO.getLoggedInUser().map { it.toDTO() }
+    fun getLoggedInUser() = onboardingDAO.getLoggedInUser().map { it?.toDTO() }
+
+    suspend fun setLoggedInUser(userDTO: UserDTO) = onboardingDAO.deleteLoggedInUser()
+        .also { onboardingDAO.setLoggedInUser(userDTO.toLoggedInEntity()) }
+
+    suspend fun logOut() = onboardingDAO.deleteLoggedInUser()
 }

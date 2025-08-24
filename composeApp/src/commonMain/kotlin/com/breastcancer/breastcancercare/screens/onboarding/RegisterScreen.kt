@@ -9,7 +9,6 @@ import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -190,7 +189,7 @@ fun RegisterScreen(
             BreastCancerButton(
                 text = "Create account",
                 enabled = agree,
-                onClick = onboardingViewModel::onSubmit,
+                onClick = onboardingViewModel::onRegister,
                 onDisabledClick = {
                     customSnackBarState.show(
                         overridingText = "Please agree to the Terms & Conditions before proceeding.",

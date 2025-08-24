@@ -29,9 +29,10 @@ import androidx.compose.ui.layout.*
 fun SettingsScreen(
     permissionState: PermissionState,
     customSnackBarState: SnackBarState,
-    onOpenProfile: () -> Unit = {},
-    onOpenAbout: () -> Unit = {},
-    onContactSupport: () -> Unit = {}
+    onOpenProfile: () -> Unit,
+    onOpenAbout: () -> Unit,
+    onContactSupport: () -> Unit,
+    onLogOut: () -> Unit
 ) {
     var notificationsEnabled by rememberSaveable { mutableStateOf(false) }
     var showFeedbackDialog by rememberSaveable { mutableStateOf(false) }
@@ -75,6 +76,12 @@ fun SettingsScreen(
             {
                 NavRow(text = "About", onClick = onOpenAbout)
                 NavRow(text = "Contact support", onClick = onContactSupport)
+            },
+        ),
+        Pair<String, @Composable (ColumnScope.() -> Unit)>(
+            "",
+            {
+                NavRow(text = "Log Out", onClick = onLogOut)
             },
         )
     )

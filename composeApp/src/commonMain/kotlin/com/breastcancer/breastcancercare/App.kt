@@ -38,6 +38,8 @@ import moe.tlaster.precompose.navigation.rememberNavigator
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.logger.Logger
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
+import moe.tlaster.precompose.navigation.NavOptions
+import moe.tlaster.precompose.navigation.PopUpTo
 
 @Composable
 fun App() {
@@ -86,8 +88,17 @@ fun App() {
                                 OnboardingScreen(
                                     loaderState = loaderState,
                                     customSnackBarState = customSnackBarState,
-                                    onLogin = {
-                                        navigator.navigate(Screens.Main.screen)
+                                    alreadyLoggedIn = {
+                                        navigator.navigate(
+                                            getNavigationRoute(mainScreen = Screens.Main),
+                                            options = NavOptions(
+                                                popUpTo = PopUpTo(
+                                                    route = getNavigationRoute(Screens.Onboarding),
+                                                    inclusive = true
+                                                ),
+                                                launchSingleTop = true
+                                            )
+                                        )
                                     },
                                     onRegister = {
                                         navigator.navigate(
@@ -109,6 +120,17 @@ fun App() {
                                             getNavigationRoute(
                                                 mainScreen = Screens.Main,
                                                 subScreen = it
+                                            )
+                                        )
+                                    }, onLogOut = {
+                                        navigator.navigate(
+                                            getNavigationRoute(Screens.Onboarding),
+                                            options = NavOptions(
+                                                popUpTo = PopUpTo(
+                                                    route = getNavigationRoute(Screens.Main),
+                                                    inclusive = true
+                                                ),
+                                                launchSingleTop = true
                                             )
                                         )
                                     }

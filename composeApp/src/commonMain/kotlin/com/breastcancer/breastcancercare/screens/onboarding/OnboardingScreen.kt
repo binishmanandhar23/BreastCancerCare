@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +43,9 @@ import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
 import com.breastcancer.breastcancercare.components.BreastCancerButton
 import com.breastcancer.breastcancercare.components.BreastCancerSingleLineTextField
 import com.breastcancer.breastcancercare.components.loader.LoaderState
+import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
+import com.breastcancer.breastcancercare.states.LoginUIState
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.utils.rememberWindowSizeDp
 import com.breastcancer.breastcancercare.utils.text.ClickableText
@@ -56,13 +60,31 @@ fun OnboardingScreen(
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
     onboardingViewModel: OnboardingViewModel = koinViewModel(),
-    onLogin: () -> Unit,
+    alreadyLoggedIn: () -> Unit,
     onRegister: () -> Unit
 ) {
     val clickHereColor = MaterialTheme.colorScheme.secondary
     val userDTO by onboardingViewModel.userDTO.collectAsStateWithLifecycle()
     val password by onboardingViewModel.password.collectAsStateWithLifecycle()
+    val emailValid by onboardingViewModel.emailValid.collectAsStateWithLifecycle()
     val windowSize = rememberWindowSizeDp()
+    val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(loginUIState) {
+        when (loginUIState) {
+            is LoginUIState.Success -> {
+                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
+                loaderState.hide()
+                alreadyLoggedIn()
+            }
+            is LoginUIState.Error -> {
+                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
+                loaderState.hide()
+            }
+            is LoginUIState.Loading -> loaderState.show()
+            else -> loaderState.hide()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -82,7 +104,10 @@ fun OnboardingScreen(
                 leadingIcon = {
                     Icon(imageVector = Icons.Outlined.Email, contentDescription = "Email")
                 },
-                onValueChange = { onboardingViewModel.updateUserDTO(userDTO = userDTO.copy(email = it)) })
+                onValueChange = { onboardingViewModel.updateUserDTO(userDTO = userDTO.copy(email = it)) },
+                errorText = if (!emailValid) "Invalid email" else null,
+                errorIcon = Icons.Default.Error,
+            )
             BreastCancerSingleLineTextField(
                 modifier = Modifier.width(windowSize.first / 1.3f),
                 label = "Password",
@@ -93,7 +118,7 @@ fun OnboardingScreen(
                 onValueChange = onboardingViewModel::updatePassword,
                 visualTransformation = PasswordVisualTransformation()
             )
-            BreastCancerButton(text = "Login", onClick = onLogin)
+            BreastCancerButton(text = "Login", onClick = onboardingViewModel::onLogin)
             ClickableText(
                 textStyle = TextStyle.Default.copy(fontSize = 12.sp),
                 onClick = { tag ->

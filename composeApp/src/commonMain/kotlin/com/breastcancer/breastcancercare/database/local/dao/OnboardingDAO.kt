@@ -28,10 +28,10 @@ interface OnboardingDAO {
     suspend fun emailExistsIgnoreCase(email: String): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLoggedInUser(userEntity: LoggedInUserEntity)
+    suspend fun setLoggedInUser(userEntity: LoggedInUserEntity)
 
     @Query("SELECT * FROM loggedinuserentity LIMIT 1")
-    fun getLoggedInUser(): Flow<LoggedInUserEntity>
+    fun getLoggedInUser(): Flow<LoggedInUserEntity?>
 
     @Query("DELETE FROM loggedinuserentity")
     suspend fun deleteLoggedInUser()

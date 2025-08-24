@@ -25,10 +25,12 @@ import com.breastcancer.breastcancercare.theme.DefaultElevation
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
+import dev.icerock.moko.permissions.PermissionState
 import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
+    permissionState: PermissionState,
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
     onSubScreenChange: (SubScreens) -> Unit
@@ -51,6 +53,8 @@ fun MainScreen(
                 )
 
                 Tabs.Settings.text -> SettingsScreen(
+                    permissionState = permissionState,
+                    customSnackBarState = customSnackBarState,
                     onOpenProfile = { onSubScreenChange(SubScreens.Profile) },
                     onOpenAbout = { onSubScreenChange(SubScreens.About) },
                     onContactSupport = { onSubScreenChange(SubScreens.Contact) }

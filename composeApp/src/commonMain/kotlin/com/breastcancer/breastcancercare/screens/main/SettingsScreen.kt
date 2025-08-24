@@ -14,13 +14,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
+import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
+import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
+import dev.icerock.moko.permissions.PermissionState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    permissionState: PermissionState,
+    customSnackBarState: SnackBarState,
     onOpenProfile: () -> Unit = {},
     onOpenAbout: () -> Unit = {},
     onContactSupport: () -> Unit = {}
@@ -28,6 +34,16 @@ fun SettingsScreen(
     var notificationsEnabled by rememberSaveable { mutableStateOf(false) }
     var showFeedbackDialog by rememberSaveable { mutableStateOf(false) }
     var feedbackMessage by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(notificationsEnabled, permissionState) {
+        if ((permissionState == PermissionState.Denied
+                || permissionState == PermissionState.DeniedAlways
+                || permissionState == PermissionState.NotGranted) && notificationsEnabled
+        ) {
+            notificationsEnabled = false
+            customSnackBarState.show(overridingText = "Please grant notifications permission.", overridingDelay = SnackBarLengthMedium)
+        }
+    }
 
     val listOfItems = listOf(
         Pair<String, @Composable (ColumnScope.() -> Unit)>(
@@ -68,17 +84,21 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         stickyHeader {
-            Text("Settings", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
+            Text(
+                "Settings",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            )
         }
-        items(listOfItems){ pair ->
+        items(listOfItems) { pair ->
             SettingsSection(title = pair.first, content = pair.second)
         }
     }
 
-    if (showFeedbackDialog) {
-        AlertDialog(
-            onDismissRequest = { showFeedbackDialog = false },
-            title = { Text("Send Feedback") },
+    if (showFeedbackDialog)
+        BreastCancerAlertDialog(
+            title = "Send Feedback",
+            confirmText = "Send",
+            dismissText = "Cancel",
             text = {
                 OutlinedTextField(
                     value = feedbackMessage,
@@ -87,18 +107,14 @@ fun SettingsScreen(
                     minLines = 4
                 )
             },
-            confirmButton = {
-                TextButton(onClick = {
-                    // TODO: Wire up email/server send logic
-                    showFeedbackDialog = false
-                    feedbackMessage = ""
-                }) { Text("Send") }
+            onConfirm = {
+                feedbackMessage = ""
+                showFeedbackDialog = false
             },
-            dismissButton = {
-                TextButton(onClick = { showFeedbackDialog = false }) { Text("Cancel") }
-            }
-        )
-    }
+            onDismissRequest = {
+                feedbackMessage = ""
+                showFeedbackDialog = false
+            })
 }
 
 @Composable

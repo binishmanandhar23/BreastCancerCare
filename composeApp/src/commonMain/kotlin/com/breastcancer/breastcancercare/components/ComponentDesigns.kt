@@ -38,8 +38,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +46,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -78,6 +75,14 @@ import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.format.char
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 
 @OptIn(FormatStringsInDatetimeFormats::class)
@@ -240,6 +245,7 @@ fun CoreCustomTextField(
     maxLines: Int = Int.MAX_VALUE,
     enabled: Boolean = true,
     readOnly: Boolean = false,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     colors: TextFieldColors = TextFieldDefaults.colors(
         focusedContainerColor = Color.Transparent,
         unfocusedContainerColor = Color.Transparent,
@@ -276,7 +282,8 @@ fun CoreCustomTextField(
         isError = isError,
         visualTransformation = visualTransformation,
         keyboardActions = keyboardActions,
-        keyboardOptions = keyboardOptions
+        keyboardOptions = keyboardOptions,
+        interactionSource = interactionSource
     )
 }
 
@@ -287,18 +294,31 @@ fun CoreTextFieldWithBorders(
     errorIcon: ImageVector? = null,
     errorTextColor: Color = MaterialTheme.colorScheme.error,
     errorIconColor: Color = Color.Red,
+    borderColor: Color = MaterialTheme.colorScheme.outline,
+    focusedBorderColor: Color = MaterialTheme.colorScheme.primary,
+    shape: Shape = RoundedCornerShape(14.dp),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable BoxScope.() -> Unit
 ) {
-    TextFieldOuterBox(
-        modifier = modifier,
-        errorText = errorText,
-        errorIcon = errorIcon,
-        errorIconColor = errorIconColor,
-        errorTextColor = errorTextColor
-    ) {
-        content(this)
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    val stroke = if (isFocused) focusedBorderColor else borderColor
+
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Box(
+            modifier = Modifier
+                .border(width = 1.5.dp, color = stroke, shape = shape)
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+            content = content
+        )
+        ErrorRow(
+            errorText = errorText,
+            errorIcon = errorIcon,
+            errorTextColor = errorTextColor,
+            errorIconColor = errorIconColor
+        )
     }
 }
+
 
 @Composable
 fun TextFieldOuterBox(
@@ -374,16 +394,31 @@ fun BreastCancerSingleLineTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
     keyboardActions: KeyboardActions = KeyboardActions(),
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    colors: TextFieldColors = TextFieldDefaults.colors(
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+    ),
+    borderColor: Color = MaterialTheme.colorScheme.outline,
+    focusedBorderColor: Color = MaterialTheme.colorScheme.primary,
+    shape: Shape = RoundedCornerShape(14.dp)
 ) {
+    val interaction = remember { MutableInteractionSource() }
+
     CoreTextFieldWithBorders(
         modifier = modifier,
         errorText = errorText,
         errorIcon = errorIcon,
         errorTextColor = errorTextColor,
-        errorIconColor = errorIconColor
+        errorIconColor = errorIconColor,
+        borderColor = borderColor,
+        focusedBorderColor = focusedBorderColor,
+        shape = shape,
+        interactionSource = interaction
     ) {
         CoreCustomTextField(
-            modifier = modifier,
+            modifier = Modifier.fillMaxWidth(),
             value = value,
             onValueChange = onValueChange,
             enabled = enabled,
@@ -392,13 +427,8 @@ fun BreastCancerSingleLineTextField(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (labelIcon != null)
-                        Icon(imageVector = labelIcon, contentDescription = label)
-                    if (labelIconRes != null)
-                        Icon(
-                            painter = painterResource(labelIconRes),
-                            contentDescription = label
-                        )
+                    if (labelIcon != null) Icon(imageVector = labelIcon, contentDescription = label)
+                    if (labelIconRes != null) Icon(painter = painterResource(labelIconRes), contentDescription = label)
                     Text(text = label)
                 }
             },
@@ -408,10 +438,13 @@ fun BreastCancerSingleLineTextField(
             maxLines = 1,
             visualTransformation = visualTransformation,
             trailingIcon = trailingIcon,
-            leadingIcon = leadingIcon
+            leadingIcon = leadingIcon,
+            colors = colors,
+            interactionSource = interaction
         )
     }
 }
+
 
 @Composable
 fun BreastCancerMultiLineTextField(

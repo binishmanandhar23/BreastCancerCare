@@ -37,6 +37,7 @@ import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.rememberNavigator
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.logger.Logger
+import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 
 @Composable
 fun App() {
@@ -91,7 +92,12 @@ fun App() {
                                         navigator.navigate(Screens.Main.screen)
                                     },
                                     onRegister = {
-
+                                        navigator.navigate(
+                                            getNavigationRoute(
+                                                mainScreen = Screens.Onboarding,
+                                                subScreen = SubScreens.Register
+                                            )
+                                        )
                                     }
                                 )
                             }
@@ -126,6 +132,16 @@ fun App() {
                                             }
                                             permissionViewModel.dismissDialog()
                                         })
+                            }
+                            scene(
+                                route = getNavigationRoute(
+                                    mainScreen = Screens.Onboarding,
+                                    subScreen = SubScreens.Register
+                                )
+                            ) {
+                                RegisterScreen(
+                                    onBack = { navigator.goBack() }
+                                )
                             }
                             scene(
                                 route = getNavigationRoute(

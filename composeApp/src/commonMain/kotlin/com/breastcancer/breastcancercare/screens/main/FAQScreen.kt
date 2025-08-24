@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -68,62 +69,74 @@ fun FAQScreen(
             ).also { loaderState.hide() }
         }
     }
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().animateContentSize(),
-        verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        itemsIndexed(items = faqs ?: emptyList()) { key, item ->
-            val color =
-                if (key % 2 == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-            var isExpanded by remember {
-                mutableStateOf(false)
-            }
-            val angle: Float by animateFloatAsState(
-                targetValue = if (isExpanded) 180f else 0f,
-                animationSpec = tween(durationMillis = 200, easing = LinearEasing)
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = DefaultHorizontalPadding)
-                    .animateContentSize(),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(containerColor = color),
-                onClick = {
-                    isExpanded = !isExpanded
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            modifier = Modifier.fillMaxHeight(0.1f).padding(
+                horizontal = DefaultHorizontalPadding,
+                vertical = DefaultVerticalPadding
+            ),
+            text = "FAQs",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(horizontal = DefaultHorizontalPadding)
+                .animateContentSize(),
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding),
+            horizontalAlignment = Alignment.Start
+        ) {
+            itemsIndexed(items = faqs ?: emptyList()) { key, item ->
+                val color =
+                    if (key % 2 == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                var isExpanded by remember {
+                    mutableStateOf(false)
                 }
-            ) {
-                Column(
-                    modifier = Modifier.padding(
-                        horizontal = DefaultHorizontalPadding,
-                        vertical = DefaultVerticalPadding
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                    ) {
-                        Icon(
-                            modifier = Modifier.rotate(angle),
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = if (isExpanded) "Collapse" else "Expand"
-                        )
-                        Text(
-                            item.question,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = LocalTextStyle.current.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp
-                            )
-                        )
+                val angle: Float by animateFloatAsState(
+                    targetValue = if (isExpanded) 180f else 0f,
+                    animationSpec = tween(durationMillis = 200, easing = LinearEasing)
+                )
+
+                Card(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = DefaultHorizontalPadding)
+                        .animateContentSize(),
+                    shape = MaterialTheme.shapes.large,
+                    colors = CardDefaults.cardColors(containerColor = color),
+                    onClick = {
+                        isExpanded = !isExpanded
                     }
-                    AnimatedVisibility(visible = isExpanded) {
-                        Text(
-                            modifier = Modifier.padding(vertical = DefaultVerticalPadding),
-                            text = item.answer,
-                            color = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Column(
+                        modifier = Modifier.padding(
+                            horizontal = DefaultHorizontalPadding,
+                            vertical = DefaultVerticalPadding
                         )
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                        ) {
+                            Icon(
+                                modifier = Modifier.rotate(angle),
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = if (isExpanded) "Collapse" else "Expand"
+                            )
+                            Text(
+                                item.question,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = LocalTextStyle.current.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp
+                                )
+                            )
+                        }
+                        AnimatedVisibility(visible = isExpanded) {
+                            Text(
+                                modifier = Modifier.padding(vertical = DefaultVerticalPadding),
+                                text = item.answer,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
                 }
             }

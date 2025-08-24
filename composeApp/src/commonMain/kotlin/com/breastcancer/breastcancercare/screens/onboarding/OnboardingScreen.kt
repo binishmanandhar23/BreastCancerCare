@@ -89,9 +89,13 @@ fun OnboardingScreen(
                 visualTransformation = PasswordVisualTransformation()
             )
             BreastCancerButton(text = "Login", onClick = onLogin)
-            ClickableText(textStyle = TextStyle.Default.copy(fontSize = 12.sp), onClick = {
-
-            }) {
+            ClickableText(textStyle = TextStyle.Default.copy(fontSize = 12.sp),
+                onClick = { tag ->
+                    if (tag == "register") {
+                        onRegister()
+                    }
+                }
+            ) {
                 append("New Member? ")
                 withClickable("register") {
                     withStyle(

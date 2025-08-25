@@ -118,10 +118,9 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         }
         viewModelScope.launch {
             try {
-                val first = userDTO.value.firstName
                 val toSave = userDTO.value.copy(password = password.value)
                 onboardingRepository.insertUser(toSave)
-                _loginUIState.update { LoginUIState.RegistrationSuccessful("Welcome! $first") }
+                _loginUIState.update { LoginUIState.RegistrationSuccessful(successMessage = "Registration Successful!") }
                 reset()
             } catch (e: Exception) {
                 _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }

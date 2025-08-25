@@ -53,7 +53,6 @@ fun BottomBar(
     onFAQ: () -> Unit,
     onSettings: () -> Unit = {}
 ) {
-    val density = LocalDensity.current
     var buttonSize by remember { mutableStateOf(DpSize(0.dp, 0.dp)) }
     val selectedPage by remember(page) { mutableStateOf(Tabs.entries[page].text) }
 

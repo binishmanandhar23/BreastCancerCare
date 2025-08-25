@@ -72,3 +72,5 @@ object TextUtils {
             .toTypedArray().size - 1
     }
 }
+
+fun String.removeSpaces() = replace(" ", "")

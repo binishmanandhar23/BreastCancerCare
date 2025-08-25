@@ -77,7 +77,7 @@ fun OnboardingScreen(
                 loaderState.hide()
                 alreadyLoggedIn()
             }
-            is LoginUIState.Error -> {
+            is LoginUIState.Error, is LoginUIState.RegistrationSuccessful -> {
                 customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
                 loaderState.hide()
             }

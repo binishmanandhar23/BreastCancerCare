@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
 
 class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : ViewModel() {
 
@@ -26,6 +30,26 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
 
     private var _emailValid = MutableStateFlow(true)
     val emailValid = _emailValid.asStateFlow()
+
+    val phoneValid = userDTO
+        .map { dto ->
+            val digits = dto.phoneNumber.filter(Char::isDigit)
+            digits.length in 8..15
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    val emailValidInstant = userDTO
+        .map { dto -> dto.email.isBlank() || (dto.email.contains("@") && dto.email.contains(".")) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    val passwordValidInstant = combine(password, confirmPassword) { pw, cpw ->
+        pw.length >= 6 && pw == cpw
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+    val canRegister = combine(userDTO, emailValidInstant, phoneValid, passwordValidInstant, agree) { dto, emailOK, phoneOK, pwOK, agreeOK ->
+        dto.firstName.isNotBlank() &&
+                dto.lastName.isNotBlank() &&
+                emailOK && phoneOK && pwOK && agreeOK
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
     private var _passwordValid = MutableStateFlow(true)
     val passwordValid = _passwordValid.asStateFlow()
 
@@ -36,11 +60,11 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         viewModelScope.launch {
             _loginUIState.update { LoginUIState.Loading }
             if (onboardingRepository.isLoggedIn())
-                onboardingRepository.getLoggedInUser().collect { userDTO ->
-                    if (userDTO != null)
-                        _loginUIState.update {
-                            LoginUIState.Success("Welcome Back! ${userDTO.firstName}")
-                        }
+                onboardingRepository.getLoggedInUser().collect { user ->
+                    _loginUIState.update {
+                        if (user != null) LoginUIState.Success("Welcome Back! ${user.firstName}")
+                        else LoginUIState.Initial
+                    }
                 }
             else
                 _loginUIState.update { LoginUIState.Initial }
@@ -88,24 +112,21 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     }
 
     fun onRegister() {
-        val first = userDTO.value.firstName
-        val last = userDTO.value.lastName
-        val pw = password.value
-        val cpw = confirmPassword.value
-        updatePasswordValid(pw == cpw && pw.isNotEmpty() && pw.length > 6)
-        updateEmailValid(checkEmailValidity())
-        val canSubmit = first.isNotBlank() && last.isNotBlank() &&
-                emailValid.value && passwordValid.value && agree.value
-        if (canSubmit)
-            viewModelScope.launch {
-                try {
-                    onboardingRepository.insertUser(userDTO.value)
-                    _loginUIState.update { LoginUIState.RegistrationSuccessful("Registered Successfully.") }
-                    reset()
-                } catch (e: Exception) {
-                    _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }
-                }
+        if (!canRegister.value) {
+            _loginUIState.update { LoginUIState.Error("Please check your inputs.") }
+            return
+        }
+        viewModelScope.launch {
+            try {
+                val first = userDTO.value.firstName
+                val toSave = userDTO.value.copy(password = password.value)
+                onboardingRepository.insertUser(toSave)
+                _loginUIState.update { LoginUIState.Success("Welcome! $first") }
+                reset()
+            } catch (e: Exception) {
+                _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }
             }
+        }
     }
 
     fun onLogOut() = viewModelScope.launch {
@@ -116,6 +137,11 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     fun checkEmailValidity(): Boolean =
         userDTO.value.email.let { email -> email.contains("@") && email.contains(".") }
 
-    fun reset() = _userDTO.update { UserDTO() }.also { _password.update { "" } }
+    fun reset() {
+        _userDTO.update { UserDTO() }
+        _password.update { "" }
+        _confirmPassword.update { "" }
+        _agree.update { false }
+    }
 
 }

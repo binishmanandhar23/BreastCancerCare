@@ -28,6 +28,10 @@ import com.breastcancer.breastcancercare.states.LoginUIState
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun RegisterScreen(
@@ -46,6 +50,10 @@ fun RegisterScreen(
     val emailValid by onboardingViewModel.emailValid.collectAsStateWithLifecycle()
     val userDTO by onboardingViewModel.userDTO.collectAsStateWithLifecycle()
     val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
+    val phoneValid by onboardingViewModel.phoneValid.collectAsStateWithLifecycle()
+    val emailValidInstant by onboardingViewModel.emailValidInstant.collectAsStateWithLifecycle()
+    val passwordValidInstant by onboardingViewModel.passwordValidInstant.collectAsStateWithLifecycle()
+    val canRegister by onboardingViewModel.canRegister.collectAsStateWithLifecycle()
 
     LaunchedEffect(loginUIState) {
         when (loginUIState) {
@@ -132,8 +140,22 @@ fun RegisterScreen(
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
-                    errorText = if (!emailValid) "Invalid email" else null,
+                    errorText = if (userDTO.email.isNotBlank() && !emailValidInstant) "Invalid email" else null,
                     errorIcon = Icons.Default.Error,
+                )
+
+                BreastCancerSingleLineTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Phone number",
+                    value = userDTO.phoneNumber,
+                    leadingIcon = { Icon(Icons.Outlined.Phone, contentDescription = "Phone") },
+                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO.copy(phoneNumber = it)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
+                    colors = tfColors,
+                    borderColor = borderNormal,
+                    focusedBorderColor = borderFocused,
+                    errorText = if (!phoneValid && userDTO.phoneNumber.isNotBlank()) "Invalid phone number" else null,
+                    errorIcon = Icons.Default.Error
                 )
 
                 BreastCancerSingleLineTextField(
@@ -151,7 +173,9 @@ fun RegisterScreen(
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
-                    errorText = if (!passwordValid) "Passwords must match and be at least 6 characters long." else null,
+                    errorText = if ((pw.isNotBlank() || confirm.isNotBlank()) && !passwordValidInstant)
+                        "Passwords must match and be at least 6 characters long."
+                    else null,
                     errorIcon = Icons.Default.Error,
                 )
 
@@ -162,10 +186,13 @@ fun RegisterScreen(
                     leadingIcon = { Icon(Icons.Outlined.Password, contentDescription = "Confirm") },
                     onValueChange = onboardingViewModel::updateConfirmPassword,
                     visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
-                    errorText = if (!passwordValid) "Passwords must match and be at least 6 characters long." else null,
+                    errorText = if ((pw.isNotBlank() || confirm.isNotBlank()) && !passwordValidInstant)
+                        "Passwords must match and be at least 6 characters long."
+                    else null,
                     errorIcon = Icons.Default.Error,
                 )
 
@@ -188,11 +215,11 @@ fun RegisterScreen(
         ) {
             BreastCancerButton(
                 text = "Create account",
-                enabled = agree,
+                enabled = canRegister && loginUIState !is LoginUIState.Loading,
                 onClick = onboardingViewModel::onRegister,
                 onDisabledClick = {
                     customSnackBarState.show(
-                        overridingText = "Please agree to the Terms & Conditions before proceeding.",
+                        overridingText = "Please check email, phone, password and agree to the Terms.",
                         overridingDelay = SnackBarLengthMedium
                     )
                 }

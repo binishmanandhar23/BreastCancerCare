@@ -164,7 +164,16 @@ fun App() {
                                     loaderState = loaderState,
                                     onBack = { navigator.goBack() },
                                     registrationSuccessful = {
-                                        navigator.navigate(Screens.Main.screen)
+                                        navigator.navigate(
+                                            getNavigationRoute(Screens.Onboarding),
+                                            options = NavOptions(
+                                                popUpTo = PopUpTo(
+                                                    route = getNavigationRoute(Screens.Onboarding),
+                                                    inclusive = true
+                                                ),
+                                                launchSingleTop = true
+                                            )
+                                        )
                                     }
                                 )
                             }

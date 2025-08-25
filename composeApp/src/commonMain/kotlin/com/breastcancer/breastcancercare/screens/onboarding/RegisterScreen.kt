@@ -49,7 +49,7 @@ fun RegisterScreen(
 
     LaunchedEffect(loginUIState) {
         when (loginUIState) {
-            is LoginUIState.Success -> {
+            is LoginUIState.RegistrationSuccessful -> {
                 customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
                 loaderState.hide()
                 registrationSuccessful()

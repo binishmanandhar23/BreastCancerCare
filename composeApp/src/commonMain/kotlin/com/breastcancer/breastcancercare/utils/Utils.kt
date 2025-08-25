@@ -1,12 +1,26 @@
 package com.breastcancer.breastcancercare.utils
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.breastcancer.breastcancercare.Res
+import com.breastcancer.breastcancercare.default_bg_image
 import com.breastcancer.breastcancercare.screens.Screens
 import com.breastcancer.breastcancercare.screens.SubScreens
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 fun getNavigationRoute(mainScreen: Screens, subScreen: SubScreens? = null): String =
     "${mainScreen.screen}${if (subScreen != null) "/" + subScreen.screen else ""}"
@@ -19,3 +33,33 @@ fun rememberWindowSizeDp(): Pair<Dp, Dp> {
     val hDp = with(density) { sizePx.height.toDp() }
     return wDp to hDp
 }
+
+
+@OptIn(ExperimentalTime::class)
+fun getHomeGreetingText(userName: String? = null): String {
+    val instant = Clock.System.now()
+    val zone = TimeZone.currentSystemDefault()
+    val local: LocalDateTime = instant.toLocalDateTime(zone)
+
+    return when (local.hour) {
+        in 5..11 -> "Good Morning!"
+        in 12..17 -> "Good Afternoon!"
+        else -> "Good Evening!"
+    }.let {
+        if (userName != null)
+            "$it\n$userName"
+        else
+            it
+    }
+}
+
+@Composable
+fun DefaultImage(modifier: Modifier = Modifier, resource: DrawableResource = Res.drawable.default_bg_image, contentScale: ContentScale = ContentScale.Fit) = Image(
+    painterResource(resource = resource),
+    contentDescription = "Default Image",
+    modifier = modifier,
+    contentScale = contentScale
+)
+
+@Composable
+fun DefaultSpacer(size: Dp = DefaultHorizontalPaddingSmall) = Spacer(modifier = Modifier.size(size))

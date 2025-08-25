@@ -7,7 +7,7 @@ import androidx.room.RoomDatabaseConstructor
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.breastcancer.breastcancercare.database.local.dao.CalendarDAO
 import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
-import com.breastcancer.breastcancercare.database.local.dao.OnboardingDAO
+import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.database.local.entity.EventEntity
 import com.breastcancer.breastcancercare.database.local.entity.FAQEntity
 import com.breastcancer.breastcancercare.database.local.entity.LoggedInUserEntity
@@ -23,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getCalendarDAO(): CalendarDAO
 
-    abstract fun getOnboardingDAO(): OnboardingDAO
+    abstract fun getUserDAO(): UserDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

@@ -81,7 +81,7 @@ import com.breastcancer.breastcancercare.components.LazyColumnWithStickyFooter
 import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.models.EventDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.kizitonwose.calendar.compose.VerticalCalendar
@@ -162,7 +162,7 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
                 }
             },
             contentPadding = PaddingValues(
-                horizontal = DefaultHorizontalPadding,
+                horizontal = DefaultHorizontalPaddingSmall,
                 vertical = DefaultVerticalPadding
             )
         )
@@ -178,7 +178,7 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
                     )
                 )
                 .padding(
-                    horizontal = DefaultHorizontalPadding
+                    horizontal = DefaultHorizontalPaddingSmall
                 ).padding(bottom = DefaultVerticalPadding * 2).align(Alignment.TopCenter)
         ) {
             for (dayOfWeek in listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")) {
@@ -387,7 +387,7 @@ fun BottomInfoCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = DefaultHorizontalPadding,
+                        horizontal = DefaultHorizontalPaddingSmall,
                         vertical = DefaultVerticalPadding
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -537,7 +537,7 @@ private fun EmptyContainer(modifier: Modifier, eventType: EventType) {
         Column(
             modifier = Modifier.fillMaxWidth().alpha(0.5f)
                 .padding(
-                    horizontal = DefaultHorizontalPadding,
+                    horizontal = DefaultHorizontalPaddingSmall,
                     vertical = DefaultVerticalPadding * 2
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,

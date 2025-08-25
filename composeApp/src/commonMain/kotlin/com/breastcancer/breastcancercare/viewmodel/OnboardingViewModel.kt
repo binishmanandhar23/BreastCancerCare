@@ -99,7 +99,7 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
                         if (user == null)
                             _loginUIState.update { LoginUIState.Error("User not found") }
                         else {
-                            if (user.password == userDTO.value.password) {
+                            if (user.password == password.value) {
                                 onboardingRepository.setLoggedInUser(user)
                                 _loginUIState.update { LoginUIState.Success("Welcome Back! ${user.firstName}") }
                                 reset()
@@ -121,7 +121,7 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
                 val first = userDTO.value.firstName
                 val toSave = userDTO.value.copy(password = password.value)
                 onboardingRepository.insertUser(toSave)
-                _loginUIState.update { LoginUIState.Success("Welcome! $first") }
+                _loginUIState.update { LoginUIState.RegistrationSuccessful("Welcome! $first") }
                 reset()
             } catch (e: Exception) {
                 _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }

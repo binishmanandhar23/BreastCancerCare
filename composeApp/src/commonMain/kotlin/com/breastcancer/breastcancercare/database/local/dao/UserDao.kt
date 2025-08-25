@@ -9,7 +9,7 @@ import com.breastcancer.breastcancercare.database.local.entity.UserEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface OnboardingDAO {
+interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(userEntity: UserEntity)
 

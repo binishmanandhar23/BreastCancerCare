@@ -25,7 +25,7 @@ import com.breastcancer.breastcancercare.screens.SubScreens
 import com.breastcancer.breastcancercare.screens.Tabs
 import com.breastcancer.breastcancercare.states.LoginUIState
 import com.breastcancer.breastcancercare.theme.DefaultElevation
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
@@ -56,6 +56,7 @@ fun MainScreen(
         HorizontalPager(
             modifier = Modifier.fillMaxSize(),
             state = pagerState,
+            userScrollEnabled = false,
             beyondViewportPageCount = 1
         ) { page ->
             when (Tabs.entries[page].text) {
@@ -91,10 +92,11 @@ fun MainScreen(
                 .background(color = MaterialTheme.colorScheme.background)
                 .padding(
                     PaddingValues(
-                        horizontal = DefaultHorizontalPadding,
+                        horizontal = DefaultHorizontalPaddingSmall,
                         vertical = DefaultVerticalPadding
                     )
                 ),
+            page = pagerState.currentPage,
             onHome = {
                 scope.launch { pagerState.animateScrollToPage(Tabs.Home.ordinal) }
             },

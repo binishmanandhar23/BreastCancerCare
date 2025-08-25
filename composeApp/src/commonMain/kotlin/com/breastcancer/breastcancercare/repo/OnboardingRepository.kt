@@ -1,40 +1,41 @@
 package com.breastcancer.breastcancercare.repo
 
-import com.breastcancer.breastcancercare.database.local.dao.OnboardingDAO
+import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.models.toDTO
 import com.breastcancer.breastcancercare.models.toEntity
 import com.breastcancer.breastcancercare.models.toLoggedInEntity
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 
-class OnboardingRepository(val onboardingDAO: OnboardingDAO) {
+class OnboardingRepository(val userDao: UserDao) {
     suspend fun insertUser(userDTO: UserDTO) {
         var id = userDTO.id
         if (id == 0L)
             id = getIdForUserEntity() + 1
         if (!checkIfEmailExists(userDTO.email))
-            onboardingDAO.insertUser(userDTO.copy(id = id).toEntity())
+            userDao.insertUser(userDTO.copy(id = id).toEntity())
         else
             throw Exception("Email already exists")
 
     }
 
-    fun getUser(email: String) = onboardingDAO.getUser(email = email).map { it?.toDTO() }
+    fun getUser(email: String) = userDao.getUser(email = email).map { it?.toDTO() }
 
     suspend fun updateUser(userDTO: UserDTO) = insertUser(userDTO)
 
-    suspend fun getIdForUserEntity() = onboardingDAO.getMaxId()
+    suspend fun getIdForUserEntity() = userDao.getMaxId()
 
     suspend fun checkIfEmailExists(email: String) =
-        onboardingDAO.emailExistsIgnoreCase(email = email)
+        userDao.emailExistsIgnoreCase(email = email)
 
-    suspend fun isLoggedIn() = onboardingDAO.isLoggedIn()
+    suspend fun isLoggedIn() = userDao.isLoggedIn()
 
-    fun getLoggedInUser() = onboardingDAO.getLoggedInUser().map { it?.toDTO() }
+    fun getLoggedInUser() = userDao.getLoggedInUser().map { it?.toDTO() }
 
-    suspend fun setLoggedInUser(userDTO: UserDTO) = onboardingDAO.deleteLoggedInUser()
-        .also { onboardingDAO.setLoggedInUser(userDTO.toLoggedInEntity()) }
+    suspend fun setLoggedInUser(userDTO: UserDTO) {
+        userDao.deleteLoggedInUser()
+        userDao.setLoggedInUser(userDTO.toLoggedInEntity())
+    }
 
-    suspend fun logOut() = onboardingDAO.deleteLoggedInUser()
+    suspend fun logOut() = userDao.deleteLoggedInUser()
 }

@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -35,8 +36,18 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun BottomBarIcon(imageVector: ImageVector, text: String, tint: Color = MaterialTheme.colorScheme.onBackground, onClick: (() -> Unit)? = null){
-    Column(modifier = Modifier.clickable(onClick = onClick?: {}), verticalArrangement = Arrangement.spacedBy(5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+fun BottomBarIcon(
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector,
+    text: String,
+    tint: Color = MaterialTheme.colorScheme.onBackground,
+    onClick: (() -> Unit)? = null
+) {
+    Column(
+        modifier = modifier.clip(shape = MaterialTheme.shapes.medium).clickable(onClick = onClick ?: {}),
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Icon(
             imageVector = imageVector,
             contentDescription = text,
@@ -47,7 +58,11 @@ fun BottomBarIcon(imageVector: ImageVector, text: String, tint: Color = Material
 }
 
 @Composable
-fun CenterButton(modifier: Modifier = Modifier, onSizeChange: ((IntSize) -> Unit)? = null, onClick: () -> Unit) {
+fun CenterButton(
+    modifier: Modifier = Modifier,
+    onSizeChange: ((IntSize) -> Unit)? = null,
+    onClick: () -> Unit
+) {
     val hapticFeedback = LocalHapticFeedback.current
     Box(
         modifier = modifier

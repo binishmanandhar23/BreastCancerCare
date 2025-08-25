@@ -40,7 +40,7 @@ import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMediu
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.states.FAQUIState
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -72,14 +72,14 @@ fun FAQScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             modifier = Modifier.fillMaxHeight(0.1f).padding(
-                horizontal = DefaultHorizontalPadding,
+                horizontal = DefaultHorizontalPaddingSmall,
                 vertical = DefaultVerticalPadding
             ),
             text = "FAQs",
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(horizontal = DefaultHorizontalPadding)
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(horizontal = DefaultHorizontalPaddingSmall)
                 .animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding),
             horizontalAlignment = Alignment.Start
@@ -97,7 +97,7 @@ fun FAQScreen(
 
                 Card(
                     modifier = Modifier.fillMaxWidth()
-                        .padding(horizontal = DefaultHorizontalPadding)
+                        .padding(horizontal = DefaultHorizontalPaddingSmall)
                         .animateContentSize(),
                     shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(containerColor = color),
@@ -107,7 +107,7 @@ fun FAQScreen(
                 ) {
                     Column(
                         modifier = Modifier.padding(
-                            horizontal = DefaultHorizontalPadding,
+                            horizontal = DefaultHorizontalPaddingSmall,
                             vertical = DefaultVerticalPadding
                         )
                     ) {

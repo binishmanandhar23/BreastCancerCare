@@ -3,7 +3,6 @@ package com.breastcancer.breastcancercare.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,14 +18,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,9 +32,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,17 +53,14 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.models.EventDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramEventDTO
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.DayOfWeekNames
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.MonthNames
@@ -76,7 +68,6 @@ import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.format.char
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.graphics.Color
@@ -86,7 +77,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material3.IconButton
+import androidx.compose.ui.layout.ContentScale
+import com.breastcancer.breastcancercare.utils.DefaultImage
 
 
 @OptIn(FormatStringsInDatetimeFormats::class)
@@ -102,7 +94,7 @@ fun EventProgramDesign(modifier: Modifier, programEventDTO: ProgramEventDTO, onC
     ) {
         Row(
             modifier = Modifier.padding(
-                horizontal = DefaultHorizontalPadding,
+                horizontal = DefaultHorizontalPaddingSmall,
                 vertical = DefaultVerticalPadding
             ).onSizeChanged {
                 finalHeight = it.height
@@ -616,7 +608,7 @@ fun BreastCancerAlertDialog(
 @Composable
 fun BreastCancerToolbar(
     modifier: Modifier = Modifier.fillMaxWidth().padding(
-        horizontal = DefaultHorizontalPadding
+        horizontal = DefaultHorizontalPaddingSmall
     ),
     onBack: () -> Unit
 ) = Row(
@@ -635,4 +627,31 @@ fun BreastCancerToolbar(
         "Create your account",
         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
     )
+}
+
+@Composable
+fun CoreHomeCardDesign(
+    modifier: Modifier,
+    image: @Composable ColumnScope.() -> Unit = {
+        DefaultImage(
+            modifier = Modifier.fillMaxWidth().height(150.dp), contentScale = ContentScale.Crop
+        )
+    },
+    title: @Composable ColumnScope.() -> Unit,
+    subtitle: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = modifier,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        shape = MaterialTheme.shapes.large
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            image()
+            Column(modifier = Modifier.padding(horizontal = DefaultHorizontalPaddingSmall)) {
+                title()
+                subtitle()
+            }
+        }
+    }
 }

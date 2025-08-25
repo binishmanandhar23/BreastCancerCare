@@ -16,8 +16,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 @Composable
 fun ContactSupportScreen(onBack: () -> Unit = {}) {
     val uriHandler = LocalUriHandler.current
-    val supportEmail = "support@example.com" // TODO: replace with real support email
-    val supportPhone = "+61 8 1234 5678"     // TODO: replace with real support phone (E.164 recommended)
+    val supportEmail = "info@breastcancer.org.au"
+    val supportPhone = "(08) 9324 3703"
 
     Scaffold(
         topBar = {

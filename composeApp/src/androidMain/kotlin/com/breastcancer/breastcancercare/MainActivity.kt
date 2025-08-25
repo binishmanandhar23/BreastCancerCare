@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val darkTheme = isSystemInDarkTheme()
             MaterialTheme(
-                colorScheme = if (darkTheme) DarkAppColorScheme else LightAppColorScheme,
+                colorScheme = if (darkTheme) LightAppColorScheme else LightAppColorScheme,
             ) {
                 PreComposeApp {
                     App()

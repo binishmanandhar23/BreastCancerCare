@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,11 +16,10 @@ import androidx.compose.ui.unit.dp
 import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPadding
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import dev.icerock.moko.permissions.PermissionState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.*
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,7 +87,7 @@ fun SettingsScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = DefaultVerticalPadding, horizontal = DefaultHorizontalPadding),
+            .padding(vertical = DefaultVerticalPadding, horizontal = DefaultHorizontalPaddingSmall),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         stickyHeader {

@@ -32,6 +32,7 @@ import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import com.breastcancer.breastcancercare.utils.text.removeSpaces
 
 @Composable
 fun RegisterScreen(
@@ -136,7 +137,7 @@ fun RegisterScreen(
                     label = "Email",
                     value = userDTO.email,
                     leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email") },
-                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO = userDTO.copy(email = it)) },
+                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO = userDTO.copy(email = it.removeSpaces())) },
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
@@ -149,7 +150,7 @@ fun RegisterScreen(
                     label = "Phone number",
                     value = userDTO.phoneNumber,
                     leadingIcon = { Icon(Icons.Outlined.Phone, contentDescription = "Phone") },
-                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO.copy(phoneNumber = it)) },
+                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO.copy(phoneNumber = it.removeSpaces())) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
                     colors = tfColors,
                     borderColor = borderNormal,

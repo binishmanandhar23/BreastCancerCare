@@ -17,9 +17,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.breastcancer.breastcancercare.database.local.dao.UserDao
+import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+
+
+data class ProfileUiState(
+    val name: String? = null,
+    val email: String? = null,
+    val initials: String? = null,
+    val loading: Boolean = false,
+    val error: String? = null
+)
 
 @Composable
-fun ProfileScreen(onBack: () -> Unit = {}) {
+fun ProfileScreen(
+    uiState: ProfileUiState,
+    onBack: () -> Unit = {},
+    onEditProfile: () -> Unit = {}
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -32,6 +55,35 @@ fun ProfileScreen(onBack: () -> Unit = {}) {
             )
         }
     ) { inner ->
+
+        if (uiState.loading) {
+            Box(
+                modifier = Modifier
+                    .padding(inner)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
+        if (uiState.error != null) {
+            Box(
+                modifier = Modifier
+                    .padding(inner)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = uiState.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+            return@Scaffold
+        }
+
         LazyColumn(
             modifier = Modifier
                 .padding(inner)
@@ -43,16 +95,18 @@ fun ProfileScreen(onBack: () -> Unit = {}) {
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    AvatarPlaceholder(initials = "U") // later: compute from real name
+                    AvatarPlaceholder(
+                        initials = (uiState.initials ?: uiState.name?.firstOrNull()?.uppercase() ?: "U")
+                    )
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Text("User Name", style = MaterialTheme.typography.headlineSmall)
-                        Text("user@example.com", style = MaterialTheme.typography.bodyMedium)
+                        Text(uiState.name ?: "—", style = MaterialTheme.typography.headlineSmall)
+                        Text(uiState.email ?: "—", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
             item {
                 Button(
-                    onClick = { /* TODO: Navigate to Edit Profile screen */ },
+                    onClick = onEditProfile,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
@@ -83,4 +137,24 @@ private fun AvatarPlaceholder(
             textAlign = TextAlign.Center
         )
     }
+}
+
+@Composable
+fun ProfileRoute(
+    userDao: UserDao,
+    onBack: () -> Unit = {},
+    onEditProfile: () -> Unit = {}
+) {
+    val vm: ProfileViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { ProfileViewModel(userDao) }
+        }
+    )
+    val uiState by vm.state.collectAsState()
+
+    ProfileScreen(
+        uiState = uiState,
+        onBack = onBack,
+        onEditProfile = onEditProfile
+    )
 }

@@ -11,8 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
 import com.breastcancer.breastcancercare.components.loader.CustomLoader
@@ -24,22 +22,21 @@ import com.breastcancer.breastcancercare.screens.SubScreens
 import com.breastcancer.breastcancercare.screens.main.AboutScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.MainScreen
-import com.breastcancer.breastcancercare.screens.main.ProfileScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.utils.getNavigationRoute
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
 import kotlinx.coroutines.launch
-import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
-import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.rememberNavigator
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.logger.Logger
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.PopUpTo
+
+
+
 
 @Composable
 fun App() {
@@ -193,10 +190,13 @@ fun App() {
                                     subScreen = SubScreens.Profile
                                 )
                             ) {
-                                ProfileScreen {
-                                    navigator.goBack()
-                                }
+                                val userDao: com.breastcancer.breastcancercare.database.local.dao.UserDao = org.koin.compose.koinInject()
+                                com.breastcancer.breastcancercare.screens.main.ProfileRoute(
+                                    userDao = userDao,
+                                    onBack = { navigator.goBack() }
+                                )
                             }
+
                             scene(
                                 route = getNavigationRoute(
                                     mainScreen = Screens.Main,

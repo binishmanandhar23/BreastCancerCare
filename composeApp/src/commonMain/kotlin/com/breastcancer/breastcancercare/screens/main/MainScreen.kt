@@ -73,7 +73,7 @@ fun MainScreen(
                     onOpenProfile = { onSubScreenChange(SubScreens.Profile) },
                     onOpenAbout = { onSubScreenChange(SubScreens.About) },
                     onContactSupport = { onSubScreenChange(SubScreens.Contact) },
-                    onLogOut = onboardingViewModel::onLogOut
+                    onLogOut = onLogOut
                 )
             }
         }

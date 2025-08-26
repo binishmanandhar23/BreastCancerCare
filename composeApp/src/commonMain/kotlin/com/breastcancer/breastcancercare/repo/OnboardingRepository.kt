@@ -21,7 +21,13 @@ class OnboardingRepository(val userDao: UserDao) {
 
     fun getUser(email: String) = userDao.getUser(email = email).map { it?.toDTO() }
 
-    suspend fun updateUser(userDTO: UserDTO) = insertUser(userDTO)
+    suspend fun updateUser(userDTO: UserDTO) {
+        if (userDao.emailExistsForOtherUser(userDTO.email, excludeId = userDTO.id)) {
+            throw Exception("Email already exists")
+        }
+        userDao.insertUser(userDTO.toEntity())
+    }
+
 
     suspend fun getIdForUserEntity() = userDao.getMaxId()
 

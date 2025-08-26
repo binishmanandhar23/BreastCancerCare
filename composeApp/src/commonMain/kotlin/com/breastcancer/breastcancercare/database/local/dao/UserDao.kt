@@ -27,6 +27,17 @@ interface UserDao {
     )""")
     suspend fun emailExistsIgnoreCase(email: String): Boolean
 
+    @Query("""
+SELECT EXISTS(
+    SELECT 1 FROM userentity
+    WHERE email = :email COLLATE NOCASE
+      AND id != :excludeId
+    LIMIT 1
+)
+""")
+    suspend fun emailExistsForOtherUser(email: String, excludeId: Long): Boolean
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun setLoggedInUser(userEntity: LoggedInUserEntity)
 

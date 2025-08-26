@@ -193,10 +193,28 @@ fun App() {
                                 val userDao: com.breastcancer.breastcancercare.database.local.dao.UserDao = org.koin.compose.koinInject()
                                 com.breastcancer.breastcancercare.screens.main.ProfileRoute(
                                     userDao = userDao,
-                                    onBack = { navigator.goBack() }
+                                    onBack = { navigator.goBack() },
+                                    onEditProfile = {
+                                        navigator.navigate(
+                                            getNavigationRoute(
+                                                mainScreen = Screens.Main,
+                                                subScreen = SubScreens.EditProfile
+                                            )
+                                        )
+                                    }
                                 )
                             }
 
+                            scene(
+                                route = getNavigationRoute(
+                                    mainScreen = Screens.Main,
+                                    subScreen = SubScreens.EditProfile
+                                )
+                            ) {
+                                com.breastcancer.breastcancercare.screens.main.EditProfileRoute(
+                                    onBack = { navigator.goBack() }
+                                )
+                            }
                             scene(
                                 route = getNavigationRoute(
                                     mainScreen = Screens.Main,

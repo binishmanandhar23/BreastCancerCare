@@ -1,7 +1,6 @@
 package com.breastcancer.breastcancercare.screens.onboarding
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,37 +8,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.Res
 import com.breastcancer.breastcancercare.app_name
 import com.breastcancer.breastcancercare.breast_cancer_care_wa
-import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
 import com.breastcancer.breastcancercare.components.BreastCancerButton
 import com.breastcancer.breastcancercare.components.BreastCancerSingleLineTextField
 import com.breastcancer.breastcancercare.components.loader.LoaderState
@@ -49,7 +39,6 @@ import com.breastcancer.breastcancercare.states.LoginUIState
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.utils.rememberWindowSizeDp
 import com.breastcancer.breastcancercare.utils.text.ClickableText
-import com.breastcancer.breastcancercare.utils.text.TextUtils
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -73,13 +62,17 @@ fun OnboardingScreen(
     LaunchedEffect(loginUIState) {
         when (loginUIState) {
             is LoginUIState.Success -> {
-                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
                 loaderState.hide()
+                onboardingViewModel.clearTransientLoginState()
                 alreadyLoggedIn()
             }
             is LoginUIState.Error, is LoginUIState.RegistrationSuccessful -> {
-                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
+                customSnackBarState.show(
+                    overridingText = loginUIState.message,
+                    overridingDelay = SnackBarLengthMedium
+                )
                 loaderState.hide()
+                onboardingViewModel.clearTransientLoginState()
             }
             is LoginUIState.Loading -> loaderState.show()
             else -> loaderState.hide()

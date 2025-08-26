@@ -48,7 +48,6 @@ fun EditProfileScreen(
     onBack: () -> Unit,
     onFirstNameChange: (String) -> Unit,
     onLastNameChange: (String) -> Unit,
-    onEmailChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
     onSave: () -> Unit,
     snackbarHostState: SnackbarHostState
@@ -110,13 +109,6 @@ fun EditProfileScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
-                value = state.email,
-                onValueChange = onEmailChange,
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            OutlinedTextField(
                 value = state.phoneNumber,
                 onValueChange = onPhoneChange,
                 label = { Text("Phone number") },
@@ -174,7 +166,6 @@ fun EditProfileRoute(
         onBack = onBack,
         onFirstNameChange = vm::onFirstNameChange,
         onLastNameChange = vm::onLastNameChange,
-        onEmailChange = vm::onEmailChange,
         onPhoneChange = vm::onPhoneChange,
         onSave = vm::save,
         snackbarHostState = snackbarHostState

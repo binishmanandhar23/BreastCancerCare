@@ -45,7 +45,6 @@ class EditProfileViewModel(
                         canSave = canSave(
                             firstName = dto.firstName,
                             lastName = dto.lastName,
-                            email = dto.email,
                             phone = dto.phoneNumber
                         )
                     )
@@ -56,22 +55,17 @@ class EditProfileViewModel(
 
     fun onFirstNameChange(value: String) = _state.update {
         val s = it.copy(firstName = value)
-        s.copy(canSave = canSave(s.firstName, s.lastName, s.email, s.phoneNumber))
+        s.copy(canSave = canSave(s.firstName, s.lastName, s.phoneNumber))
     }
 
     fun onLastNameChange(value: String) = _state.update {
         val s = it.copy(lastName = value)
-        s.copy(canSave = canSave(s.firstName, s.lastName, s.email, s.phoneNumber))
-    }
-
-    fun onEmailChange(value: String) = _state.update {
-        val s = it.copy(email = value)
-        s.copy(canSave = canSave(s.firstName, s.lastName, s.email, s.phoneNumber))
+        s.copy(canSave = canSave(s.firstName, s.lastName, s.phoneNumber))
     }
 
     fun onPhoneChange(value: String) = _state.update {
         val s = it.copy(phoneNumber = value)
-        s.copy(canSave = canSave(s.firstName, s.lastName, s.email, s.phoneNumber))
+        s.copy(canSave = canSave(s.firstName, s.lastName, s.phoneNumber))
     }
 
     fun onAddressChange(value: String) = _state.update { it.copy(address = value) }
@@ -103,10 +97,9 @@ class EditProfileViewModel(
         }
     }
 
-    private fun canSave(firstName: String, lastName: String, email: String, phone: String): Boolean {
-        val emailOk = email.contains("@") && email.contains(".")
+    private fun canSave(firstName: String, lastName: String, phone: String): Boolean {
         val digits = phone.filter(Char::isDigit)
         val phoneOk = digits.length in 8..15
-        return firstName.isNotBlank() && lastName.isNotBlank() && emailOk && phoneOk
+        return firstName.isNotBlank() && lastName.isNotBlank() && phoneOk
     }
 }

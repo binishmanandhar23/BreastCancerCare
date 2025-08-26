@@ -143,4 +143,7 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         _agree.update { false }
     }
 
+    fun clearTransientLoginState() {
+        _loginUIState.update { LoginUIState.Initial }
+    }
 }

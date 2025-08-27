@@ -45,7 +45,13 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     val passwordValidInstant = combine(password, confirmPassword) { pw, cpw ->
         pw.length >= 6 && pw == cpw
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-    val canRegister = combine(userDTO, emailValidInstant, phoneValid, passwordValidInstant, agree) { dto, emailOK, phoneOK, pwOK, agreeOK ->
+    val canRegister = combine(
+        userDTO,
+        emailValidInstant,
+        phoneValid,
+        passwordValidInstant,
+        agree
+    ) { dto, emailOK, phoneOK, pwOK, agreeOK ->
         dto.firstName.isNotBlank() &&
                 dto.lastName.isNotBlank() &&
                 emailOK && phoneOK && pwOK && agreeOK
@@ -101,20 +107,19 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     }
 
     fun onRegister() {
-        if (!canRegister.value) {
+        if (!canRegister.value)
             _loginUIState.update { LoginUIState.Error("Please check your inputs.") }
-            return
-        }
-        viewModelScope.launch {
-            try {
-                val toSave = userDTO.value.copy(password = password.value)
-                onboardingRepository.insertUser(toSave)
-                _loginUIState.update { LoginUIState.RegistrationSuccessful(successMessage = "Registration Successful!") }
-                reset()
-            } catch (e: Exception) {
-                _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }
+        else
+            viewModelScope.launch {
+                try {
+                    val toSave = userDTO.value.copy(password = password.value)
+                    onboardingRepository.insertUser(toSave)
+                    _loginUIState.update { LoginUIState.RegistrationSuccessful(successMessage = "Registration Successful!") }
+                    reset()
+                } catch (e: Exception) {
+                    _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }
+                }
             }
-        }
     }
 
     fun onLogOut() = viewModelScope.launch {

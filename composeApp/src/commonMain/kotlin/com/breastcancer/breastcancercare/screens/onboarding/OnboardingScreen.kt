@@ -49,30 +49,30 @@ fun OnboardingScreen(
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
     onboardingViewModel: OnboardingViewModel = koinViewModel(),
-    alreadyLoggedIn: () -> Unit,
+    onLogin: () -> Unit,
     onRegister: () -> Unit
 ) {
     val clickHereColor = MaterialTheme.colorScheme.secondary
     val userDTO by onboardingViewModel.userDTO.collectAsStateWithLifecycle()
     val password by onboardingViewModel.password.collectAsStateWithLifecycle()
     val emailValid by onboardingViewModel.emailValid.collectAsStateWithLifecycle()
-    val windowSize = rememberWindowSizeDp()
     val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
+    val windowSize = rememberWindowSizeDp()
 
     LaunchedEffect(loginUIState) {
         when (loginUIState) {
-            is LoginUIState.Success -> {
-                loaderState.hide()
-                onboardingViewModel.clearTransientLoginState()
-                alreadyLoggedIn()
-            }
-            is LoginUIState.Error, is LoginUIState.RegistrationSuccessful -> {
+            is LoginUIState.Error ->{
                 customSnackBarState.show(
                     overridingText = loginUIState.message,
                     overridingDelay = SnackBarLengthMedium
                 )
                 loaderState.hide()
                 onboardingViewModel.clearTransientLoginState()
+            }
+            is LoginUIState.Success -> {
+                onboardingViewModel.clearTransientLoginState()
+                onLogin()
+                loaderState.hide()
             }
             is LoginUIState.Loading -> loaderState.show()
             else -> loaderState.hide()

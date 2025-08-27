@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.repo.OnboardingRepository
 import com.breastcancer.breastcancercare.states.LoginUIState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -56,21 +57,6 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     private var _loginUIState = MutableStateFlow<LoginUIState>(LoginUIState.Initial)
     val loginUIState = _loginUIState.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            _loginUIState.update { LoginUIState.Loading }
-            if (onboardingRepository.isLoggedIn())
-                onboardingRepository.getLoggedInUser().collect { user ->
-                    _loginUIState.update {
-                        if (user != null) LoginUIState.Success("Welcome Back! ${user.firstName}")
-                        else LoginUIState.Initial
-                    }
-                }
-            else
-                _loginUIState.update { LoginUIState.Initial }
-
-        }
-    }
 
     fun updatePassword(password: String) =
         _password.update { password }.also { updatePasswordValid(true) }
@@ -91,7 +77,10 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         }
 
     fun onLogin() {
-        viewModelScope.launch {
+        _loginUIState.update {
+            LoginUIState.Loading
+        }
+        viewModelScope.launch(Dispatchers.Default) {
             checkEmailValidity().let { valid ->
                 updateEmailValid(valid)
                 if (valid)

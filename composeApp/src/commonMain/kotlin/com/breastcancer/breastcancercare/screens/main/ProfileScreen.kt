@@ -27,6 +27,7 @@ import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import org.koin.compose.viewmodel.koinViewModel
 
 
 data class ProfileUiState(
@@ -141,16 +142,11 @@ private fun AvatarPlaceholder(
 
 @Composable
 fun ProfileRoute(
-    userDao: UserDao,
+    profileViewModel: ProfileViewModel = koinViewModel(),
     onBack: () -> Unit = {},
     onEditProfile: () -> Unit = {}
 ) {
-    val vm: ProfileViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer { ProfileViewModel(userDao) }
-        }
-    )
-    val uiState by vm.state.collectAsState()
+    val uiState by profileViewModel.state.collectAsState()
 
     ProfileScreen(
         uiState = uiState,

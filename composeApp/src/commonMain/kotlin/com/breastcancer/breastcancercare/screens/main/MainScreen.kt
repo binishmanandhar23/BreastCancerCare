@@ -45,12 +45,6 @@ fun MainScreen(
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { Tabs.entries.size })
-    val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(loginUIState){
-        if(loginUIState is LoginUIState.LoggedOut)
-            onLogOut()
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
@@ -73,7 +67,10 @@ fun MainScreen(
                     onOpenProfile = { onSubScreenChange(SubScreens.Profile) },
                     onOpenAbout = { onSubScreenChange(SubScreens.About) },
                     onContactSupport = { onSubScreenChange(SubScreens.Contact) },
-                    onLogOut = onLogOut
+                    onLogOut = {
+                        onboardingViewModel.onLogOut()
+                        onLogOut()
+                    }
                 )
             }
         }

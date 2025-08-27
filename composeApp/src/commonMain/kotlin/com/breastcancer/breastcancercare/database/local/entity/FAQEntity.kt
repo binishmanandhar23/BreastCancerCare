@@ -4,4 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class FAQEntity(@PrimaryKey val id: Long = 0L, val question: String, val answer: String)
+data class FAQEntity(
+    @PrimaryKey val id: Long = 0L,
+    val suitabilities: List<SuitabilityEntity>,
+    val question: String,
+    val answer: String
+)

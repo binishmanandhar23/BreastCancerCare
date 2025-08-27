@@ -10,6 +10,7 @@ import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
+import com.breastcancer.breastcancercare.viewmodel.SplashViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -26,4 +27,5 @@ fun commonModule(): Module = module {
     singleOf(::OnboardingViewModel)
     singleOf(::PermissionViewModel)
     singleOf(::HomeViewModel)
+    singleOf(::SplashViewModel)
 }

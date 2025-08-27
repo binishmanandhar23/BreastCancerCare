@@ -18,24 +18,25 @@ import com.breastcancer.breastcancercare.components.loader.rememberLoaderState
 import com.breastcancer.breastcancercare.components.snackbar.CustomSnackBar
 import com.breastcancer.breastcancercare.components.snackbar.rememberSnackBarState
 import com.breastcancer.breastcancercare.screens.Screens
+import com.breastcancer.breastcancercare.screens.SplashScreen
 import com.breastcancer.breastcancercare.screens.SubScreens
 import com.breastcancer.breastcancercare.screens.main.AboutScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
+import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
 import com.breastcancer.breastcancercare.screens.main.MainScreen
+import com.breastcancer.breastcancercare.screens.main.ProfileRoute
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
+import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 import com.breastcancer.breastcancercare.utils.getNavigationRoute
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.NavHost
-import moe.tlaster.precompose.navigation.rememberNavigator
-import org.koin.compose.viewmodel.koinViewModel
-import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.PopUpTo
-
-
+import moe.tlaster.precompose.navigation.rememberNavigator
+import org.koin.compose.viewmodel.koinViewModel
 
 
 @Composable
@@ -48,12 +49,8 @@ fun App() {
 
     BindEffect(permissionViewModel.permissionsController)
     val coroutineScope = rememberCoroutineScope()
-    val repo: com.breastcancer.breastcancercare.repo.OnboardingRepository =
-        org.koin.compose.koinInject()
-    val loggedInUser by repo.getLoggedInUser().collectAsStateWithLifecycle(initialValue = null)
 
     LaunchedEffect(permissionState) {
-        println("Permission State: ${permissionState.name}")
         when (permissionState) {
             PermissionState.NotDetermined ->
                 coroutineScope.launch {
@@ -79,141 +76,175 @@ fun App() {
                         snackBarState = customSnackBarState,
                         useBox = true
                     ) {
-                        if (loggedInUser == null) {
-                            val navigator = rememberNavigator()
-                            NavHost(
-                                navigator = navigator,
-                                initialRoute = Screens.Onboarding.screen
-                            ) {
-                                scene(route = getNavigationRoute(mainScreen = Screens.Onboarding)) {
-                                    OnboardingScreen(
-                                        loaderState = loaderState,
-                                        customSnackBarState = customSnackBarState,
-                                        alreadyLoggedIn = { /* no-op */ },
-                                        onRegister = {
-                                            navigator.navigate(
-                                                getNavigationRoute(
-                                                    mainScreen = Screens.Onboarding,
-                                                    subScreen = SubScreens.Register
-                                                )
-                                            )
-                                        }
-                                    )
-                                }
-                                scene(
-                                    route = getNavigationRoute(
-                                        mainScreen = Screens.Onboarding,
-                                        subScreen = SubScreens.Register
-                                    )
-                                ) {
-                                    RegisterScreen(
-                                        customSnackBarState = customSnackBarState,
-                                        loaderState = loaderState,
-                                        onBack = { navigator.goBack() },
-                                        registrationSuccessful = {
-                                            navigator.navigate(
-                                                getNavigationRoute(Screens.Onboarding),
-                                                options = NavOptions(
-                                                    popUpTo = PopUpTo(
-                                                        route = getNavigationRoute(Screens.Onboarding),
-                                                        inclusive = true
-                                                    ),
-                                                    launchSingleTop = true
-                                                )
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-                        } else {
-                            val navigator = rememberNavigator()
-                            NavHost(
-                                navigator = navigator,
-                                initialRoute = Screens.Main.screen
-                            ) {
-                                scene(route = getNavigationRoute(Screens.Main)) {
-                                    MainScreen(
-                                        permissionState = permissionState,
-                                        loaderState = loaderState,
-                                        customSnackBarState = customSnackBarState,
-                                        onSubScreenChange = {
-                                            navigator.navigate(
-                                                getNavigationRoute(
-                                                    mainScreen = Screens.Main,
-                                                    subScreen = it
-                                                )
-                                            )
-                                        },
-                                        onLogOut = {
-                                            coroutineScope.launch { repo.logOut() }
-                                        }
-                                    )
-
-                                    if (permissionImportantDialog)
-                                        BreastCancerAlertDialog(
-                                            title = "Important!",
-                                            text = {
-                                                Text("It is very important that you grant the notifications permission to receive notifications regarding events and programs from us.\nPlease grant the permission to receive updates.")
-                                            },
-                                            confirmText = "Grant",
-                                            dismissText = "Cancel",
-                                            onDismissRequest = { permissionViewModel.dismissDialog() },
-                                            onConfirm = {
-                                                coroutineScope.launch {
-                                                    permissionViewModel.onRequestPermissionButtonPressed()
-                                                }
-                                                permissionViewModel.dismissDialog()
-                                            }
+                        val navigator = rememberNavigator()
+                        NavHost(
+                            navigator = navigator,
+                            initialRoute = Screens.Splash.screen
+                        ) {
+                            scene(route = getNavigationRoute(mainScreen = Screens.Splash)) {
+                                SplashScreen(onAlreadyLoggedIn = {
+                                    navigator.navigate(
+                                        getNavigationRoute(mainScreen = Screens.Main),
+                                        options = NavOptions(
+                                            popUpTo = PopUpTo(
+                                                route = getNavigationRoute(Screens.Splash),
+                                                inclusive = true
+                                            ),
+                                            launchSingleTop = true
                                         )
-                                }
-
-                                scene(
-                                    route = getNavigationRoute(
-                                        mainScreen = Screens.Main,
-                                        subScreen = SubScreens.Contact
                                     )
-                                ) { ContactSupportScreen { navigator.goBack() } }
-
-                                scene(
-                                    route = getNavigationRoute(
-                                        mainScreen = Screens.Main,
-                                        subScreen = SubScreens.Profile
+                                }, onNotLoggedIn = {
+                                    navigator.navigate(
+                                        getNavigationRoute(mainScreen = Screens.Onboarding),
+                                        options = NavOptions(
+                                            popUpTo = PopUpTo(
+                                                route = getNavigationRoute(Screens.Splash),
+                                                inclusive = true
+                                            ),
+                                            launchSingleTop = true
+                                        )
                                     )
-                                ) {
-                                    val userDao: com.breastcancer.breastcancercare.database.local.dao.UserDao =
-                                        org.koin.compose.koinInject()
-                                    com.breastcancer.breastcancercare.screens.main.ProfileRoute(
-                                        userDao = userDao,
-                                        onBack = { navigator.goBack() },
-                                        onEditProfile = {
-                                            navigator.navigate(
-                                                getNavigationRoute(
-                                                    mainScreen = Screens.Main,
-                                                    subScreen = SubScreens.EditProfile
-                                                )
+                                })
+                            }
+                            scene(route = getNavigationRoute(mainScreen = Screens.Onboarding)) {
+                                OnboardingScreen(
+                                    loaderState = loaderState,
+                                    customSnackBarState = customSnackBarState,
+                                    onLogin = {
+                                        navigator.navigate(
+                                            getNavigationRoute(mainScreen = Screens.Main),
+                                            options = NavOptions(
+                                                popUpTo = PopUpTo(
+                                                    route = getNavigationRoute(Screens.Onboarding),
+                                                    inclusive = true
+                                                ),
+                                                launchSingleTop = true
                                             )
+                                        )
+                                    },
+                                    onRegister = {
+                                        navigator.navigate(
+                                            getNavigationRoute(
+                                                mainScreen = Screens.Onboarding,
+                                                subScreen = SubScreens.Register
+                                            )
+                                        )
+                                    }
+                                )
+                            }
+                            scene(
+                                route = getNavigationRoute(
+                                    mainScreen = Screens.Onboarding,
+                                    subScreen = SubScreens.Register
+                                )
+                            ) {
+                                RegisterScreen(
+                                    customSnackBarState = customSnackBarState,
+                                    loaderState = loaderState,
+                                    onBack = { navigator.goBack() },
+                                    registrationSuccessful = {
+                                        navigator.navigate(
+                                            getNavigationRoute(Screens.Onboarding),
+                                            options = NavOptions(
+                                                popUpTo = PopUpTo(
+                                                    route = getNavigationRoute(Screens.Onboarding),
+                                                    inclusive = true
+                                                ),
+                                                launchSingleTop = true
+                                            )
+                                        )
+                                    }
+                                )
+                            }
+
+                            scene(route = getNavigationRoute(Screens.Main)) {
+                                MainScreen(
+                                    permissionState = permissionState,
+                                    loaderState = loaderState,
+                                    customSnackBarState = customSnackBarState,
+                                    onSubScreenChange = {
+                                        navigator.navigate(
+                                            getNavigationRoute(
+                                                mainScreen = Screens.Main,
+                                                subScreen = it
+                                            )
+                                        )
+                                    },
+                                    onLogOut = {
+                                        navigator.navigate(
+                                            getNavigationRoute(mainScreen = Screens.Onboarding),
+                                            options = NavOptions(
+                                                popUpTo = PopUpTo(
+                                                    route = getNavigationRoute(Screens.Main),
+                                                    inclusive = true
+                                                ),
+                                                launchSingleTop = true
+                                            )
+                                        )
+                                    }
+                                )
+
+                                if (permissionImportantDialog)
+                                    BreastCancerAlertDialog(
+                                        title = "Important!",
+                                        text = {
+                                            Text("It is very important that you grant the notifications permission to receive notifications regarding events and programs from us.\nPlease grant the permission to receive updates.")
+                                        },
+                                        confirmText = "Grant",
+                                        dismissText = "Cancel",
+                                        onDismissRequest = { permissionViewModel.dismissDialog() },
+                                        onConfirm = {
+                                            coroutineScope.launch {
+                                                permissionViewModel.onRequestPermissionButtonPressed()
+                                            }
+                                            permissionViewModel.dismissDialog()
                                         }
                                     )
-                                }
-
-                                scene(
-                                    route = getNavigationRoute(
-                                        mainScreen = Screens.Main,
-                                        subScreen = SubScreens.EditProfile
-                                    )
-                                ) {
-                                    com.breastcancer.breastcancercare.screens.main.EditProfileRoute(
-                                        onBack = { navigator.goBack() }
-                                    )
-                                }
-
-                                scene(
-                                    route = getNavigationRoute(
-                                        mainScreen = Screens.Main,
-                                        subScreen = SubScreens.About
-                                    )
-                                ) { AboutScreen { navigator.goBack() } }
                             }
+
+                            scene(
+                                route = getNavigationRoute(
+                                    mainScreen = Screens.Main,
+                                    subScreen = SubScreens.Contact
+                                )
+                            ) { ContactSupportScreen { navigator.goBack() } }
+
+                            scene(
+                                route = getNavigationRoute(
+                                    mainScreen = Screens.Main,
+                                    subScreen = SubScreens.Profile
+                                )
+                            ) {
+                                ProfileRoute(
+                                    onBack = { navigator.goBack() },
+                                    onEditProfile = {
+                                        navigator.navigate(
+                                            getNavigationRoute(
+                                                mainScreen = Screens.Main,
+                                                subScreen = SubScreens.EditProfile
+                                            )
+                                        )
+                                    }
+                                )
+                            }
+
+                            scene(
+                                route = getNavigationRoute(
+                                    mainScreen = Screens.Main,
+                                    subScreen = SubScreens.EditProfile
+                                )
+                            ) {
+                                EditProfileRoute(
+                                    onBack = { navigator.goBack() }
+                                )
+                            }
+
+                            scene(
+                                route = getNavigationRoute(
+                                    mainScreen = Screens.Main,
+                                    subScreen = SubScreens.About
+                                )
+                            ) { AboutScreen { navigator.goBack() } }
                         }
                     }
                 }

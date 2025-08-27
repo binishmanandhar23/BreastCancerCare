@@ -2,8 +2,10 @@ package com.breastcancer.breastcancercare.repo
 
 import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
 import com.breastcancer.breastcancercare.models.FAQDTO
+import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.models.toFAQDTO
 import com.breastcancer.breastcancercare.models.toFAQEntity
+import com.breastcancer.breastcancercare.models.toSuitabilityEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -18,5 +20,11 @@ class FAQRepository(val faqdao: FAQDAO) {
         faqdao.getAllFAQs().map { faqEntity ->
             faqEntity.map { it.toFAQDTO() }
         }
+
+    suspend fun insertAllSuitabilities(suitabilities: List<SuitabilityDTO>){
+        suitabilities.map { suitabilityDTO -> suitabilityDTO.toSuitabilityEntity() }.let {
+            faqdao.insertAllSuitabilities(it)
+        }
+    }
 
 }

@@ -1,7 +1,10 @@
 package com.breastcancer.breastcancercare.models.interfaces
 
+import com.breastcancer.breastcancercare.models.SuitabilityDTO
+
 interface FAQ {
-    var id: Long
-    var question: String
-    var answer: String
+    val id: Long
+    val question: String
+    val answer: String
+    val suitabilities: List<SuitabilityDTO>
 }

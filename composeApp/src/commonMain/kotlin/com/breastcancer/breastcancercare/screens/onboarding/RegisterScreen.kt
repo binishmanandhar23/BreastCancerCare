@@ -47,8 +47,6 @@ fun RegisterScreen(
     val pw by onboardingViewModel.password.collectAsStateWithLifecycle()
     val confirm by onboardingViewModel.confirmPassword.collectAsStateWithLifecycle()
     val agree by onboardingViewModel.agree.collectAsStateWithLifecycle()
-    val passwordValid by onboardingViewModel.passwordValid.collectAsStateWithLifecycle()
-    val emailValid by onboardingViewModel.emailValid.collectAsStateWithLifecycle()
     val userDTO by onboardingViewModel.userDTO.collectAsStateWithLifecycle()
     val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
     val phoneValid by onboardingViewModel.phoneValid.collectAsStateWithLifecycle()
@@ -61,6 +59,7 @@ fun RegisterScreen(
             is LoginUIState.RegistrationSuccessful -> {
                 customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
                 loaderState.hide()
+                onboardingViewModel.clearTransientLoginState()
                 registrationSuccessful()
             }
             is LoginUIState.Error -> {

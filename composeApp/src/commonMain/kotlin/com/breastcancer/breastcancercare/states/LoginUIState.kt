@@ -7,6 +7,6 @@ sealed class LoginUIState(val message: String? = null){
     class Success(successMessage: String? = null): LoginUIState(message = successMessage)
     class Error(errorMessage: String?): LoginUIState(message = errorMessage)
 
-    class RegistrationSuccessful(successMessage: String? = null): LoginUIState()
+    class RegistrationSuccessful(successMessage: String? = null): LoginUIState(message = successMessage)
     object LoggedOut: LoginUIState()
 }

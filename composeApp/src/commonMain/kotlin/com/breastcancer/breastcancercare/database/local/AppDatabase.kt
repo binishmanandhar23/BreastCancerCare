@@ -4,7 +4,9 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.breastcancer.breastcancercare.database.local.converters.FAQConverter
 import com.breastcancer.breastcancercare.database.local.dao.CalendarDAO
 import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
 import com.breastcancer.breastcancercare.database.local.dao.UserDao
@@ -12,11 +14,13 @@ import com.breastcancer.breastcancercare.database.local.entity.EventEntity
 import com.breastcancer.breastcancercare.database.local.entity.FAQEntity
 import com.breastcancer.breastcancercare.database.local.entity.LoggedInUserEntity
 import com.breastcancer.breastcancercare.database.local.entity.ProgramEntity
+import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
 import com.breastcancer.breastcancercare.database.local.entity.UserEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
-@Database(entities = [FAQEntity::class, ProgramEntity::class, EventEntity::class, UserEntity::class, LoggedInUserEntity::class], version = 7)
+@Database(entities = [FAQEntity::class, ProgramEntity::class, EventEntity::class, UserEntity::class, LoggedInUserEntity::class, SuitabilityEntity::class], version = 8)
+@TypeConverters(FAQConverter::class)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getFAQDAO(): FAQDAO

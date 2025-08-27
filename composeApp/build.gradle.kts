@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.room)
 
     id("com.google.gms.google-services")
+    alias(libs.plugins.json)
 }
 
 kotlin {
@@ -82,6 +83,9 @@ kotlin {
             implementation(libs.permissions.notifications)
             // compose multiplatform
             implementation(libs.permissions.compose) // permissions api + compose extensions
+
+            /*JSON*/
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

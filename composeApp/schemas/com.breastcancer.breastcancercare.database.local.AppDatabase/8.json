@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 7,
-    "identityHash": "79277317f0c0a4301bd454956f699cdb",
+    "version": 8,
+    "identityHash": "fd89aeb5e8ec5aec3fcfb67e914dc694",
     "entities": [
       {
         "tableName": "FAQEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `categories` TEXT NOT NULL, `question` TEXT NOT NULL, `answer` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `suitabilities` TEXT NOT NULL, `question` TEXT NOT NULL, `answer` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -15,8 +15,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "categories",
-            "columnName": "categories",
+            "fieldPath": "suitabilities",
+            "columnName": "suitabilities",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -294,11 +294,40 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "SuitabilityEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "key"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '79277317f0c0a4301bd454956f699cdb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fd89aeb5e8ec5aec3fcfb67e914dc694')"
     ]
   }
 }

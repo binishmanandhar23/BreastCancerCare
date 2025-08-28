@@ -24,7 +24,11 @@ class ProfileViewModel(
                         ProfileUiState(
                             name = "${loggedIn.firstName} ${loggedIn.lastName}",
                             email = loggedIn.email,
-                            initials = loggedIn.firstName.firstOrNull()?.uppercase(),
+                            initials = (
+                                    loggedIn.firstName?.firstOrNull()
+                                        ?: loggedIn.lastName?.firstOrNull()
+                                        ?: loggedIn.email?.firstOrNull()
+                                    )?.uppercase(),
                             loading = false
                         )
                     }

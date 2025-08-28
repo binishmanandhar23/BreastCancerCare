@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.animation.AnimatedVisibility
@@ -8,7 +10,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -44,6 +45,14 @@ import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+
 
 @Composable
 fun FAQScreen(
@@ -52,8 +61,19 @@ fun FAQScreen(
     viewModel: FAQViewModel = koinViewModel()
 ) {
     val uiState by viewModel.faqUIState.collectAsStateWithLifecycle()
-
+    val suitabilities by viewModel.suitabilities.collectAsStateWithLifecycle()
+    var selectedKey by rememberSaveable { mutableStateOf<String?>(null) }
+    var menuExpanded by remember { mutableStateOf(false) }
+    val selectedLabel = remember(selectedKey, suitabilities) {
+        val k = selectedKey
+        if (k == null) "All" else suitabilities.firstOrNull { it.key == k }?.name ?: "All"
+    }
     var faqs: List<FAQDTO>? by remember { mutableStateOf(null) }
+    val displayedFaqs = remember(faqs, selectedKey) {
+        val base = faqs ?: emptyList()
+        if (selectedKey.isNullOrEmpty()) base
+        else base.filter { faq -> faq.suitabilities.any { it.key == selectedKey } }
+    }
 
     LaunchedEffect(key1 = uiState) {
         when (val state = uiState) {
@@ -71,20 +91,82 @@ fun FAQScreen(
     }
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
-            modifier = Modifier.fillMaxHeight(0.1f).padding(
-                horizontal = DefaultHorizontalPaddingSmall,
-                vertical = DefaultVerticalPadding
-            ),
+            modifier = Modifier
+                .padding(
+                    horizontal = DefaultHorizontalPaddingSmall,
+                    vertical = DefaultVerticalPadding
+                ),
             text = "FAQs",
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
+        ExposedDropdownMenuBox(
+            expanded = menuExpanded,
+            onExpandedChange = { menuExpanded = !menuExpanded },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = DefaultHorizontalPaddingSmall)
+        ) {
+            OutlinedTextField(
+                value = selectedLabel,
+                onValueChange = {},
+                readOnly = true,
+                singleLine = true,
+                label = { Text("Suitability") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                shape = MaterialTheme.shapes.large,
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+
+            ExposedDropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("All") },
+                    onClick = {
+                        selectedKey = null
+                        menuExpanded = false
+                    }
+                )
+                suitabilities.forEach { s ->
+                    DropdownMenuItem(
+                        text = { Text(s.name) },
+                        onClick = {
+                            selectedKey = s.key
+                            menuExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(DefaultVerticalPadding))
+
+
+        if (displayedFaqs.isEmpty()) {
+            Text(
+                modifier = Modifier.padding(
+                    start = DefaultHorizontalPaddingSmall * 3,
+                    end = DefaultHorizontalPaddingSmall,
+                    top = DefaultVerticalPadding,
+                    bottom = DefaultVerticalPadding
+                ),
+
+                text = "No FAQs for the selected suitability.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(horizontal = DefaultHorizontalPaddingSmall)
+            modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = DefaultHorizontalPaddingSmall)
                 .animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding),
-            horizontalAlignment = Alignment.Start
-        ) {
-            itemsIndexed(items = faqs ?: emptyList()) { key, item ->
+            horizontalAlignment = Alignment.Start,
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = DefaultVerticalPadding)
+            ) {
+            itemsIndexed(items = displayedFaqs) { key, item ->
                 val color =
                     if (key % 2 == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                 var isExpanded by remember {

@@ -11,12 +11,12 @@ data class EventDTO(
     override val id: Long,
     override val name: String,
     override val description: String,
-    override val date: LocalDate,
     override val startTime: LocalTime? = null,
     override val endTime: LocalTime? = null,
     override val location: String? = null,
     override val eventType: EventType = EventType.Event,
     override val isOnline: Boolean = (location == null),
+    val date: LocalDate,
     val isFeatured: Boolean = false
 ): ProgramEventDTO
 

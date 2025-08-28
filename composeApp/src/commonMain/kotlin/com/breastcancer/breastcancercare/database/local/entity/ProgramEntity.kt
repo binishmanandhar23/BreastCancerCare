@@ -10,10 +10,12 @@ data class ProgramEntity(
     override val name: String,
     override val description: String,
     override val eventType: String,
-    override val date: String,
     override val startTime: String? = null,
     override val endTime: String? = null,
     override val isOnline: Boolean,
     override val location: String?,
-    val suitability: String
+    val frequency: String,
+    val startDate: String,
+    val endDate: String,
+    val suitabilities: List<SuitabilityEntity>
 ): ProgramEvent

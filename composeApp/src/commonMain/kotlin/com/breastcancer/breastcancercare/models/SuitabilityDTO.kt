@@ -10,3 +10,5 @@ fun SuitabilityEntity.toSuitabilityDTO() =
 
 fun SuitabilityDTO.toSuitabilityEntity() =
     SuitabilityEntity(key = key, name = name, description = description)
+
+fun List<SuitabilityEntity>.toSuitabilityDTO() = map { it.toSuitabilityDTO() }

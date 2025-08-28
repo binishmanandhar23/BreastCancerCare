@@ -196,6 +196,7 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
             modifier = Modifier.align(alignment = Alignment.BottomCenter),
             selectedTab = selectedTab,
             selectedDayEvents = selectedDayEvents,
+            selectedDate = selectedDate,
             selectedDayPrograms = selectedDayPrograms,
             onTabSelected = {
                 calendarViewModel.changeTab(it)
@@ -214,6 +215,7 @@ fun Day(
     onDateClicked: (selectedDate: LocalDate) -> Unit
 ) {
     val currentDate by remember { mutableStateOf(LocalDate.now()) }
+
     val dayText: @Composable (selected: Boolean) -> Unit = { selected ->
         Box(
             modifier = Modifier.background(
@@ -236,22 +238,21 @@ fun Day(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                when {
-                    hasEvents -> Box(
+                if (hasEvents)
+                    Box(
                         modifier = Modifier.size(7.dp).background(
                             color = MaterialTheme.colorScheme.primary,
                             shape = CircleShape
                         )
                     )
 
-                    hasPrograms ->
-                        Box(
-                            modifier = Modifier.size(7.dp).background(
-                                color = MaterialTheme.colorScheme.tertiary,
-                                shape = CircleShape
-                            )
+                if (hasPrograms)
+                    Box(
+                        modifier = Modifier.size(7.dp).background(
+                            color = MaterialTheme.colorScheme.tertiary,
+                            shape = CircleShape
                         )
-                }
+                    )
             }
         }
     }
@@ -311,6 +312,7 @@ fun BottomInfoCard(
     selectedTab: Int,
     openHeightFraction: Float = 0.8f,     // sheet height
     closedVisibleFraction: Float = 0.4f,  // visible part when closed
+    selectedDate: LocalDate,
     selectedDayEvents: List<EventDTO>,
     selectedDayPrograms: List<ProgramDTO>,
     onTabSelected: (index: Int) -> Unit
@@ -411,6 +413,7 @@ fun BottomInfoCard(
                 EventSection(
                     modifier = Modifier.fillMaxWidth(),
                     selectedTab = selectedTab,
+                    selectedDate = selectedDate,
                     selectedDayEvents = selectedDayEvents,
                     bottomSpacer = with(LocalDensity.current) { offsetAnim.value.toDp() },
                     selectedDayPrograms = selectedDayPrograms,
@@ -425,6 +428,7 @@ fun BottomInfoCard(
 private fun EventSection(
     modifier: Modifier = Modifier,
     selectedTab: Int,
+    selectedDate: LocalDate,
     selectedDayEvents: List<EventDTO>,
     selectedDayPrograms: List<ProgramDTO>,
     bottomSpacer: Dp,
@@ -458,6 +462,7 @@ private fun EventSection(
         EventsProgramsPager(
             modifier = Modifier.fillMaxWidth(),
             pagerState = pagerState,
+            selectedDate = selectedDate,
             selectedDayPrograms = selectedDayPrograms,
             selectedDayEvents = selectedDayEvents,
             bottomSpacer = bottomSpacer
@@ -468,6 +473,7 @@ private fun EventSection(
 @Composable
 private fun EventsProgramsPager(
     modifier: Modifier,
+    selectedDate: LocalDate,
     selectedDayEvents: List<EventDTO>,
     selectedDayPrograms: List<ProgramDTO>,
     bottomSpacer: Dp,
@@ -492,9 +498,10 @@ private fun EventsProgramsPager(
                             items(events) { events ->
                                 EventProgramDesign(
                                     modifier = Modifier.fillMaxWidth(),
+                                    selectedDate = selectedDate,
                                     programEventDTO = events,
                                     onClick = {
-
+                                        /*TODO: Code for Event/Program Detail Page*/
                                     })
                             }
                         }
@@ -517,6 +524,7 @@ private fun EventsProgramsPager(
                             items(programs) { program ->
                                 EventProgramDesign(
                                     modifier = Modifier.fillMaxWidth(),
+                                    selectedDate = selectedDate,
                                     programEventDTO = program,
                                     onClick = {
 

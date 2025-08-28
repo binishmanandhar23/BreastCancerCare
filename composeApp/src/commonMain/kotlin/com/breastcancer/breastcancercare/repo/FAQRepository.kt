@@ -8,6 +8,8 @@ import com.breastcancer.breastcancercare.models.toFAQEntity
 import com.breastcancer.breastcancercare.models.toSuitabilityEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.breastcancer.breastcancercare.models.toSuitabilityDTO
+
 
 class FAQRepository(val faqdao: FAQDAO) {
     suspend fun insertAll(faqs: List<FAQDTO>){
@@ -19,6 +21,11 @@ class FAQRepository(val faqdao: FAQDAO) {
     fun getAllFAQs(): Flow<List<FAQDTO>> =
         faqdao.getAllFAQs().map { faqEntity ->
             faqEntity.map { it.toFAQDTO() }
+        }
+
+    fun getAllSuitabilities(): Flow<List<SuitabilityDTO>> =
+        faqdao.getAllSuitabilities().map { list ->
+            list.map { it.toSuitabilityDTO() }
         }
 
     suspend fun insertAllSuitabilities(suitabilities: List<SuitabilityDTO>){

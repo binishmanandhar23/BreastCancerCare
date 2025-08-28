@@ -10,10 +10,10 @@ data class EventEntity(
     override val name: String,
     override val description: String,
     override val eventType: String,
-    override val date: String,
     override val startTime: String? = null,
     override val endTime: String? = null,
     override val isOnline: Boolean,
     override val location: String? = null,
+    val date: String,
     val isFeatured: Boolean = false
 ): ProgramEvent

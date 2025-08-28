@@ -8,7 +8,6 @@ interface ProgramEventDTO {
     val id: Long
     val name: String
     val description: String
-    val date: LocalDate
     val startTime: LocalTime?
     val endTime: LocalTime?
     val location: String?

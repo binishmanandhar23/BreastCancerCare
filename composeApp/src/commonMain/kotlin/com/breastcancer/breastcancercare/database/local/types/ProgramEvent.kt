@@ -5,7 +5,6 @@ interface ProgramEvent {
     val name: String
     val description: String
     val eventType: String
-    val date: String
     val startTime: String?
     val endTime: String?
     val isOnline: Boolean

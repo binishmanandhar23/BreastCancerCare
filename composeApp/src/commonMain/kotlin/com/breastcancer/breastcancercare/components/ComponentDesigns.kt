@@ -83,7 +83,12 @@ import com.breastcancer.breastcancercare.utils.DefaultImage
 
 @OptIn(FormatStringsInDatetimeFormats::class)
 @Composable
-fun EventProgramDesign(modifier: Modifier, programEventDTO: ProgramEventDTO, onClick: () -> Unit) {
+fun EventProgramDesign(
+    modifier: Modifier,
+    selectedDate: LocalDate,
+    programEventDTO: ProgramEventDTO,
+    onClick: () -> Unit
+) {
     var finalHeight by remember { mutableStateOf(0) }
     Card(
         modifier = modifier,
@@ -108,11 +113,11 @@ fun EventProgramDesign(modifier: Modifier, programEventDTO: ProgramEventDTO, onC
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
-                    text = programEventDTO.date.format(LocalDate.Format { dayOfWeek(DayOfWeekNames.ENGLISH_ABBREVIATED) }),
+                    text = selectedDate.format(LocalDate.Format { dayOfWeek(DayOfWeekNames.ENGLISH_ABBREVIATED) }),
                     style = MaterialTheme.typography.labelSmall
                 )
                 Text(
-                    text = programEventDTO.date.format(LocalDate.Format { byUnicodePattern("dd") }),
+                    text = selectedDate.format(LocalDate.Format { byUnicodePattern("dd") }),
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                 )
             }
@@ -134,7 +139,7 @@ fun EventProgramDesign(modifier: Modifier, programEventDTO: ProgramEventDTO, onC
                     FeaturedLabel()
                 Row {
                     Text(
-                        text = programEventDTO.date.format(LocalDate.Format {
+                        text = selectedDate.format(LocalDate.Format {
                             monthName(MonthNames.ENGLISH_FULL)
                             char(' ')
                             day()

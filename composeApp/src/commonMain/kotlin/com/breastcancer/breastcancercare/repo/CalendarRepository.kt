@@ -13,7 +13,10 @@ class CalendarRepository(val calendarDAO: CalendarDAO) {
     fun getEventsFromSelectedDate(date: LocalDate) = calendarDAO.getEventsFromSelectedDate(date = date.toString())
         .map { eventEntities -> eventEntities.map { it.toEventDTO() } }
 
-    fun getAllPrograms() = calendarDAO.getAllPrograms().map { programEntities -> programEntities.map { it.toProgramDTO() } }
+    fun getAllPrograms() = calendarDAO.getAllPrograms().map {
+        programEntities -> programEntities.map {
+            it.toProgramDTO()
+        }
+    }
 
-    fun getProgramsFromSelectedDate(date: LocalDate) = calendarDAO.getProgramsFromSelectedDate(date = date.toString()).map { programEntities -> programEntities.map { it.toProgramDTO() } }
 }

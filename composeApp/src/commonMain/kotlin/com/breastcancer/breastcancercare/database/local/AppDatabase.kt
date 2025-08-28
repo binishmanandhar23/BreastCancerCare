@@ -19,7 +19,7 @@ import com.breastcancer.breastcancercare.database.local.entity.UserEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
-@Database(entities = [FAQEntity::class, ProgramEntity::class, EventEntity::class, UserEntity::class, LoggedInUserEntity::class, SuitabilityEntity::class], version = 8)
+@Database(entities = [FAQEntity::class, ProgramEntity::class, EventEntity::class, UserEntity::class, LoggedInUserEntity::class, SuitabilityEntity::class], version = 11)
 @TypeConverters(FAQConverter::class)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {

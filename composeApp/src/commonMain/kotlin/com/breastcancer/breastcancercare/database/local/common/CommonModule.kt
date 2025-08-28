@@ -14,6 +14,8 @@ import com.breastcancer.breastcancercare.viewmodel.SplashViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import com.breastcancer.breastcancercare.database.local.dao.UserDao
+import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
 
 fun commonModule(): Module = module {
     single<FAQRepository> { FAQRepository(get<AppDatabase>().getFAQDAO()) }
@@ -28,4 +30,6 @@ fun commonModule(): Module = module {
     singleOf(::PermissionViewModel)
     singleOf(::HomeViewModel)
     singleOf(::SplashViewModel)
+    single<UserDao> { get<AppDatabase>().getUserDAO() }
+    singleOf(::ProfileViewModel)
 }

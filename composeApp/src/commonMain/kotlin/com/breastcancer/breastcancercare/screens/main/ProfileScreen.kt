@@ -146,7 +146,9 @@ fun ProfileRoute(
     onBack: () -> Unit = {},
     onEditProfile: () -> Unit = {}
 ) {
-    val uiState by profileViewModel.state.collectAsState()
+    val uiState by profileViewModel.state.collectAsState(
+        initial = ProfileUiState(loading = true)
+    )
 
     ProfileScreen(
         uiState = uiState,

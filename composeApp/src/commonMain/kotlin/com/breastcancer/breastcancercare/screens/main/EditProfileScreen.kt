@@ -27,7 +27,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
-
+import com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel
+import org.koin.compose.koinInject
 
 
 data class EditProfileUiState(
@@ -133,23 +134,9 @@ fun EditProfileScreen(
 
 @Composable
 fun EditProfileRoute(
+    vm: EditProfileViewModel = koinInject(),
     onBack: () -> Unit = {}
 ) {
-    val repo: com.breastcancer.breastcancercare.repo.OnboardingRepository =
-        org.koin.compose.koinInject()
-
-    val vm: com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel =
-        androidx.lifecycle.viewmodel.compose.viewModel(
-            factory = object : androidx.lifecycle.ViewModelProvider.Factory {
-                override fun <T : androidx.lifecycle.ViewModel> create(
-                    modelClass: kotlin.reflect.KClass<T>,
-                    extras: androidx.lifecycle.viewmodel.CreationExtras
-                ): T {
-                    return com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel(repo) as T
-                }
-            }
-        )
-
     val snackbarHostState = remember { SnackbarHostState() }
     val state by vm.state.collectAsState()
 

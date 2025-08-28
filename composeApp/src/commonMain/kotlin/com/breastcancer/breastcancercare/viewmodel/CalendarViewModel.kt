@@ -2,12 +2,7 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.breastcancer.breastcancercare.database.local.entity.EventEntity
-import com.breastcancer.breastcancercare.database.local.entity.ProgramEntity
-import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
-import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.database.local.types.FrequencyType
-import com.breastcancer.breastcancercare.database.local.types.Suitability
 import com.breastcancer.breastcancercare.models.EventDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.repo.CalendarRepository
@@ -22,7 +17,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
 import kotlinx.datetime.plus
 import kotlin.time.ExperimentalTime
 

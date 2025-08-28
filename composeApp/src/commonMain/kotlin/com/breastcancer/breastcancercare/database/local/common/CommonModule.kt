@@ -15,6 +15,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import com.breastcancer.breastcancercare.database.local.dao.UserDao
+import com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel
 import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
 
 fun commonModule(): Module = module {
@@ -22,6 +23,7 @@ fun commonModule(): Module = module {
     single<CalendarRepository> { CalendarRepository(get<AppDatabase>().getCalendarDAO()) }
     single<OnboardingRepository> { OnboardingRepository(get<AppDatabase>().getUserDAO()) }
     single<HomeRepository> { HomeRepository(get<AppDatabase>().getUserDAO()) }
+    single<UserDao> { get<AppDatabase>().getUserDAO() }
 
 
     singleOf(::FAQViewModel)
@@ -30,6 +32,6 @@ fun commonModule(): Module = module {
     singleOf(::PermissionViewModel)
     singleOf(::HomeViewModel)
     singleOf(::SplashViewModel)
-    single<UserDao> { get<AppDatabase>().getUserDAO() }
+    singleOf(::EditProfileViewModel)
     singleOf(::ProfileViewModel)
 }

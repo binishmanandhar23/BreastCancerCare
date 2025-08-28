@@ -2,6 +2,9 @@ package com.breastcancer.breastcancercare.theme
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 
 val LightAppColorScheme = lightColorScheme(
     primary = PrimaryColor,
@@ -20,3 +23,15 @@ val DarkAppColorScheme = darkColorScheme(
     onBackground = TextColorDark
     // ... define other Material3 colors
 )
+
+@Composable
+fun BreastCancerCareTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colorScheme = if (darkTheme) DarkAppColorScheme else LightAppColorScheme
+    MaterialTheme(
+        colorScheme = colorScheme,
+        content = content
+    )
+}

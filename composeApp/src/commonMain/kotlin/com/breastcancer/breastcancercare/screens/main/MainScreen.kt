@@ -11,8 +11,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +21,6 @@ import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.screens.SubScreens
 import com.breastcancer.breastcancercare.screens.Tabs
-import com.breastcancer.breastcancercare.states.LoginUIState
 import com.breastcancer.breastcancercare.theme.DefaultElevation
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
@@ -31,7 +28,6 @@ import com.breastcancer.breastcancercare.theme.RoundedCornerSize
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import dev.icerock.moko.permissions.PermissionState
 import kotlinx.coroutines.launch
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

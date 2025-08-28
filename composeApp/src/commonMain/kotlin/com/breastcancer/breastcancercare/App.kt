@@ -2,7 +2,6 @@ package com.breastcancer.breastcancercare
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +36,7 @@ import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.PopUpTo
 import moe.tlaster.precompose.navigation.rememberNavigator
 import org.koin.compose.viewmodel.koinViewModel
+import com.breastcancer.breastcancercare.theme.BreastCancerCareTheme
 
 
 @Composable
@@ -69,7 +69,7 @@ fun App() {
         Surface(
             modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())
         ) {
-            MaterialTheme {
+            BreastCancerCareTheme {
                 CustomLoader(loaderState = loaderState) {
                     CustomSnackBar(
                         text = "",

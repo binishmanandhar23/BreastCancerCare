@@ -18,11 +18,19 @@ import kotlinx.coroutines.launch
 
 class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
     private var _faqUIState = MutableStateFlow<FAQUIState<List<FAQDTO>>?>(null)
+    private val _suitabilities = MutableStateFlow<List<SuitabilityDTO>>(emptyList())
+    val suitabilities = _suitabilities.asStateFlow()
+
     val faqUIState = _faqUIState.asStateFlow()
 
     init {
         populateSuitabilities()
         getAllFAQs()
+        viewModelScope.launch {
+            faqRepository.getAllSuitabilities().collect { list ->
+                _suitabilities.value = list
+            }
+        }
     }
 
     private fun populateSuitabilities() {

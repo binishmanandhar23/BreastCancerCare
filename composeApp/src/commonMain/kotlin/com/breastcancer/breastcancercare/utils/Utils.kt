@@ -10,12 +10,17 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import com.breastcancer.breastcancercare.Res
+import com.breastcancer.breastcancercare.database.local.types.FrequencyType
 import com.breastcancer.breastcancercare.default_bg_image
 import com.breastcancer.breastcancercare.screens.Screens
 import com.breastcancer.breastcancercare.screens.SubScreens
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
+import com.kizitonwose.calendar.core.plusDays
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -54,7 +59,11 @@ fun getHomeGreetingText(userName: String? = null): String {
 }
 
 @Composable
-fun DefaultImage(modifier: Modifier = Modifier, resource: DrawableResource = Res.drawable.default_bg_image, contentScale: ContentScale = ContentScale.Fit) = Image(
+fun DefaultImage(
+    modifier: Modifier = Modifier,
+    resource: DrawableResource = Res.drawable.default_bg_image,
+    contentScale: ContentScale = ContentScale.Fit
+) = Image(
     painterResource(resource = resource),
     contentDescription = "Default Image",
     modifier = modifier,
@@ -63,3 +72,61 @@ fun DefaultImage(modifier: Modifier = Modifier, resource: DrawableResource = Res
 
 @Composable
 fun DefaultSpacer(size: Dp = DefaultHorizontalPaddingSmall) = Spacer(modifier = Modifier.size(size))
+
+fun checkIfDateHasProgram(
+    frequencyType: FrequencyType,
+    selectedDate: LocalDate,
+    startDate: LocalDate,
+    endDate: LocalDate
+): Boolean {
+    when (frequencyType) {
+        FrequencyType.Daily -> {
+            var date = startDate
+            var i = 0
+            while (date <= endDate) {
+                date = startDate.plusDays(i)
+                if (date == selectedDate)
+                    return true
+                else
+                    i++
+            }
+        }
+
+        FrequencyType.Weekly -> {
+            var date = startDate
+            var i = 0
+            while (date <= endDate) {
+                date = startDate.plus(i, DateTimeUnit.WEEK)
+                if (date == selectedDate)
+                    return true
+                else
+                    i++
+            }
+        }
+
+        FrequencyType.Monthly -> {
+            var date = startDate
+            var i = 0
+            while (date <= endDate) {
+                date = startDate.plus(i, DateTimeUnit.MONTH)
+                if (date == selectedDate)
+                    return true
+                else
+                    i++
+            }
+        }
+
+        FrequencyType.Yearly -> {
+            var date = startDate
+            var i = 0
+            while (date <= endDate) {
+                date = startDate.plus(i, DateTimeUnit.YEAR)
+                if (date == selectedDate)
+                    return true
+                else
+                    i++
+            }
+        }
+    }
+    return false
+}

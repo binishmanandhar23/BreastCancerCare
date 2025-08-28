@@ -55,6 +55,7 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
     init {
         getAllEventsAndPrograms()
         getAllEventsOnSelectedDate()
+        getAllProgramsOnSelectedDate()
         findAllDatesWithEventsAndPrograms()
     }
 
@@ -72,7 +73,7 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
             _allEvents.update { events }
         }
     }.also {
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             calendarRepository.getAllPrograms().collect { programs ->
                 _allPrograms.update { programs }
             }
@@ -85,6 +86,14 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
                 .collect { events ->
                     _selectedDayEvents.update { events }
                 }
+        }
+    }
+
+    private fun getAllProgramsOnSelectedDate() = viewModelScope.launch(Dispatchers.IO) {
+        selectedDate.collectLatest { date ->
+            calendarRepository.getAllProgramsFromSelectedDate(date = date) { programs ->
+                _selectedDayPrograms.update { programs }
+            }
         }
     }
 
@@ -109,6 +118,7 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
                                 i++
                             }
                         }
+
                         FrequencyType.Weekly -> {
                             var date = program.startDate
                             var i = 0
@@ -118,6 +128,7 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
                                 i++
                             }
                         }
+
                         FrequencyType.Monthly -> {
                             var date = program.startDate
                             var i = 0
@@ -127,6 +138,7 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
                                 i++
                             }
                         }
+
                         FrequencyType.Yearly -> {
                             var date = program.startDate
                             var i = 0

@@ -61,6 +61,40 @@ import androidx.compose.material3.Surface
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.zIndex
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+
+
+private enum class InfoTab { FAQs, Guides }
+
+@Composable
+private fun highlightQuery(text: String, query: String): androidx.compose.ui.text.AnnotatedString {
+    if (query.isBlank()) return androidx.compose.ui.text.AnnotatedString(text)
+    val lower = text.lowercase()
+    val q = query.lowercase()
+    val builder = buildAnnotatedString {
+        var start = 0
+        while (true) {
+            val idx = lower.indexOf(q, startIndex = start)
+            if (idx < 0) {
+                append(text.substring(start))
+                break
+            }
+            append(text.substring(start, idx))
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)) {
+                append(text.substring(idx, idx + q.length))
+            }
+            start = idx + q.length
+        }
+    }
+    return builder
+}
 
 
 @Composable
@@ -73,15 +107,23 @@ fun FAQScreen(
     val suitabilities by viewModel.suitabilities.collectAsStateWithLifecycle()
     var selectedKey by rememberSaveable { mutableStateOf<String?>(null) }
     var menuExpanded by remember { mutableStateOf(false) }
+    var currentTab by rememberSaveable { mutableStateOf(InfoTab.FAQs) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
     val selectedLabel = remember(selectedKey, suitabilities) {
         val k = selectedKey
         if (k == null) "All" else suitabilities.firstOrNull { it.key == k }?.name ?: "All"
     }
     var faqs: List<FAQDTO>? by remember { mutableStateOf(null) }
-    val displayedFaqs = remember(faqs, selectedKey) {
+    val displayedFaqs = remember(faqs, selectedKey, searchQuery) {
         val base = faqs ?: emptyList()
-        if (selectedKey.isNullOrEmpty()) base
+        val bySuit = if (selectedKey.isNullOrEmpty()) base
         else base.filter { faq -> faq.suitabilities.any { it.key == selectedKey } }
+
+        if (searchQuery.isBlank()) bySuit
+        else {
+            val q = searchQuery.trim().lowercase()
+            bySuit.filter { it.question.lowercase().contains(q) || it.answer.lowercase().contains(q) }
+        }
     }
 
     LaunchedEffect(key1 = uiState) {
@@ -129,127 +171,187 @@ fun FAQScreen(
                 ) {
                     Text(
                         modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
-                        text = "FAQs",
+                        text = "Info",
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
 
-                    ExposedDropdownMenuBox(
-                        expanded = menuExpanded,
-                        onExpandedChange = { menuExpanded = !menuExpanded },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        OutlinedTextField(
-                            value = selectedLabel,
-                            onValueChange = {},
-                            readOnly = true,
-                            singleLine = true,
-                            label = { Text("Suitability") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
-                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                            shape = MaterialTheme.shapes.large,
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth()
+                    TabRow(selectedTabIndex = currentTab.ordinal) {
+                        Tab(
+                            selected = currentTab == InfoTab.FAQs,
+                            onClick = { currentTab = InfoTab.FAQs },
+                            text = { Text("FAQs") }
                         )
+                        Tab(
+                            selected = currentTab == InfoTab.Guides,
+                            onClick = { currentTab = InfoTab.Guides },
+                            text = { Text("Guides") }
+                        )
+                    }
 
-                        ExposedDropdownMenu(
-                            expanded = menuExpanded,
-                            onDismissRequest = { menuExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("All") },
-                                onClick = {
-                                    selectedKey = null
-                                    menuExpanded = false
-                                }
+                    Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
+
+                    // Search bar
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        singleLine = true,
+                        label = { Text("Search topics") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                contentDescription = "Search"
                             )
-                            suitabilities.forEach { s ->
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotBlank()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = "Clear"
+                                    )
+                                }
+                            }
+                        },
+                        shape = MaterialTheme.shapes.large,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
+
+                    if (currentTab == InfoTab.FAQs) {
+                        ExposedDropdownMenuBox(
+                            expanded = menuExpanded,
+                            onExpandedChange = { menuExpanded = !menuExpanded },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            OutlinedTextField(
+                                value = if (selectedKey == null) "All" else selectedLabel,
+                                onValueChange = {},
+                                readOnly = true,
+                                singleLine = true,
+                                label = { Text("Suitability") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
+                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                shape = MaterialTheme.shapes.large,
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(
+                                expanded = menuExpanded,
+                                onDismissRequest = { menuExpanded = false }
+                            ) {
                                 DropdownMenuItem(
-                                    text = { Text(s.name) },
+                                    text = { Text("All") },
                                     onClick = {
-                                        selectedKey = s.key
+                                        selectedKey = null
                                         menuExpanded = false
                                     }
                                 )
+                                suitabilities.forEach { s ->
+                                    DropdownMenuItem(
+                                        text = { Text(s.name) },
+                                        onClick = {
+                                            selectedKey = s.key
+                                            menuExpanded = false
+                                        }
+                                    )
+                                }
                             }
                         }
+                        Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding))
                     }
-
-                    Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding))
                 }
             }
         }
+            when (currentTab) {
+                InfoTab.FAQs -> {
+                    if (displayedFaqs.isEmpty()) {
+                        item {
+                            Text(
+                                modifier = Modifier.padding(
+                                    horizontal = InfoDimens.ScreenHPadding,
+                                    vertical = InfoDimens.ScreenVPadding
+                                ),
+                                text = "No FAQs for the current filter.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        itemsIndexed(items = displayedFaqs) { key, item ->
+                            val color = InfoColors.faqCard(key)
+                            val onColor = InfoColors.onFaqCard()
+                            var isExpanded by rememberSaveable(item.question) { mutableStateOf(false) }
+                            val angle: Float by animateFloatAsState(
+                                targetValue = if (isExpanded) 180f else 0f,
+                                animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)
+                            )
 
-        if (displayedFaqs.isEmpty()) {
-            item {
-                Text(
-                    modifier = Modifier.padding(
-                        horizontal = InfoDimens.ScreenHPadding,
-                        vertical = InfoDimens.ScreenVPadding
-                    ),
-                    text = "No FAQs for the selected suitability.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        } else {
-            itemsIndexed(items = displayedFaqs) { key, item ->
-                val color = InfoColors.faqCard(key)
-                val onColor = InfoColors.onFaqCard()
-                var isExpanded by rememberSaveable(item.question) { mutableStateOf(false) }
-                val angle: Float by animateFloatAsState(
-                    targetValue = if (isExpanded) 180f else 0f,
-                    animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)
-                )
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = InfoDimens.ScreenHPadding)
+                                    .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
+                                shape = MaterialTheme.shapes.large,
+                                colors = CardDefaults.cardColors(
+                                    containerColor = color,
+                                    contentColor = onColor
+                                ),
+                                elevation = CardDefaults.cardElevation(DefaultElevation),
+                                onClick = { isExpanded = !isExpanded }
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(
+                                        horizontal = InfoDimens.ScreenHPadding,
+                                        vertical = InfoDimens.ScreenVPadding
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.Top,
+                                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                    ) {
+                                        Icon(
+                                            modifier = Modifier.rotate(angle),
+                                            imageVector = Icons.Default.ArrowDropDown,
+                                            contentDescription = if (isExpanded) "Collapse" else "Expand"
+                                        )
+                                        Text(
+                                            text = highlightQuery(item.question, searchQuery),
+                                            color = onColor,
+                                            style = LocalTextStyle.current.copy(
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 20.sp
+                                            )
+                                        )
+                                    }
+                                    AnimatedVisibility(visible = isExpanded) {
+                                        Text(
+                                            modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
+                                            text = item.answer,
+                                            color = onColor
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = InfoDimens.ScreenHPadding)
-                        .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
-                    shape = MaterialTheme.shapes.large,
-                    colors = CardDefaults.cardColors(
-                        containerColor = color,
-                        contentColor = onColor
-                    ),
-                    elevation = CardDefaults.cardElevation(DefaultElevation),
-                    onClick = { isExpanded = !isExpanded }
-                ) {
-                    Column(
-                        modifier = Modifier.padding(
-                            horizontal = InfoDimens.ScreenHPadding,
-                            vertical = InfoDimens.ScreenVPadding
+                InfoTab.Guides -> {
+                    item {
+                        Text(
+                            modifier = Modifier.padding(
+                                horizontal = InfoDimens.ScreenHPadding,
+                                vertical = InfoDimens.ScreenVPadding
+                            ),
+                            text = "Guides are coming soon.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.Top,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
-                        ) {
-                            Icon(
-                                modifier = Modifier.rotate(angle),
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = if (isExpanded) "Collapse" else "Expand"
-                            )
-                            Text(
-                                item.question,
-                                color = onColor,
-                                style = LocalTextStyle.current.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 20.sp
-                                )
-                            )
-                        }
-                        AnimatedVisibility(visible = isExpanded) {
-                            Text(
-                                modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
-                                text = item.answer,
-                                color = onColor
-                            )
-                        }
                     }
                 }
             }
         }
     }
-}

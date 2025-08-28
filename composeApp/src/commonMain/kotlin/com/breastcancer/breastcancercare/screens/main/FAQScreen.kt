@@ -1,4 +1,7 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.foundation.ExperimentalFoundationApi::class
+)
 
 package com.breastcancer.breastcancercare.screens.main
 
@@ -41,8 +44,6 @@ import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMediu
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.states.FAQUIState
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -52,6 +53,14 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import com.breastcancer.breastcancercare.theme.InfoDimens
+import com.breastcancer.breastcancercare.theme.InfoColors
+import com.breastcancer.breastcancercare.theme.InfoAnim
+import com.breastcancer.breastcancercare.theme.DefaultElevation
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.zIndex
 
 
 @Composable
@@ -89,108 +98,127 @@ fun FAQScreen(
             ).also { loaderState.hide() }
         }
     }
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            modifier = Modifier
-                .padding(
-                    horizontal = DefaultHorizontalPaddingSmall,
-                    vertical = DefaultVerticalPadding
-                ),
-            text = "FAQs",
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-        )
-        ExposedDropdownMenuBox(
-            expanded = menuExpanded,
-            onExpandedChange = { menuExpanded = !menuExpanded },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = DefaultHorizontalPaddingSmall)
-        ) {
-            OutlinedTextField(
-                value = selectedLabel,
-                onValueChange = {},
-                readOnly = true,
-                singleLine = true,
-                label = { Text("Suitability") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                shape = MaterialTheme.shapes.large,
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth()
-            )
+    val listState = rememberLazyListState()
+    val elevated by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
+    }
+    val headerElevation = if (elevated) DefaultElevation else 0.dp
 
-            ExposedDropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false }
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+            .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
+        verticalArrangement = Arrangement.spacedBy(InfoDimens.CardSpacing),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            bottom = InfoDimens.ScreenVPadding
+        )
+    ) {
+        stickyHeader {
+            Surface(
+                color = MaterialTheme.colorScheme.background,
+                shadowElevation = headerElevation,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .zIndex(1f)
             ) {
-                DropdownMenuItem(
-                    text = { Text("All") },
-                    onClick = {
-                        selectedKey = null
-                        menuExpanded = false
-                    }
-                )
-                suitabilities.forEach { s ->
-                    DropdownMenuItem(
-                        text = { Text(s.name) },
-                        onClick = {
-                            selectedKey = s.key
-                            menuExpanded = false
-                        }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = InfoDimens.ScreenHPadding)
+                ) {
+                    Text(
+                        modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
+                        text = "FAQs",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
+
+                    ExposedDropdownMenuBox(
+                        expanded = menuExpanded,
+                        onExpandedChange = { menuExpanded = !menuExpanded },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = selectedLabel,
+                            onValueChange = {},
+                            readOnly = true,
+                            singleLine = true,
+                            label = { Text("Suitability") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            shape = MaterialTheme.shapes.large,
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("All") },
+                                onClick = {
+                                    selectedKey = null
+                                    menuExpanded = false
+                                }
+                            )
+                            suitabilities.forEach { s ->
+                                DropdownMenuItem(
+                                    text = { Text(s.name) },
+                                    onClick = {
+                                        selectedKey = s.key
+                                        menuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding))
                 }
             }
         }
-        Spacer(modifier = Modifier.height(DefaultVerticalPadding))
-
 
         if (displayedFaqs.isEmpty()) {
-            Text(
-                modifier = Modifier.padding(
-                    start = DefaultHorizontalPaddingSmall * 3,
-                    end = DefaultHorizontalPaddingSmall,
-                    top = DefaultVerticalPadding,
-                    bottom = DefaultVerticalPadding
-                ),
-
-                text = "No FAQs for the selected suitability.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = DefaultHorizontalPaddingSmall)
-                .animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding),
-            horizontalAlignment = Alignment.Start,
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = DefaultVerticalPadding)
-            ) {
+            item {
+                Text(
+                    modifier = Modifier.padding(
+                        horizontal = InfoDimens.ScreenHPadding,
+                        vertical = InfoDimens.ScreenVPadding
+                    ),
+                    text = "No FAQs for the selected suitability.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
             itemsIndexed(items = displayedFaqs) { key, item ->
-                val color =
-                    if (key % 2 == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                var isExpanded by remember {
-                    mutableStateOf(false)
-                }
+                val color = InfoColors.faqCard(key)
+                val onColor = InfoColors.onFaqCard()
+                var isExpanded by rememberSaveable(item.question) { mutableStateOf(false) }
                 val angle: Float by animateFloatAsState(
                     targetValue = if (isExpanded) 180f else 0f,
-                    animationSpec = tween(durationMillis = 200, easing = LinearEasing)
+                    animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)
                 )
 
                 Card(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(horizontal = DefaultHorizontalPaddingSmall)
-                        .animateContentSize(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = InfoDimens.ScreenHPadding)
+                        .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
                     shape = MaterialTheme.shapes.large,
-                    colors = CardDefaults.cardColors(containerColor = color),
-                    onClick = {
-                        isExpanded = !isExpanded
-                    }
+                    colors = CardDefaults.cardColors(
+                        containerColor = color,
+                        contentColor = onColor
+                    ),
+                    elevation = CardDefaults.cardElevation(DefaultElevation),
+                    onClick = { isExpanded = !isExpanded }
                 ) {
                     Column(
                         modifier = Modifier.padding(
-                            horizontal = DefaultHorizontalPaddingSmall,
-                            vertical = DefaultVerticalPadding
+                            horizontal = InfoDimens.ScreenHPadding,
+                            vertical = InfoDimens.ScreenVPadding
                         )
                     ) {
                         Row(
@@ -205,7 +233,7 @@ fun FAQScreen(
                             )
                             Text(
                                 item.question,
-                                color = MaterialTheme.colorScheme.onPrimary,
+                                color = onColor,
                                 style = LocalTextStyle.current.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp
@@ -214,9 +242,9 @@ fun FAQScreen(
                         }
                         AnimatedVisibility(visible = isExpanded) {
                             Text(
-                                modifier = Modifier.padding(vertical = DefaultVerticalPadding),
+                                modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
                                 text = item.answer,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = onColor
                             )
                         }
                     }

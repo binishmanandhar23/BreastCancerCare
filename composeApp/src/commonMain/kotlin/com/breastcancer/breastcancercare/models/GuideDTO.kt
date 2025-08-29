@@ -6,6 +6,6 @@ data class GuideDTO(
     val summary: String,
     val category: String,
     val readTimeMin: Int,
-    val updatedAt: Long,
+    val updatedAtLabel: String,
     val sourceUrl: String? = null
 )

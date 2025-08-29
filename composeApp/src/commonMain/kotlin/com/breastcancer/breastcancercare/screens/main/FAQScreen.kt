@@ -69,9 +69,47 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
+import com.breastcancer.breastcancercare.models.GuideDTO
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.ui.text.style.TextOverflow
+
+
 
 
 private enum class InfoTab { FAQs, Guides }
+
+private fun formatMeta(readTimeMin: Int, updatedAtLabel: String): String {
+    return "${readTimeMin} min read · Updated $updatedAtLabel"
+}
+
+private fun sampleGuides(): List<GuideDTO> = listOf(
+    GuideDTO(
+        id = "g1",
+        title = "Understanding Your Diagnosis",
+        summary = "Key tests, staging basics, and what to ask at your first appointment.",
+        category = "Diagnosis",
+        readTimeMin = 4,
+        updatedAtLabel = "Aug 2025"
+    ),
+    GuideDTO(
+        id = "g2",
+        title = "Managing Side Effects During Treatment",
+        summary = "Practical tips for fatigue, nausea, and skin care during chemo or radiotherapy.",
+        category = "Treatment",
+        readTimeMin = 5,
+        updatedAtLabel = "Jun 2025"
+    ),
+    GuideDTO(
+        id = "g3",
+        title = "Staying Well After Treatment",
+        summary = "Follow-up schedules, lifestyle changes, and mental wellbeing after active treatment.",
+        category = "Survivorship",
+        readTimeMin = 3,
+        updatedAtLabel = "Apr 2025"
+    )
+)
+
 
 @Composable
 private fun highlightQuery(text: String, query: String): androidx.compose.ui.text.AnnotatedString {
@@ -125,6 +163,15 @@ fun FAQScreen(
             bySuit.filter { it.question.lowercase().contains(q) || it.answer.lowercase().contains(q) }
         }
     }
+    val guides = remember { sampleGuides() }
+    val displayedGuides = remember(guides, searchQuery) {
+        if (searchQuery.isBlank()) guides
+        else {
+            val q = searchQuery.trim().lowercase()
+            guides.filter { it.title.lowercase().contains(q) || it.summary.lowercase().contains(q) }
+        }
+    }
+
 
     LaunchedEffect(key1 = uiState) {
         when (val state = uiState) {
@@ -340,18 +387,83 @@ fun FAQScreen(
                 }
 
                 InfoTab.Guides -> {
-                    item {
-                        Text(
-                            modifier = Modifier.padding(
-                                horizontal = InfoDimens.ScreenHPadding,
-                                vertical = InfoDimens.ScreenVPadding
-                            ),
-                            text = "Guides are coming soon.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    if (displayedGuides.isEmpty()) {
+                        item {
+                            Text(
+                                modifier = Modifier.padding(
+                                    horizontal = InfoDimens.ScreenHPadding,
+                                    vertical = InfoDimens.ScreenVPadding
+                                ),
+                                text = "No guides for the current search.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        itemsIndexed(displayedGuides) { _, g ->
+                            GuideCard(item = g)
+                        }
                     }
                 }
             }
         }
     }
+
+@Composable
+private fun GuideCard(item: GuideDTO) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = InfoDimens.ScreenHPadding)
+            .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        elevation = CardDefaults.cardElevation(DefaultElevation),
+        onClick = { /* TODO: navigate to guide detail when available */ }
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = InfoDimens.ScreenHPadding,
+                vertical = InfoDimens.ScreenVPadding
+            )
+        ) {
+            AssistChip(
+                onClick = { /* no-op */ },
+                label = { Text(item.category) },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    labelColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            )
+
+            Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
+
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 3))
+
+            Text(
+                text = item.summary,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
+
+            Text(
+                text = formatMeta(item.readTimeMin, item.updatedAtLabel),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}

@@ -5,5 +5,6 @@ enum class SubScreens(val screen: String) {
     About("settings_about"),
     Contact("settings_contact"),
     Register("onboarding_register"),
-    EditProfile("settings_edit_profile")
+    EditProfile("settings_edit_profile"),
+    BlogDetail("blog_detail")
 }

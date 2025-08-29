@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.breastcancer.breastcancercare.components.BottomBar
 import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
+import com.breastcancer.breastcancercare.models.SubScreenWithId
 import com.breastcancer.breastcancercare.screens.SubScreens
 import com.breastcancer.breastcancercare.screens.Tabs
 import com.breastcancer.breastcancercare.theme.DefaultElevation
@@ -36,7 +37,7 @@ fun MainScreen(
     permissionState: PermissionState,
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
-    onSubScreenChange: (SubScreens) -> Unit,
+    onSubScreenChange: (subScreen: SubScreenWithId) -> Unit,
     onLogOut: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -50,7 +51,9 @@ fun MainScreen(
             beyondViewportPageCount = 1
         ) { page ->
             when (Tabs.entries[page].text) {
-                Tabs.Home.text -> HomeScreen()
+                Tabs.Home.text -> HomeScreen(onBlogClick = {
+                    onSubScreenChange(SubScreenWithId(subScreen = SubScreens.BlogDetail))
+                })
                 Tabs.Calendar.text -> CalendarScreen()
                 Tabs.FAQ.text -> FAQScreen(
                     loaderState = loaderState,
@@ -60,9 +63,9 @@ fun MainScreen(
                 Tabs.Settings.text -> SettingsScreen(
                     permissionState = permissionState,
                     customSnackBarState = customSnackBarState,
-                    onOpenProfile = { onSubScreenChange(SubScreens.Profile) },
-                    onOpenAbout = { onSubScreenChange(SubScreens.About) },
-                    onContactSupport = { onSubScreenChange(SubScreens.Contact) },
+                    onOpenProfile = { onSubScreenChange(SubScreenWithId(SubScreens.Profile)) },
+                    onOpenAbout = { onSubScreenChange(SubScreenWithId(SubScreens.About)) },
+                    onContactSupport = { onSubScreenChange(SubScreenWithId(SubScreens.Contact)) },
                     onLogOut = {
                         onboardingViewModel.onLogOut()
                         onLogOut()

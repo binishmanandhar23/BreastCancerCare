@@ -42,7 +42,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
-import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.states.FAQUIState
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -83,33 +82,6 @@ private fun formatMeta(readTimeMin: Int, updatedAtLabel: String): String {
     return "${readTimeMin} min read · Updated $updatedAtLabel"
 }
 
-private fun sampleGuides(): List<GuideDTO> = listOf(
-    GuideDTO(
-        id = "g1",
-        title = "Understanding Your Diagnosis",
-        summary = "Key tests, staging basics, and what to ask at your first appointment.",
-        category = "Diagnosis",
-        readTimeMin = 4,
-        updatedAtLabel = "Aug 2025"
-    ),
-    GuideDTO(
-        id = "g2",
-        title = "Managing Side Effects During Treatment",
-        summary = "Practical tips for fatigue, nausea, and skin care during chemo or radiotherapy.",
-        category = "Treatment",
-        readTimeMin = 5,
-        updatedAtLabel = "Jun 2025"
-    ),
-    GuideDTO(
-        id = "g3",
-        title = "Staying Well After Treatment",
-        summary = "Follow-up schedules, lifestyle changes, and mental wellbeing after active treatment.",
-        category = "Survivorship",
-        readTimeMin = 3,
-        updatedAtLabel = "Apr 2025"
-    )
-)
-
 
 @Composable
 private fun highlightQuery(text: String, query: String): androidx.compose.ui.text.AnnotatedString {
@@ -143,48 +115,33 @@ fun FAQScreen(
 ) {
     val uiState by viewModel.faqUIState.collectAsStateWithLifecycle()
     val suitabilities by viewModel.suitabilities.collectAsStateWithLifecycle()
-    var selectedKey by rememberSaveable { mutableStateOf<String?>(null) }
+
     var menuExpanded by remember { mutableStateOf(false) }
     var currentTab by rememberSaveable { mutableStateOf(InfoTab.FAQs) }
-    var searchQuery by rememberSaveable { mutableStateOf("") }
+
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val selectedKey by viewModel.selectedSuitabilityKey.collectAsStateWithLifecycle()
     val selectedLabel = remember(selectedKey, suitabilities) {
         val k = selectedKey
         if (k == null) "All" else suitabilities.firstOrNull { it.key == k }?.name ?: "All"
     }
-    var faqs: List<FAQDTO>? by remember { mutableStateOf(null) }
-    val displayedFaqs = remember(faqs, selectedKey, searchQuery) {
-        val base = faqs ?: emptyList()
-        val bySuit = if (selectedKey.isNullOrEmpty()) base
-        else base.filter { faq -> faq.suitabilities.any { it.key == selectedKey } }
-
-        if (searchQuery.isBlank()) bySuit
-        else {
-            val q = searchQuery.trim().lowercase()
-            bySuit.filter { it.question.lowercase().contains(q) || it.answer.lowercase().contains(q) }
-        }
-    }
-    val guides = remember { sampleGuides() }
-    val displayedGuides = remember(guides, searchQuery) {
-        if (searchQuery.isBlank()) guides
-        else {
-            val q = searchQuery.trim().lowercase()
-            guides.filter { it.title.lowercase().contains(q) || it.summary.lowercase().contains(q) }
-        }
-    }
+    val displayedFaqs by viewModel.displayedFaqs.collectAsStateWithLifecycle()
+    val displayedGuides by viewModel.displayedGuides.collectAsStateWithLifecycle()
 
 
-    LaunchedEffect(key1 = uiState) {
+
+    LaunchedEffect(uiState) {
         when (val state = uiState) {
             is FAQUIState.Loading -> loaderState.show()
-            is FAQUIState.Success -> {
-                faqs = state.data
+            is FAQUIState.Success -> loaderState.hide()
+            is FAQUIState.Error -> {
                 loaderState.hide()
+                snackBarState.show(
+                    overridingText = state.message,
+                    overridingDelay = SnackBarLengthMedium
+                )
             }
-
-            else -> snackBarState.show(
-                overridingText = state?.message,
-                overridingDelay = SnackBarLengthMedium
-            ).also { loaderState.hide() }
+            else -> Unit
         }
     }
     val listState = rememberLazyListState()
@@ -240,7 +197,7 @@ fun FAQScreen(
                     // Search bar
                     OutlinedTextField(
                         value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        onValueChange = { viewModel.onSearchChange(it) },
                         singleLine = true,
                         label = { Text("Search topics") },
                         leadingIcon = {
@@ -251,7 +208,7 @@ fun FAQScreen(
                         },
                         trailingIcon = {
                             if (searchQuery.isNotBlank()) {
-                                IconButton(onClick = { searchQuery = "" }) {
+                                IconButton(onClick = { viewModel.onSearchChange("") }) {
                                     Icon(
                                         imageVector = Icons.Filled.Close,
                                         contentDescription = "Clear"
@@ -291,7 +248,7 @@ fun FAQScreen(
                                 DropdownMenuItem(
                                     text = { Text("All") },
                                     onClick = {
-                                        selectedKey = null
+                                        viewModel.onSuitabilityChange(null)
                                         menuExpanded = false
                                     }
                                 )
@@ -299,7 +256,7 @@ fun FAQScreen(
                                     DropdownMenuItem(
                                         text = { Text(s.name) },
                                         onClick = {
-                                            selectedKey = s.key
+                                            viewModel.onSuitabilityChange(s.key)
                                             menuExpanded = false
                                         }
                                     )

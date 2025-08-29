@@ -2,9 +2,6 @@ package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollableDefaults
-import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -31,12 +28,8 @@ import com.breastcancer.breastcancercare.Res
 import com.breastcancer.breastcancercare.components.CoreHomeCardDesign
 import com.breastcancer.breastcancercare.default_blog_image
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
-import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.utils.DefaultImage
-import com.breastcancer.breastcancercare.utils.DefaultSpacer
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
@@ -57,7 +50,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel()) {
             Text(
                 modifier = Modifier.padding(
                     horizontal = DefaultHorizontalPaddingLarge,
-                    vertical = DefaultVerticalPadding
+                    vertical = DefaultVerticalPaddingMedium
                 ),
                 text = greetingText,
                 style = MaterialTheme.typography.titleLarge.copy(
@@ -114,7 +107,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel()) {
 fun ProgramCard() =
     CoreHomeCardDesign(
         modifier = Modifier.fillMaxHeight().width(280.dp)
-            .padding(vertical = DefaultVerticalPadding), title = {
+            .padding(vertical = DefaultVerticalPaddingMedium), title = {
             Text(
                 text = "Yoga Class",
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
@@ -130,7 +123,7 @@ fun ProgramCard() =
 fun BlogCard() =
     CoreHomeCardDesign(
         modifier = Modifier.fillMaxHeight().width(280.dp)
-            .padding(vertical = DefaultVerticalPadding), image = {
+            .padding(vertical = DefaultVerticalPaddingMedium), image = {
             DefaultImage(
                 modifier = Modifier.fillMaxWidth().height(150.dp),
                 resource = Res.drawable.default_blog_image,

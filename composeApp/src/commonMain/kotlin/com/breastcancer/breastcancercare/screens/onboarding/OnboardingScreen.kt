@@ -36,7 +36,7 @@ import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.states.LoginUIState
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.utils.rememberWindowSizeDp
 import com.breastcancer.breastcancercare.utils.text.ClickableText
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
@@ -83,10 +83,10 @@ fun OnboardingScreen(
         Column(
             modifier = Modifier.fillMaxWidth().align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding)
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
         ) {
             Image(
-                modifier = Modifier.padding(vertical = DefaultVerticalPadding),
+                modifier = Modifier.padding(vertical = DefaultVerticalPaddingMedium),
                 painter = painterResource(Res.drawable.breast_cancer_care_wa),
                 contentDescription = stringResource(Res.string.app_name)
             )

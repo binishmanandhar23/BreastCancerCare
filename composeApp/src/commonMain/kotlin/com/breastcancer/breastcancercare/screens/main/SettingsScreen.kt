@@ -17,10 +17,9 @@ import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import dev.icerock.moko.permissions.PermissionState
 import androidx.compose.ui.Alignment
-import com.breastcancer.breastcancercare.screens.SubScreens
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +87,7 @@ fun SettingsScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = DefaultVerticalPadding, horizontal = DefaultHorizontalPaddingSmall),
+            .padding(vertical = DefaultVerticalPaddingMedium, horizontal = DefaultHorizontalPaddingSmall),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         stickyHeader {

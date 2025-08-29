@@ -57,7 +57,7 @@ import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.models.EventDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramEventDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.format
@@ -72,13 +72,29 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import com.breastcancer.breastcancercare.database.local.types.Suitability
+import com.breastcancer.breastcancercare.models.SuitabilityDTO
+import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.utils.DefaultImage
+import com.breastcancer.breastcancercare.utils.PentagonShape
+import com.breastcancer.breastcancercare.utils.TriangleShape
 
 
 @OptIn(FormatStringsInDatetimeFormats::class)
@@ -100,7 +116,7 @@ fun EventProgramDesign(
         Row(
             modifier = Modifier.padding(
                 horizontal = DefaultHorizontalPaddingSmall,
-                vertical = DefaultVerticalPadding
+                vertical = DefaultVerticalPaddingMedium
             ).onSizeChanged {
                 finalHeight = it.height
             },
@@ -137,6 +153,15 @@ fun EventProgramDesign(
             ) {
                 if (programEventDTO is EventDTO && programEventDTO.isFeatured)
                     FeaturedLabel()
+                if (programEventDTO is ProgramDTO)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        for (suitability in programEventDTO.suitability) {
+                            SuitabilityShape(suitability = suitability)
+                        }
+                    }
                 Row {
                     Text(
                         text = selectedDate.format(LocalDate.Format {
@@ -362,7 +387,11 @@ fun ErrorRow(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             if (errorIcon != null)
-                Icon(imageVector = errorIcon, contentDescription = errorText, tint = errorIconColor)
+                Icon(
+                    imageVector = errorIcon,
+                    contentDescription = errorText,
+                    tint = errorIconColor
+                )
             if (!errorText.isNullOrEmpty()) {
                 Text(
                     modifier = Modifier.padding(horizontal = 5.dp),
@@ -428,7 +457,10 @@ fun BreastCancerSingleLineTextField(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (labelIcon != null) Icon(imageVector = labelIcon, contentDescription = label)
+                    if (labelIcon != null) Icon(
+                        imageVector = labelIcon,
+                        contentDescription = label
+                    )
                     if (labelIconRes != null) Icon(
                         painter = painterResource(labelIconRes),
                         contentDescription = label
@@ -659,4 +691,112 @@ fun CoreHomeCardDesign(
             }
         }
     }
+}
+
+@Composable
+fun SuitabilityFilterChips(
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    suitabilities: List<SuitabilityDTO>,
+    selected: SuitabilityDTO? = null,
+    onClick: (SuitabilityDTO?) -> Unit
+) {
+    val colors = FilterChipDefaults.filterChipColors(
+        containerColor = Color.Transparent,
+        selectedContainerColor = MaterialTheme.colorScheme.primary,
+        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+    )
+
+    LazyRow(
+        modifier = modifier.background(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    MaterialTheme.colorScheme.background,
+                    MaterialTheme.colorScheme.background.copy(0.8f),
+                )
+            )
+        )
+            .padding(
+                horizontal = DefaultHorizontalPaddingSmall,
+                vertical = DefaultVerticalPaddingSmall
+            ),
+        horizontalArrangement = Arrangement.spacedBy(DefaultHorizontalPaddingSmall)
+    ) {
+        item {
+            FilterChip(
+                label = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        Text(
+                            text = "All",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                },
+                selected = selected == null,
+                onClick = {
+                    onClick(null)
+                },
+                colors = colors
+            )
+        }
+        items(suitabilities) { suitability ->
+            FilterChip(label = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    SuitabilityShape(suitability = suitability)
+                    Text(
+                        text = suitability.name,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }, selected = selected == suitability, onClick = {
+                onClick(suitability)
+            }, colors = colors)
+        }
+    }
+}
+
+@Composable
+fun SuitabilityShape(suitability: SuitabilityDTO) {
+    val shape by derivedStateOf {
+        when (suitability.key) {
+            Suitability.Early.key -> TriangleShape
+            Suitability.Newly.key -> CircleShape
+            Suitability.Metastatic.key -> PentagonShape
+            else -> CircleShape
+        }
+    }
+    Box(
+        modifier = Modifier.size(15.dp).let {
+            when (suitability.key) {
+                Suitability.Early.key ->
+                    it.background(
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = shape
+                    )
+
+                Suitability.Newly.key ->
+                    it.background(
+                        color = MaterialTheme.colorScheme.tertiary,
+                        shape = shape
+                    )
+
+                Suitability.Metastatic.key ->
+                    it.background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = shape
+                    )
+
+                else -> it
+            }.border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.background,
+                shape = shape
+            )
+        }
+    )
 }

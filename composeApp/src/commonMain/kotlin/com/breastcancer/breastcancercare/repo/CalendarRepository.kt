@@ -4,6 +4,7 @@ import com.breastcancer.breastcancercare.database.local.dao.CalendarDAO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.models.interfaces.toProgramDTO
 import com.breastcancer.breastcancercare.models.toEventDTO
+import com.breastcancer.breastcancercare.models.toSuitabilityDTO
 import com.breastcancer.breastcancercare.utils.checkIfDateHasProgram
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -42,5 +43,5 @@ class CalendarRepository(val calendarDAO: CalendarDAO) {
         }
     }
 
-
+    fun getAllSuitabilities() = calendarDAO.getAllSuitabilities().map { it.toSuitabilityDTO() }
 }

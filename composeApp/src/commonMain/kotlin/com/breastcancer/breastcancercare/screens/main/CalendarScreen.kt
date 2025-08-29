@@ -1,12 +1,17 @@
 package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,7 +25,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,11 +82,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.EventProgramDesign
 import com.breastcancer.breastcancercare.components.EventProgramTabRow
 import com.breastcancer.breastcancercare.components.LazyColumnWithStickyFooter
+import com.breastcancer.breastcancercare.components.SuitabilityFilterChips
 import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.models.EventDTO
+import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -127,6 +134,9 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
     val allDatesWithEvents by calendarViewModel.allDatesWithEvents.collectAsStateWithLifecycle()
     val allDatesWithPrograms by calendarViewModel.allDatesWithPrograms.collectAsStateWithLifecycle()
 
+    val allSuitabilities by calendarViewModel.allSuitabilities.collectAsStateWithLifecycle()
+    val selectedSuitability by calendarViewModel.selectedSuitability.collectAsStateWithLifecycle()
+
     Box(modifier = Modifier.fillMaxSize()) {
         VerticalCalendar(
             modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
@@ -156,14 +166,14 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
                     )
             },
             monthContainer = { month, container ->
-                Column(modifier = Modifier.padding(vertical = DefaultVerticalPadding)) {
+                Column(modifier = Modifier.padding(vertical = DefaultVerticalPaddingMedium)) {
                     MonthHeader(month)
                     container.invoke()
                 }
             },
             contentPadding = PaddingValues(
                 horizontal = DefaultHorizontalPaddingSmall,
-                vertical = DefaultVerticalPadding
+                vertical = DefaultVerticalPaddingMedium
             )
         )
         Row(
@@ -179,7 +189,7 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
                 )
                 .padding(
                     horizontal = DefaultHorizontalPaddingSmall
-                ).padding(bottom = DefaultVerticalPadding * 2).align(Alignment.TopCenter)
+                ).padding(bottom = DefaultVerticalPaddingMedium * 2).align(Alignment.TopCenter)
         ) {
             for (dayOfWeek in listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")) {
                 Text(
@@ -196,11 +206,12 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
             modifier = Modifier.align(alignment = Alignment.BottomCenter),
             selectedTab = selectedTab,
             selectedDayEvents = selectedDayEvents,
+            allSuitabilities = allSuitabilities,
+            selectedSuitability = selectedSuitability,
             selectedDate = selectedDate,
             selectedDayPrograms = selectedDayPrograms,
-            onTabSelected = {
-                calendarViewModel.changeTab(it)
-            }
+            onTabSelected = calendarViewModel::changeTab,
+            onSuitabilitySelected = calendarViewModel::updateSelectedSuitability
         )
     }
 }
@@ -313,9 +324,12 @@ fun BottomInfoCard(
     openHeightFraction: Float = 0.8f,     // sheet height
     closedVisibleFraction: Float = 0.4f,  // visible part when closed
     selectedDate: LocalDate,
+    allSuitabilities: List<SuitabilityDTO>,
+    selectedSuitability: SuitabilityDTO?,
     selectedDayEvents: List<EventDTO>,
     selectedDayPrograms: List<ProgramDTO>,
-    onTabSelected: (index: Int) -> Unit
+    onTabSelected: (index: Int) -> Unit,
+    onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     // Parent size needed to compute pixel offsets
@@ -390,7 +404,7 @@ fun BottomInfoCard(
                     .fillMaxWidth()
                     .padding(
                         horizontal = DefaultHorizontalPaddingSmall,
-                        vertical = DefaultVerticalPadding
+                        vertical = DefaultVerticalPaddingMedium
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -414,10 +428,13 @@ fun BottomInfoCard(
                     modifier = Modifier.fillMaxWidth(),
                     selectedTab = selectedTab,
                     selectedDate = selectedDate,
+                    allSuitabilities = allSuitabilities,
+                    selectedSuitability = selectedSuitability,
                     selectedDayEvents = selectedDayEvents,
                     bottomSpacer = with(LocalDensity.current) { offsetAnim.value.toDp() },
                     selectedDayPrograms = selectedDayPrograms,
-                    onTabSelected = onTabSelected
+                    onTabSelected = onTabSelected,
+                    onSuitabilitySelected = onSuitabilitySelected
                 )
             }
         }
@@ -429,10 +446,13 @@ private fun EventSection(
     modifier: Modifier = Modifier,
     selectedTab: Int,
     selectedDate: LocalDate,
+    allSuitabilities: List<SuitabilityDTO>,
+    selectedSuitability: SuitabilityDTO?,
     selectedDayEvents: List<EventDTO>,
     selectedDayPrograms: List<ProgramDTO>,
     bottomSpacer: Dp,
-    onTabSelected: (index: Int) -> Unit
+    onTabSelected: (index: Int) -> Unit,
+    onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { EventType.entries.size })
     LaunchedEffect(selectedTab) {
@@ -440,7 +460,7 @@ private fun EventSection(
     }
     Column(modifier = modifier) {
         TabRow(
-            modifier = Modifier.fillMaxWidth().padding(bottom = DefaultVerticalPadding),
+            modifier = Modifier.fillMaxWidth(),
             containerColor = MaterialTheme.colorScheme.background,
             selectedTabIndex = selectedTab,
             tabs = {
@@ -463,9 +483,12 @@ private fun EventSection(
             modifier = Modifier.fillMaxWidth(),
             pagerState = pagerState,
             selectedDate = selectedDate,
+            selectedSuitability = selectedSuitability,
             selectedDayPrograms = selectedDayPrograms,
             selectedDayEvents = selectedDayEvents,
-            bottomSpacer = bottomSpacer
+            bottomSpacer = bottomSpacer,
+            allSuitabilities = allSuitabilities,
+            onSuitabilitySelected = onSuitabilitySelected
         )
     }
 }
@@ -474,27 +497,32 @@ private fun EventSection(
 private fun EventsProgramsPager(
     modifier: Modifier,
     selectedDate: LocalDate,
+    allSuitabilities: List<SuitabilityDTO>,
+    selectedSuitability: SuitabilityDTO?,
     selectedDayEvents: List<EventDTO>,
     selectedDayPrograms: List<ProgramDTO>,
     bottomSpacer: Dp,
-    pagerState: PagerState
+    pagerState: PagerState,
+    onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit
 ) {
     HorizontalPager(modifier = modifier, state = pagerState) { page ->
         when (page) {
             EventType.Event.ordinal ->
                 AnimatedContent(selectedDayEvents, label = "Events") { events ->
-                    if (events.isEmpty())
-                        EmptyContainer(
-                            modifier = Modifier.fillMaxWidth(),
-                            eventType = EventType.Event
-                        )
-                    else
-                        LazyColumnWithStickyFooter(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding),
-                            bottomSpacer = bottomSpacer + 100.dp,
-                            forceSpacer = true
-                        ) {
+                    LazyColumnWithStickyFooter(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
+                        bottomSpacer = bottomSpacer + 100.dp,
+                        forceSpacer = true
+                    ) {
+                        if (events.isEmpty())
+                            item {
+                                EmptyContainer(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    eventType = EventType.Event
+                                )
+                            }
+                        else
                             items(events) { events ->
                                 EventProgramDesign(
                                     modifier = Modifier.fillMaxWidth(),
@@ -504,37 +532,48 @@ private fun EventsProgramsPager(
                                         /*TODO: Code for Event/Program Detail Page*/
                                     })
                             }
-                        }
+                    }
                 }
 
             EventType.Program.ordinal ->
-                AnimatedContent(selectedDayPrograms, label = "Programs") { programs ->
-                    if (programs.isEmpty())
-                        EmptyContainer(
-                            modifier = Modifier.fillMaxWidth(),
-                            eventType = EventType.Program
+                LazyColumnWithStickyFooter(
+                    modifier = Modifier.fillMaxSize().animateContentSize(),
+                    bottomSpacer = bottomSpacer + 100.dp,
+                    forceSpacer = true
+                ) {
+                    stickyHeader {
+                        SuitabilityFilterChips(
+                            suitabilities = allSuitabilities,
+                            selected = selectedSuitability,
+                            onClick = onSuitabilitySelected
                         )
-                    else
-                        LazyColumnWithStickyFooter(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding),
-                            bottomSpacer = bottomSpacer + 100.dp,
-                            forceSpacer = true
-                        ) {
-                            items(programs) { program ->
-                                EventProgramDesign(
+                    }
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            AnimatedVisibility(
+                                modifier = Modifier.align(Alignment.Center),
+                                visible = selectedDayPrograms.isEmpty(),
+                                enter = fadeIn() + expandIn(expandFrom = Alignment.Center),
+                                exit = shrinkOut(shrinkTowards = Alignment.Center) + fadeOut(),
+                            ) {
+                                EmptyContainer(
                                     modifier = Modifier.fillMaxWidth(),
-                                    selectedDate = selectedDate,
-                                    programEventDTO = program,
-                                    onClick = {
-
-                                    })
-                            }
-                            item {
-                                Spacer(modifier = Modifier.height(bottomSpacer + 100.dp))
+                                    eventType = EventType.Program
+                                )
                             }
                         }
+                    }
+                    items(selectedDayPrograms) { program ->
+                        EventProgramDesign(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = DefaultVerticalPaddingSmall),
+                            selectedDate = selectedDate,
+                            programEventDTO = program,
+                            onClick = {
+
+                            })
+                    }
                 }
+
         }
     }
 }
@@ -546,10 +585,10 @@ private fun EmptyContainer(modifier: Modifier, eventType: EventType) {
             modifier = Modifier.fillMaxWidth().alpha(0.5f)
                 .padding(
                     horizontal = DefaultHorizontalPaddingSmall,
-                    vertical = DefaultVerticalPadding * 2
+                    vertical = DefaultVerticalPaddingMedium * 2
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding)
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
         ) {
             Icon(imageVector = Icons.Outlined.HourglassEmpty, contentDescription = "Empty Icon")
             Text(

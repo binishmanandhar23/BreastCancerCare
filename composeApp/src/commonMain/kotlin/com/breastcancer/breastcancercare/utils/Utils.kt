@@ -3,6 +3,7 @@ package com.breastcancer.breastcancercare.utils
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -24,6 +25,10 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.sin
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -130,3 +135,29 @@ fun checkIfDateHasProgram(
     }
     return false
 }
+
+val TriangleShape = GenericShape { size, _ ->
+        moveTo(size.width / 2f, 0f)           // top
+        lineTo(0f, size.height)               // bottom-left
+        lineTo(size.width, size.height)       // bottom-right
+        close()
+}
+
+private fun regularPolygonShape(sides: Int, rotationDeg: Float = -90f) = GenericShape { size, _ ->
+    require(sides >= 3) { "Polygon must have at least 3 sides" }
+    val cx = size.width / 2f
+    val cy = size.height / 2f
+    val r  = min(size.width, size.height) / 2f
+    val start = rotationDeg * (PI / 180f)
+
+    repeat(sides) { i ->
+        val a = start + i * (2 * PI / sides)
+        val x = cx + r * cos(a).toFloat()
+        val y = cy + r * sin(a).toFloat()
+        if (i == 0) moveTo(x, y) else lineTo(x, y)
+    }
+    close()
+}
+
+// A point-up regular pentagon
+val PentagonShape = regularPolygonShape(5)

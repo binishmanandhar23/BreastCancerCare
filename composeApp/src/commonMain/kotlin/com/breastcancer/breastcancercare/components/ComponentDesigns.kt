@@ -675,13 +675,15 @@ fun CoreHomeCardDesign(
         )
     },
     title: @Composable ColumnScope.() -> Unit,
-    subtitle: @Composable ColumnScope.() -> Unit
+    subtitle: @Composable ColumnScope.() -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = modifier,
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        onClick = onClick
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             image()

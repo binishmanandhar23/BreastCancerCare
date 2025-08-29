@@ -35,7 +35,7 @@ import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel()) {
+fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel(), onBlogClick: () -> Unit) {
     val greetingText by homeViewModel.homeGreeting.collectAsStateWithLifecycle()
     val overscrollEffect = rememberOverscrollEffect()
     LazyColumn(
@@ -96,7 +96,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel()) {
                 contentPadding = PaddingValues(horizontal = DefaultHorizontalPaddingLarge),
             ) {
                 items(count = 5) {
-                    BlogCard()
+                    BlogCard(onClick = onBlogClick)
                 }
             }
         }
@@ -106,6 +106,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel()) {
 @Composable
 fun ProgramCard() =
     CoreHomeCardDesign(
+        onClick = {},
         modifier = Modifier.fillMaxHeight().width(280.dp)
             .padding(vertical = DefaultVerticalPaddingMedium), title = {
             Text(
@@ -120,8 +121,9 @@ fun ProgramCard() =
         })
 
 @Composable
-fun BlogCard() =
+fun BlogCard(onClick: () -> Unit) =
     CoreHomeCardDesign(
+        onClick = onClick,
         modifier = Modifier.fillMaxHeight().width(280.dp)
             .padding(vertical = DefaultVerticalPaddingMedium), image = {
             DefaultImage(

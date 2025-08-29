@@ -41,6 +41,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.material.ripple.rememberRipple
@@ -235,6 +236,7 @@ fun Day(
             ).padding(5.dp)
         ) {
             Text(
+                modifier = Modifier.align(Alignment.Center),
                 text = day.date.day.toString(),
                 color =
                     if (selected) MaterialTheme.colorScheme.onPrimary
@@ -392,12 +394,8 @@ fun BottomInfoCard(
                         animateToOffset(target)
                     }
                 ),
-            shape = MaterialTheme.shapes.large.copy(
-                bottomStart = CornerSize(0.dp),
-                bottomEnd = CornerSize(0.dp)
-            ),
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-            elevation = CardDefaults.cardElevation(defaultElevation = 50.dp)
         ) {
             Column(
                 modifier = Modifier

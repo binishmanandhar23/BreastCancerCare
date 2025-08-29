@@ -21,6 +21,7 @@ import com.breastcancer.breastcancercare.screens.Screens
 import com.breastcancer.breastcancercare.screens.SplashScreen
 import com.breastcancer.breastcancercare.screens.SubScreens
 import com.breastcancer.breastcancercare.screens.main.AboutScreen
+import com.breastcancer.breastcancercare.screens.main.BlogDetailScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
 import com.breastcancer.breastcancercare.screens.main.MainScreen
@@ -166,7 +167,7 @@ fun App() {
                                         navigator.navigate(
                                             getNavigationRoute(
                                                 mainScreen = Screens.Main,
-                                                subScreen = it
+                                                subScreen = it.subScreen
                                             )
                                         )
                                     },
@@ -245,6 +246,17 @@ fun App() {
                                     subScreen = SubScreens.About
                                 )
                             ) { AboutScreen { navigator.goBack() } }
+
+                            scene(
+                                route = getNavigationRoute(
+                                    mainScreen = Screens.Main,
+                                    subScreen = SubScreens.BlogDetail
+                                )
+                            ) {
+                                BlogDetailScreen(onBack = {
+                                    navigator.goBack()
+                                })
+                            }
                         }
                     }
                 }

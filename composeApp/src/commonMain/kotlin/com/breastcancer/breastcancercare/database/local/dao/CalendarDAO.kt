@@ -28,4 +28,8 @@ interface CalendarDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllSuitabilities(suitabilities: List<SuitabilityEntity>)
+
+    @Query("SELECT * FROM suitabilityentity")
+    fun getAllSuitabilities(): Flow<List<SuitabilityEntity>>
+
 }

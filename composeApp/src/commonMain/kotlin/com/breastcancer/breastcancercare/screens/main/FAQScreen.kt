@@ -41,7 +41,7 @@ import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.states.FAQUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -73,7 +73,7 @@ fun FAQScreen(
         Text(
             modifier = Modifier.fillMaxHeight(0.1f).padding(
                 horizontal = DefaultHorizontalPaddingSmall,
-                vertical = DefaultVerticalPadding
+                vertical = DefaultVerticalPaddingMedium
             ),
             text = "FAQs",
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
@@ -81,7 +81,7 @@ fun FAQScreen(
         LazyColumn(
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(horizontal = DefaultHorizontalPaddingSmall)
                 .animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPadding),
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
             horizontalAlignment = Alignment.Start
         ) {
             itemsIndexed(items = faqs ?: emptyList()) { key, item ->
@@ -108,7 +108,7 @@ fun FAQScreen(
                     Column(
                         modifier = Modifier.padding(
                             horizontal = DefaultHorizontalPaddingSmall,
-                            vertical = DefaultVerticalPadding
+                            vertical = DefaultVerticalPaddingMedium
                         )
                     ) {
                         Row(
@@ -132,7 +132,7 @@ fun FAQScreen(
                         }
                         AnimatedVisibility(visible = isExpanded) {
                             Text(
-                                modifier = Modifier.padding(vertical = DefaultVerticalPadding),
+                                modifier = Modifier.padding(vertical = DefaultVerticalPaddingMedium),
                                 text = item.answer,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )

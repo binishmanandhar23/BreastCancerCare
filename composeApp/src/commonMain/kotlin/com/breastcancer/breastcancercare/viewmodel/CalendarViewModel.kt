@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.breastcancer.breastcancercare.database.local.types.FrequencyType
 import com.breastcancer.breastcancercare.models.EventDTO
+import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.repo.CalendarRepository
 import com.kizitonwose.calendar.core.now
@@ -13,6 +14,8 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -46,10 +49,17 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
     private var _allDatesWithPrograms = MutableStateFlow<List<String>>(emptyList())
     val allDatesWithPrograms = _allDatesWithPrograms.asStateFlow()
 
+    private var _allSuitabilities = MutableStateFlow<List<SuitabilityDTO>>(emptyList())
+    val allSuitabilities = _allSuitabilities.asStateFlow()
+
+    private var _selectedSuitability = MutableStateFlow<SuitabilityDTO?>(null)
+    val selectedSuitability = _selectedSuitability.asStateFlow()
+
     init {
         getAllEventsAndPrograms()
         getAllEventsOnSelectedDate()
         getAllProgramsOnSelectedDate()
+        getAllSuitabilities()
         findAllDatesWithEventsAndPrograms()
     }
 
@@ -84,69 +94,87 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
     }
 
     private fun getAllProgramsOnSelectedDate() = viewModelScope.launch(Dispatchers.IO) {
-        selectedDate.collectLatest { date ->
+        combine(
+            selectedDate,
+            selectedSuitability,
+            transform = { date, suitability ->
+                Pair(date, suitability)
+            }).collectLatest { (date, suitability) ->
             calendarRepository.getAllProgramsFromSelectedDate(date = date) { programs ->
-                _selectedDayPrograms.update { programs }
+                _selectedDayPrograms.update { _ ->
+                    if (suitability != null) programs.filter { program ->
+                        program.suitability.map { it.key }.contains(suitability.key)
+                    } else programs
+                }
             }
         }
     }
 
 
-    private fun findAllDatesWithEventsAndPrograms() {
-        viewModelScope.launch(Dispatchers.IO) {
-            allEvents.collect { events ->
-                _allDatesWithEvents.update { events.map { it.date.toString() }.distinct() }
-            }
+private fun findAllDatesWithEventsAndPrograms() {
+    viewModelScope.launch(Dispatchers.IO) {
+        allEvents.collect { events ->
+            _allDatesWithEvents.update { events.map { it.date.toString() }.distinct() }
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            allPrograms.collect { programs ->
-                val dates = mutableListOf<LocalDate>()
-                programs.forEach { program ->
-                    when (program.frequency) {
-                        FrequencyType.Daily -> {
-                            var date = program.startDate
-                            var i = 0
-                            while (date <= program.endDate) {
-                                date = program.startDate.plusDays(i)
-                                dates.add(date)
-                                i++
-                            }
-                        }
-
-                        FrequencyType.Weekly -> {
-                            var date = program.startDate
-                            var i = 0
-                            while (date <= program.endDate) {
-                                date = program.startDate.plus(i, DateTimeUnit.WEEK)
-                                dates.add(date)
-                                i++
-                            }
-                        }
-
-                        FrequencyType.Monthly -> {
-                            var date = program.startDate
-                            var i = 0
-                            while (date <= program.endDate) {
-                                date = program.startDate.plus(i, DateTimeUnit.MONTH)
-                                dates.add(date)
-                                i++
-                            }
-                        }
-
-                        FrequencyType.Yearly -> {
-                            var date = program.startDate
-                            var i = 0
-                            while (date <= program.endDate) {
-                                date = program.startDate.plus(i, DateTimeUnit.YEAR)
-                                dates.add(date)
-                                i++
-                            }
+    }
+    viewModelScope.launch(Dispatchers.IO) {
+        allPrograms.collect { programs ->
+            val dates = mutableListOf<LocalDate>()
+            programs.forEach { program ->
+                when (program.frequency) {
+                    FrequencyType.Daily -> {
+                        var date = program.startDate
+                        var i = 0
+                        while (date <= program.endDate) {
+                            date = program.startDate.plusDays(i)
+                            dates.add(date)
+                            i++
                         }
                     }
 
+                    FrequencyType.Weekly -> {
+                        var date = program.startDate
+                        var i = 0
+                        while (date <= program.endDate) {
+                            date = program.startDate.plus(i, DateTimeUnit.WEEK)
+                            dates.add(date)
+                            i++
+                        }
+                    }
+
+                    FrequencyType.Monthly -> {
+                        var date = program.startDate
+                        var i = 0
+                        while (date <= program.endDate) {
+                            date = program.startDate.plus(i, DateTimeUnit.MONTH)
+                            dates.add(date)
+                            i++
+                        }
+                    }
+
+                    FrequencyType.Yearly -> {
+                        var date = program.startDate
+                        var i = 0
+                        while (date <= program.endDate) {
+                            date = program.startDate.plus(i, DateTimeUnit.YEAR)
+                            dates.add(date)
+                            i++
+                        }
+                    }
                 }
-                _allDatesWithPrograms.update { dates.map { it.toString() }.distinct() }
+
             }
+            _allDatesWithPrograms.update { dates.map { it.toString() }.distinct() }
         }
     }
+}
+
+private fun getAllSuitabilities() = viewModelScope.launch(Dispatchers.IO) {
+    calendarRepository.getAllSuitabilities().collect { suitabilities ->
+        _allSuitabilities.update { suitabilities }
+    }
+}
+
+fun updateSelectedSuitability(suitabilityDTO: SuitabilityDTO?) =
+    _selectedSuitability.update { suitabilityDTO }
 }

@@ -6,19 +6,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import com.breastcancer.breastcancercare.Res
 import com.breastcancer.breastcancercare.app_name
 import com.breastcancer.breastcancercare.breast_cancer_care_wa
 import com.breastcancer.breastcancercare.states.SplashUIState
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPadding
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.viewmodel.SplashViewModel
 import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
@@ -46,7 +43,7 @@ fun SplashScreen(
             modifier = Modifier.fillMaxWidth().align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
-                DefaultVerticalPadding
+                DefaultVerticalPaddingMedium
             )
         ) {
             Image(

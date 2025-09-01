@@ -18,4 +18,7 @@ interface FAQDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllSuitabilities(faqs: List<SuitabilityEntity>)
+
+    @Query("SELECT * FROM SuitabilityEntity ORDER BY name")
+    fun getAllSuitabilities(): Flow<List<SuitabilityEntity>>
 }

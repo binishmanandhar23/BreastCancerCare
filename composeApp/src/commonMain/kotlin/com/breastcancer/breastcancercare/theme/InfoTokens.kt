@@ -7,8 +7,8 @@ import androidx.compose.material3.MaterialTheme
 
 object InfoDimens {
     val ScreenHPadding = DefaultHorizontalPaddingSmall
-    val ScreenVPadding = DefaultVerticalPadding
-    val CardSpacing = DefaultVerticalPadding
+    val ScreenVPadding = DefaultVerticalPaddingSmall
+    val CardSpacing = DefaultVerticalPaddingSmall
     val SectionSpacing = 24.dp
     val CardCorner = RoundedCornerSize
 }

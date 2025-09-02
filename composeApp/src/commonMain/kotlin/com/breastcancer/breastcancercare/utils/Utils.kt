@@ -155,8 +155,7 @@ fun Modifier.pagerTabIndicatorOffset(
                 // nothing to place yet
                 val placeable = measurable.measure(constraints)
                 layout(constraints.maxWidth, placeable.height) { placeable.placeRelative(0, 0) }
-            }
-            else {
+            } else {
                 val current = pagerState.currentPage.coerceIn(0, tabPositions.lastIndex)
                 val offset = pagerState.currentPageOffsetFraction
 
@@ -184,7 +183,7 @@ fun Modifier.pagerTabIndicatorOffset(
                 )
 
                 layout(constraints.maxWidth, placeable.height) {
-                    placeable.placeRelative(leftPx, 50)
+                    placeable.placeRelative(leftPx, 55)
                 }
             }
         }
@@ -194,7 +193,10 @@ fun Modifier.pagerTabIndicatorOffset(
 
 /** 0f..1f selection “progress” of a tab based on pager’s position/offset. */
 @Composable
-fun tabSelectionProgress(index: Int, pagerState: androidx.compose.foundation.pager.PagerState): Float {
+fun tabSelectionProgress(
+    index: Int,
+    pagerState: androidx.compose.foundation.pager.PagerState
+): Float {
     // how far is this tab from the pager’s animated position?
     val raw = (index - pagerState.currentPage - pagerState.currentPageOffsetFraction).absoluteValue
     val clamped = 1f - raw.coerceIn(0f, 1f) // 1 when focused, 0 when far
@@ -202,17 +204,17 @@ fun tabSelectionProgress(index: Int, pagerState: androidx.compose.foundation.pag
 }
 
 val TriangleShape = GenericShape { size, _ ->
-        moveTo(size.width / 2f, 0f)           // top
-        lineTo(0f, size.height)               // bottom-left
-        lineTo(size.width, size.height)       // bottom-right
-        close()
+    moveTo(size.width / 2f, 0f)           // top
+    lineTo(0f, size.height)               // bottom-left
+    lineTo(size.width, size.height)       // bottom-right
+    close()
 }
 
 private fun regularPolygonShape(sides: Int, rotationDeg: Float = -90f) = GenericShape { size, _ ->
     require(sides >= 3) { "Polygon must have at least 3 sides" }
     val cx = size.width / 2f
     val cy = size.height / 2f
-    val r  = min(size.width, size.height) / 2f
+    val r = min(size.width, size.height) / 2f
     val start = rotationDeg * (PI / 180f)
 
     repeat(sides) { i ->

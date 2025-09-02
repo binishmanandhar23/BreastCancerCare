@@ -60,7 +60,7 @@ fun OverlappingZoomHeaderWithParallax(
     val connection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (source == NestedScrollSource.Drag) {
+                if (source == NestedScrollSource.UserInput) {
                     val dy = available.y
                     if (dy < 0f && pullTarget > 0f) {
                         val newVal = max(0f, pullTarget + dy)

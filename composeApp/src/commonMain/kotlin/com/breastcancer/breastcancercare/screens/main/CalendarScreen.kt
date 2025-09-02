@@ -53,6 +53,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -416,7 +417,7 @@ fun BottomInfoCard(
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable(
                             interactionSource = interaction,
-                            indication = rememberRipple(bounded = false)
+                            indication = ripple(bounded = false)
                         ) {
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.VirtualKey)
                             animateToOffset(if (isOpen) closedOffsetPx else 0f)

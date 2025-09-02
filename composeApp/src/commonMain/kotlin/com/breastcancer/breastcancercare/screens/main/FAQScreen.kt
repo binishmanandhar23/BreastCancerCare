@@ -236,7 +236,6 @@ fun FAQScreen(
                                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                                 shape = MaterialTheme.shapes.large,
                                 modifier = Modifier
-                                    .menuAnchor()
                                     .fillMaxWidth()
                             )
                             ExposedDropdownMenu(

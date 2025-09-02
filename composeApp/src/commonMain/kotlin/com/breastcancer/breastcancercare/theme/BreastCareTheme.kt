@@ -23,15 +23,3 @@ val DarkAppColorScheme = darkColorScheme(
     onBackground = TextColorDark
     // ... define other Material3 colors
 )
-
-@Composable
-fun BreastCancerCareTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
-    val colorScheme = if (darkTheme) DarkAppColorScheme else LightAppColorScheme
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
-}

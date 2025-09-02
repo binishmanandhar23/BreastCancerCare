@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.Res
 import com.breastcancer.breastcancercare.components.CoreHomeCardDesign
 import com.breastcancer.breastcancercare.default_blog_image
@@ -31,7 +32,6 @@ import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.utils.DefaultImage
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

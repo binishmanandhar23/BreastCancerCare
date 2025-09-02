@@ -74,9 +74,6 @@ kotlin {
             implementation(libs.androidx.room.runtime)
             implementation(libs.sqlite.bundled)
 
-            /*PreCompose*/
-            implementation(libs.precompose)
-
             /*MOKO Permission*/
             implementation(libs.permissions)
             // specific permissions support
@@ -86,6 +83,9 @@ kotlin {
 
             /*JSON*/
             implementation(libs.kotlinx.serialization.json)
+
+            /*Navigation Compose*/
+            implementation(libs.navigation.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -155,10 +155,4 @@ project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
         dependsOn("kspCommonMainKotlinMetadata")
     }
 }
-configurations.all {
-    resolutionStrategy.force(
-        "androidx.compose.animation:animation:1.6.7",
-        "androidx.compose.animation:animation-core:1.6.7",
-    )
-} // To resolve No object found: SeekableTransition issue found in androidx.compose.animation:animation-core
 

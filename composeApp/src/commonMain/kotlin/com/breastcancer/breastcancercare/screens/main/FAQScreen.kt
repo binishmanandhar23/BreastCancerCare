@@ -72,6 +72,19 @@ import com.breastcancer.breastcancercare.theme.InfoColors
 import com.breastcancer.breastcancercare.theme.InfoDimens
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+
+
 
 
 private enum class InfoTab { FAQs, Guides }
@@ -125,6 +138,7 @@ fun FAQScreen(
     }
     val displayedFaqs by viewModel.displayedFaqs.collectAsStateWithLifecycle()
     val displayedGuides by viewModel.displayedGuides.collectAsStateWithLifecycle()
+    var expandedIndex by rememberSaveable { mutableStateOf<Int?>(null) }
 
 
 
@@ -281,62 +295,18 @@ fun FAQScreen(
                             )
                         }
                     } else {
-                        itemsIndexed(items = displayedFaqs) { key, item ->
-                            val color = InfoColors.faqCard(key)
-                            val onColor = InfoColors.onFaqCard()
-                            var isExpanded by rememberSaveable(item.question) { mutableStateOf(false) }
-                            val angle: Float by animateFloatAsState(
-                                targetValue = if (isExpanded) 180f else 0f,
-                                animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)
-                            )
-
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = InfoDimens.ScreenHPadding)
-                                    .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
-                                shape = MaterialTheme.shapes.large,
-                                colors = CardDefaults.cardColors(
-                                    containerColor = color,
-                                    contentColor = onColor
-                                ),
-                                elevation = CardDefaults.cardElevation(DefaultElevation),
-                                onClick = { isExpanded = !isExpanded }
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(
-                                        horizontal = InfoDimens.ScreenHPadding,
-                                        vertical = InfoDimens.ScreenVPadding
-                                    )
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.Top,
-                                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                    ) {
-                                        Icon(
-                                            modifier = Modifier.rotate(angle),
-                                            imageVector = Icons.Default.ArrowDropDown,
-                                            contentDescription = if (isExpanded) "Collapse" else "Expand"
-                                        )
-                                        Text(
-                                            text = highlightQuery(item.question, searchQuery),
-                                            color = onColor,
-                                            style = LocalTextStyle.current.copy(
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 20.sp
-                                            )
-                                        )
-                                    }
-                                    AnimatedVisibility(visible = isExpanded) {
-                                        Text(
-                                            modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
-                                            text = item.answer,
-                                            color = onColor
-                                        )
-                                    }
+                        itemsIndexed(items = displayedFaqs) { index, item ->
+                            val isExpanded = expandedIndex == index
+                            FaqCard(
+                                index = index,
+                                question = item.question,
+                                answer = item.answer,
+                                query = searchQuery,
+                                isExpanded = isExpanded,
+                                onToggle = {
+                                    expandedIndex = if (isExpanded) null else index
                                 }
-                            }
+                            )
                         }
                     }
                 }
@@ -422,3 +392,97 @@ private fun GuideCard(item: GuideDTO) {
         }
     }
 }
+
+@Composable
+private fun FaqCard(
+    index: Int,
+    question: String,
+    answer: String,
+    query: String,
+    isExpanded: Boolean,
+    onToggle: () -> Unit
+) {
+    val containerColor = InfoColors.faqCard(index)
+    val onColor = InfoColors.onFaqCard()
+    val angle by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)
+    )
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = InfoDimens.ScreenHPadding)
+            .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing))
+            .then(Modifier.bringIntoViewRequester(bringIntoViewRequester)),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor,
+            contentColor = onColor
+        ),
+        elevation = CardDefaults.cardElevation(DefaultElevation),
+        onClick = onToggle
+    ) {
+        LaunchedEffect(isExpanded) {
+            if (isExpanded) bringIntoViewRequester.bringIntoView()
+        }
+        Column(
+            modifier = Modifier
+                .padding(horizontal = InfoDimens.ScreenHPadding, vertical = InfoDimens.ScreenVPadding)
+                .semantics(mergeDescendants = true) {
+                    heading()
+                    role = androidx.compose.ui.semantics.Role.Button
+                    stateDescription = if (isExpanded) "Expanded" else "Collapsed"
+                    contentDescription = "FAQ item"
+                }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .rotate(angle)
+                        .padding(top = 2.dp),
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = if (isExpanded) "Collapse" else "Expand"
+                )
+                Text(
+                    text = highlightQuery(question, query),
+                    color = onColor,
+                    style = LocalTextStyle.current.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        lineHeight = 26.sp
+                    ),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column {
+                    androidx.compose.material3.Divider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        color = onColor.copy(alpha = 0.2f)
+                    )
+                    Text(
+                        text = answer,
+                        color = onColor,
+                        style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 20.sp)
+                    )
+                }
+            }
+        }
+    }
+}
+

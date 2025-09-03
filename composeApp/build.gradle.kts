@@ -86,6 +86,9 @@ kotlin {
 
             /*Navigation Compose*/
             implementation(libs.navigation.compose)
+
+            /*Alarmee*/
+            implementation(libs.alarmee)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

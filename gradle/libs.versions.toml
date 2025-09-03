@@ -38,6 +38,9 @@ precompose = "1.6.2"
 #Navigation
 navigationCompose = "2.9.0-rc01"
 
+#Alarmee
+alarmee = "2.3.0"
+
 
 [libraries]
 firebase-android-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-android-bom" }
@@ -62,6 +65,7 @@ permissions = { module = "dev.icerock.moko:permissions", version.ref = "permissi
 permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "permissionsCompose" }
 permissions-notifications = { module = "dev.icerock.moko:permissions-notifications", version.ref = "permissionsNotifications" }
 permissions-test = { module = "dev.icerock.moko:permissions-test", version.ref = "permissionsTest" }
+alarmee = { group = "io.github.tweener", name = "alarmee", version.ref = "alarmee" }
 
 #Calendar
 calendar = {module = "com.kizitonwose.calendar:compose-multiplatform", version.ref = "calendar"}

@@ -255,15 +255,18 @@ fun FAQScreen(
                     )
                     Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
 
-
-                    if (showFilter && currentTab == InfoTab.FAQs) {
+                    if (showFilter) {
                         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                         ModalBottomSheet(
                             onDismissRequest = { showFilter = false },
                             sheetState = sheetState
                         ) {
+
                             Text(
-                                text = "Suitability",
+                                text = when (currentTab) {
+                                    InfoTab.FAQs -> "Suitability"
+                                    InfoTab.Guides -> "Suitability"
+                                },
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier
                                     .padding(horizontal = InfoDimens.ScreenHPadding, vertical = 8.dp)
@@ -307,9 +310,11 @@ fun FAQScreen(
                                 }
                                 HorizontalDivider()
                             }
+
                             Spacer(Modifier.height(16.dp))
                         }
                     }
+
                 }
             }
         }

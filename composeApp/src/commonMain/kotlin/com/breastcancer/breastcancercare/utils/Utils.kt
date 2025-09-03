@@ -17,8 +17,6 @@ import androidx.compose.ui.unit.lerp
 import com.breastcancer.breastcancercare.Res
 import com.breastcancer.breastcancercare.database.local.types.FrequencyType
 import com.breastcancer.breastcancercare.default_bg_image
-import com.breastcancer.breastcancercare.screens.Screens
-import com.breastcancer.breastcancercare.screens.SubScreens
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.kizitonwose.calendar.core.plusDays
 import kotlinx.datetime.DateTimeUnit
@@ -39,8 +37,6 @@ import kotlin.math.sin
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-fun getNavigationRoute(mainScreen: Screens, subScreen: SubScreens? = null): String =
-    "${mainScreen.screen}${if (subScreen != null) "/" + subScreen.screen else ""}"
 
 @Composable
 fun rememberWindowSizeDp(): Pair<Dp, Dp> {

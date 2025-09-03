@@ -1,0 +1,5 @@
+package com.breastcancer.breastcancercare.notifications
+
+import com.tweener.alarmee.configuration.AlarmeePlatformConfiguration
+
+expect fun createAlarmeePlatformConfiguration(): AlarmeePlatformConfiguration

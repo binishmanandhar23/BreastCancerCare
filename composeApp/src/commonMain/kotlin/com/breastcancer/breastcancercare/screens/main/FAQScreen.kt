@@ -90,6 +90,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.clickable
 
 
 
@@ -128,7 +129,8 @@ private fun highlightQuery(text: String, query: String): androidx.compose.ui.tex
 fun FAQScreen(
     loaderState: LoaderState,
     snackBarState: SnackBarState,
-    viewModel: FAQViewModel = koinViewModel()
+    viewModel: FAQViewModel = koinViewModel(),
+    onGuideClick: (GuideDTO) -> Unit
 ) {
     val uiState by viewModel.faqUIState.collectAsStateWithLifecycle()
     val suitabilities by viewModel.suitabilities.collectAsStateWithLifecycle()
@@ -364,7 +366,10 @@ fun FAQScreen(
                         }
                     } else {
                         itemsIndexed(displayedGuides) { _, g ->
-                            GuideCard(item = g)
+                            GuideCard(
+                                item = g,
+                                onClick = { clicked -> onGuideClick(clicked) }
+                            )
                         }
                     }
                 }
@@ -373,19 +378,22 @@ fun FAQScreen(
     }
 
 @Composable
-private fun GuideCard(item: GuideDTO) {
+private fun GuideCard(
+    item: GuideDTO,
+    onClick: (GuideDTO) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = InfoDimens.ScreenHPadding)
-            .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
+            .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing))
+            .clickable { onClick(item) },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface
         ),
-        elevation = CardDefaults.cardElevation(DefaultElevation),
-        onClick = { /* TODO: navigate to guide detail when available */ }
+        elevation = CardDefaults.cardElevation(DefaultElevation)
     ) {
         Column(
             modifier = Modifier.padding(
@@ -430,6 +438,7 @@ private fun GuideCard(item: GuideDTO) {
         }
     }
 }
+
 
 @Composable
 private fun FaqCard(

@@ -2,7 +2,6 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
 import com.breastcancer.breastcancercare.database.local.types.Suitability
 import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
@@ -21,6 +20,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 
 
 class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
@@ -36,10 +36,14 @@ class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
     private val _selectedSuitabilityKey = MutableStateFlow<String?>(null)
     val selectedSuitabilityKey = _selectedSuitabilityKey.asStateFlow()
 
-    // --- Guides (demo data for now) ---
     private val _guides = MutableStateFlow(sampleGuides())
 
-    // --- Derived flows (output to UI) ---
+    private val _selectedGuide = MutableStateFlow<GuideDTO?>(null)
+    val selectedGuide: StateFlow<GuideDTO?> = _selectedGuide.asStateFlow()
+    fun onGuideSelected(guide: GuideDTO) { _selectedGuide.value = guide }
+
+    val guides: StateFlow<List<GuideDTO>> = _guides.asStateFlow()
+
     private val allFaqs: StateFlow<List<FAQDTO>> =
         _faqUIState.map { (it as? FAQUIState.Success)?.data ?: emptyList() }
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())

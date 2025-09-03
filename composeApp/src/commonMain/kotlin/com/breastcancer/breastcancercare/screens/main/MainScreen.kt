@@ -38,7 +38,8 @@ fun MainScreen(
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
     onSubScreenChange: (subScreen: SubScreenWithId) -> Unit,
-    onLogOut: () -> Unit
+    onLogOut: () -> Unit,
+    onOpenGuideDetail: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { Tabs.entries.size })
@@ -51,14 +52,25 @@ fun MainScreen(
             beyondViewportPageCount = 1
         ) { page ->
             when (Tabs.entries[page].text) {
-                Tabs.Home.text -> HomeScreen(onBlogClick = {
-                    onSubScreenChange(SubScreenWithId(subScreen = SubScreens.BlogDetail))
-                })
-                Tabs.Calendar.text -> CalendarScreen()
-                Tabs.FAQ.text -> FAQScreen(
-                    loaderState = loaderState,
-                    snackBarState = customSnackBarState
+                Tabs.Home.text -> HomeScreen(
+                    onBlogClick = {
+                        onSubScreenChange(SubScreenWithId(subScreen = SubScreens.BlogDetail))
+                    }
                 )
+
+                Tabs.Calendar.text -> CalendarScreen()
+
+                Tabs.FAQ.text -> {
+                    val vm = koinViewModel<com.breastcancer.breastcancercare.viewmodel.FAQViewModel>()
+                    FAQScreen(
+                        loaderState = loaderState,
+                        snackBarState = customSnackBarState,
+                        onGuideClick = { guide ->
+                            vm.onGuideSelected(guide)
+                            onOpenGuideDetail()
+                        }
+                    )
+                }
 
                 Tabs.Settings.text -> SettingsScreen(
                     permissionState = permissionState,
@@ -74,7 +86,8 @@ fun MainScreen(
             }
         }
 
-        BottomBar(
+
+    BottomBar(
             outerModifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)

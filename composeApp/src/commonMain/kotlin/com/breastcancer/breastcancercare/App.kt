@@ -182,6 +182,9 @@ fun App() {
                                                 launchSingleTop = true
                                             )
                                         )
+                                    },
+                                    onOpenGuideDetail = {
+                                        navigator.navigate("GuideDetail")
                                     }
                                 )
 
@@ -246,6 +249,19 @@ fun App() {
                                     subScreen = SubScreens.About
                                 )
                             ) { AboutScreen { navigator.goBack() } }
+
+                            scene(route = "GuideDetail") {
+                                val vm = koinViewModel<com.breastcancer.breastcancercare.viewmodel.FAQViewModel>()
+                                val guide = vm.selectedGuide.collectAsStateWithLifecycle().value
+                                if (guide != null) {
+                                    com.breastcancer.breastcancercare.screens.main.GuideDetailScreen(
+                                        guide = guide,
+                                        onBack = { navigator.goBack() }
+                                    )
+                                } else {
+                                    LaunchedEffect(Unit) { navigator.goBack() }
+                                }
+                            }
 
                             scene(
                                 route = getNavigationRoute(

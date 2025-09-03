@@ -19,15 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.foundation.layout.WindowInsets
+
 
 
 data class ProfileUiState(
@@ -47,6 +42,7 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
+                windowInsets = WindowInsets(0),
                 title = { Text("Profile") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

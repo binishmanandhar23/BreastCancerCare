@@ -29,6 +29,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
 import com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel
 import org.koin.compose.koinInject
+import androidx.compose.foundation.layout.WindowInsets
 
 
 data class EditProfileUiState(
@@ -56,6 +57,7 @@ fun EditProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
+                windowInsets = WindowInsets(0),
                 title = { Text("Edit Profile") },
                 navigationIcon = {
                     androidx.compose.material3.IconButton(onClick = onBack) {

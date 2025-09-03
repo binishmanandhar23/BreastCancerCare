@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.layout.WindowInsets
+
 
 @Composable
 fun ContactSupportScreen(onBack: () -> Unit = {}) {
@@ -22,6 +24,7 @@ fun ContactSupportScreen(onBack: () -> Unit = {}) {
     Scaffold(
         topBar = {
             TopAppBar(
+                windowInsets = WindowInsets(0),
                 title = { Text("Contact support") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

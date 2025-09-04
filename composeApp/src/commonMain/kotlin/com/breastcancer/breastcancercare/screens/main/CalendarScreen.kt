@@ -52,7 +52,9 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -91,6 +93,7 @@ import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
+import com.breastcancer.breastcancercare.utils.pagerTabIndicatorOffset
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -416,7 +419,7 @@ fun BottomInfoCard(
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable(
                             interactionSource = interaction,
-                            indication = rememberRipple(bounded = false)
+                            indication = ripple(bounded = false)
                         ) {
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.VirtualKey)
                             animateToOffset(if (isOpen) closedOffsetPx else 0f)
@@ -461,20 +464,21 @@ private fun EventSection(
             modifier = Modifier.fillMaxWidth(),
             containerColor = MaterialTheme.colorScheme.background,
             selectedTabIndex = selectedTab,
+            indicator = {
+                TabRowDefaults.PrimaryIndicator(
+                    modifier = Modifier.pagerTabIndicatorOffset(pagerState = pagerState, tabPositions = it),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            },
             tabs = {
-                Tab(selected = EventType.Event.ordinal == selectedTab, onClick = {
-                    onTabSelected(
-                        EventType.Event.ordinal
+                EventType.entries.forEachIndexed { index, type ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { onTabSelected(EventType.entries[index].ordinal) },
+                        text = {
+                            EventProgramTabRow(eventType = EventType.entries[index])
+                        }
                     )
-                }) {
-                    EventProgramTabRow(eventType = EventType.Event)
-                }
-                Tab(selected = EventType.Program.ordinal == selectedTab, onClick = {
-                    onTabSelected(
-                        EventType.Program.ordinal
-                    )
-                }) {
-                    EventProgramTabRow(eventType = EventType.Program)
                 }
             })
         EventsProgramsPager(

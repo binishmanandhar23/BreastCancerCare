@@ -19,8 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.breastcancer.breastcancercare.components.BottomBar
 import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
-import com.breastcancer.breastcancercare.models.SubScreenWithId
-import com.breastcancer.breastcancercare.screens.SubScreens
+import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.Tabs
 import com.breastcancer.breastcancercare.theme.DefaultElevation
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
@@ -52,11 +51,9 @@ fun MainScreen(
             beyondViewportPageCount = 1
         ) { page ->
             when (Tabs.entries[page].text) {
-                Tabs.Home.text -> HomeScreen(
-                    onBlogClick = {
-                        onSubScreenChange(SubScreenWithId(subScreen = SubScreens.BlogDetail))
-                    }
-                )
+                Tabs.Home.text -> HomeScreen(onBlogClick = {
+                    onSubScreenChange(Route.Main.BlogDetail)
+                })
 
                 Tabs.Calendar.text -> CalendarScreen()
 
@@ -75,9 +72,9 @@ fun MainScreen(
                 Tabs.Settings.text -> SettingsScreen(
                     permissionState = permissionState,
                     customSnackBarState = customSnackBarState,
-                    onOpenProfile = { onSubScreenChange(SubScreenWithId(SubScreens.Profile)) },
-                    onOpenAbout = { onSubScreenChange(SubScreenWithId(SubScreens.About)) },
-                    onContactSupport = { onSubScreenChange(SubScreenWithId(SubScreens.Contact)) },
+                    onOpenProfile = { onSubScreenChange(Route.Main.Profile) },
+                    onOpenAbout = { onSubScreenChange(Route.Main.About) },
+                    onContactSupport = { onSubScreenChange(Route.Main.Contact) },
                     onLogOut = {
                         onboardingViewModel.onLogOut()
                         onLogOut()

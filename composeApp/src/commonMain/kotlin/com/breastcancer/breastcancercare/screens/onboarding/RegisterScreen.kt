@@ -26,12 +26,12 @@ import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMediu
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.states.LoginUIState
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.utils.text.removeSpaces
 
 @Composable

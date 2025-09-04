@@ -222,6 +222,8 @@ fun App() {
                                 navigator.popBackStack()
                             })
                         }
+
+                        /*scene(){}*/
                     }
                 }
             }

@@ -22,5 +22,7 @@ sealed interface Route {
         data object EditProfile: Route
         @Serializable
         data object BlogDetail: Route
+        @Serializable
+        data object GuideDetail: Route
     }
 }

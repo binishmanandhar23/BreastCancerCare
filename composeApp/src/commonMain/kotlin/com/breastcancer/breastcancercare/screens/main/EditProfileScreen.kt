@@ -27,7 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
-import com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel
+import com.breastcancer.breastcancercare.viewmodel.SettingsViewModel
 import org.koin.compose.koinInject
 import androidx.compose.foundation.layout.WindowInsets
 
@@ -136,7 +136,7 @@ fun EditProfileScreen(
 
 @Composable
 fun EditProfileRoute(
-    vm: EditProfileViewModel = koinInject(),
+    vm: SettingsViewModel = koinInject(),
     onBack: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }

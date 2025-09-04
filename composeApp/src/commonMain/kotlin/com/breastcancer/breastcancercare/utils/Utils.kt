@@ -12,6 +12,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.lerp
 import com.breastcancer.breastcancercare.Res
@@ -224,3 +228,30 @@ private fun regularPolygonShape(sides: Int, rotationDeg: Float = -90f) = Generic
 
 // A point-up regular pentagon
 val PentagonShape = regularPolygonShape(5)
+
+fun formatMeta(readTimeMin: Int, updatedAtLabel: String): String {
+    return "$readTimeMin min read · Updated $updatedAtLabel"
+}
+
+@Composable
+fun highlightQuery(text: String, query: String): androidx.compose.ui.text.AnnotatedString {
+    if (query.isBlank()) return androidx.compose.ui.text.AnnotatedString(text)
+    val lower = text.lowercase()
+    val q = query.lowercase()
+    val builder = buildAnnotatedString {
+        var start = 0
+        while (true) {
+            val idx = lower.indexOf(q, startIndex = start)
+            if (idx < 0) {
+                append(text.substring(start))
+                break
+            }
+            append(text.substring(start, idx))
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)) {
+                append(text.substring(idx, idx + q.length))
+            }
+            start = idx + q.length
+        }
+    }
+    return builder
+}

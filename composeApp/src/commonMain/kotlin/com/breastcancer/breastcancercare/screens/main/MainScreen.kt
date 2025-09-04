@@ -36,7 +36,7 @@ fun MainScreen(
     permissionState: PermissionState,
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
-    onSubScreenChange: (subScreen: SubScreenWithId) -> Unit,
+    onSubScreenChange: (subScreen: Route) -> Unit,
     onLogOut: () -> Unit,
     onOpenGuideDetail: () -> Unit
 ) {

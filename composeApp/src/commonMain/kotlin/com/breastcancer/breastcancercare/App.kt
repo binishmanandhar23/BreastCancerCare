@@ -32,7 +32,7 @@ import com.breastcancer.breastcancercare.screens.main.BlogDetailScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
 import com.breastcancer.breastcancercare.screens.main.MainScreen
-import com.breastcancer.breastcancercare.screens.main.ProfileRoute
+import com.breastcancer.breastcancercare.screens.main.ProfileScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
@@ -174,13 +174,12 @@ fun App() {
                                             inclusive = true
                                         }
                                         launchSingleTop = true
-
-                                    onOpenGuideDetail = {
-                                        navigator.navigate("GuideDetail")
                                     }
+                                },
+                                onOpenGuideDetail = {
+                                    navigator.navigate(Route.Main.GuideDetail)
                                 }
                             )
-
                             if (permissionImportantDialog)
                                 BreastCancerAlertDialog(
                                     title = "Important!",
@@ -199,10 +198,11 @@ fun App() {
                                 )
                         }
 
+
                         composable<Route.Main.Contact> { ContactSupportScreen { navigator.popBackStack() } }
 
                         composable<Route.Main.Profile> {
-                            ProfileRoute(
+                            ProfileScreen(
                                 onBack = { navigator.popBackStack() },
                                 onEditProfile = {
                                     navigator.navigate(
@@ -217,37 +217,27 @@ fun App() {
                                 onBack = { navigator.popBackStack() }
                             )
                         }
-                                        composable<Route.Main.BlogDetail> {
-                                    BlogDetailScreen(onBack = {
-                                        navigator.popBackStack()
-                                    })
-                                }
+                        composable<Route.Main.BlogDetail> {
+                            BlogDetailScreen(onBack = {
+                                navigator.popBackStack()
+                            })
+                        }
 
                         composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
 
-                            scene(route = "GuideDetail") {
-                                val vm = koinViewModel<com.breastcancer.breastcancercare.viewmodel.FAQViewModel>()
-                                val guide = vm.selectedGuide.collectAsStateWithLifecycle().value
-                                if (guide != null) {
-                                    com.breastcancer.breastcancercare.screens.main.GuideDetailScreen(
-                                        guide = guide,
-                                        onBack = { navigator.goBack() }
-                                    )
-                                } else {
-                                    LaunchedEffect(Unit) { navigator.goBack() }
-                                }
-                            }
-
-                            scene(
-                                route = getNavigationRoute(
-                                    mainScreen = Screens.Main,
-                                    subScreen = SubScreens.BlogDetail
+                        composable<Route.Main.GuideDetail> {
+                            val vm =
+                                koinViewModel<com.breastcancer.breastcancercare.viewmodel.FAQViewModel>()
+                            val guide = vm.selectedGuide.collectAsStateWithLifecycle().value
+                            if (guide != null) {
+                                com.breastcancer.breastcancercare.screens.main.GuideDetailScreen(
+                                    guide = guide,
+                                    onBack = { navigator.popBackStack() }
                                 )
-                            ) {
-                                BlogDetailScreen(onBack = {
-                                    navigator.goBack()
-                                })
+                            } else {
+                                LaunchedEffect(Unit) { navigator.popBackStack() }
                             }
+                        }
 
                     }
                 }

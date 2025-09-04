@@ -91,38 +91,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.clickable
-
-
-
-private enum class InfoTab { FAQs, Guides }
-
-private fun formatMeta(readTimeMin: Int, updatedAtLabel: String): String {
-    return "$readTimeMin min read · Updated $updatedAtLabel"
-}
-
-
-@Composable
-private fun highlightQuery(text: String, query: String): androidx.compose.ui.text.AnnotatedString {
-    if (query.isBlank()) return androidx.compose.ui.text.AnnotatedString(text)
-    val lower = text.lowercase()
-    val q = query.lowercase()
-    val builder = buildAnnotatedString {
-        var start = 0
-        while (true) {
-            val idx = lower.indexOf(q, startIndex = start)
-            if (idx < 0) {
-                append(text.substring(start))
-                break
-            }
-            append(text.substring(start, idx))
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)) {
-                append(text.substring(idx, idx + q.length))
-            }
-            start = idx + q.length
-        }
-    }
-    return builder
-}
+import com.breastcancer.breastcancercare.screens.InfoTab
+import com.breastcancer.breastcancercare.utils.formatMeta
+import com.breastcancer.breastcancercare.utils.highlightQuery
 
 
 @Composable

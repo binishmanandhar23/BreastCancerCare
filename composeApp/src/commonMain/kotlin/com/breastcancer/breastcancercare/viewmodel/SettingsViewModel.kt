@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 
-class EditProfileViewModel(
+class SettingsViewModel(
     private val repo: OnboardingRepository
 ) : ViewModel() {
 
@@ -100,4 +100,5 @@ class EditProfileViewModel(
         val phoneOk = digits.length in 8..15
         return firstName.isNotBlank() && lastName.isNotBlank() && phoneOk
     }
+
 }

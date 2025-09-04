@@ -68,8 +68,6 @@ class EditProfileViewModel(
         s.copy(canSave = canSave(s.firstName, s.lastName, s.phoneNumber))
     }
 
-    fun onAddressChange(value: String) = _state.update { it.copy(address = value) }
-
     fun save() {
         val id = currentId ?: return
         val s = _state.value

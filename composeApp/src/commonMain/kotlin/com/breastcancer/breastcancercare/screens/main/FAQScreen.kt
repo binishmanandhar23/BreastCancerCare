@@ -301,7 +301,7 @@ fun FAQScreen(
                                         .padding(horizontal = InfoDimens.ScreenHPadding, vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    androidx.compose.material3.RadioButton(
+                                    RadioButton(
                                         selected = (selectedKey == s.key),
                                         onClick = {
                                             viewModel.onSuitabilityChange(s.key)

@@ -51,7 +51,8 @@ fun RegisterScreen(
     val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
     val phoneValid by onboardingViewModel.phoneValid.collectAsStateWithLifecycle()
     val emailValidInstant by onboardingViewModel.emailValidInstant.collectAsStateWithLifecycle()
-    val passwordValidInstant by onboardingViewModel.passwordValidInstant.collectAsStateWithLifecycle()
+    val passwordLengthValid by onboardingViewModel.passwordLengthValid.collectAsStateWithLifecycle()
+    val passwordsMatch by onboardingViewModel.passwordsMatch.collectAsStateWithLifecycle()
     val canRegister by onboardingViewModel.canRegister.collectAsStateWithLifecycle()
 
     LaunchedEffect(loginUIState) {
@@ -86,12 +87,13 @@ fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 28.dp)
+            .padding(horizontal = 20.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         BreastCancerToolbar(onBack = onBack)
+        Spacer(Modifier.height(12.dp))
         Card(
             modifier = Modifier.width(formWidth),
             shape = RoundedCornerShape(20.dp),
@@ -173,8 +175,8 @@ fun RegisterScreen(
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
-                    errorText = if ((pw.isNotBlank() || confirm.isNotBlank()) && !passwordValidInstant)
-                        "Passwords must match and be at least 6 characters long."
+                    errorText = if (pw.isNotBlank() && !passwordLengthValid)
+                        "At least 6 characters."
                     else null,
                     errorIcon = Icons.Default.Error,
                 )
@@ -190,8 +192,8 @@ fun RegisterScreen(
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
-                    errorText = if ((pw.isNotBlank() || confirm.isNotBlank()) && !passwordValidInstant)
-                        "Passwords must match and be at least 6 characters long."
+                    errorText = if (confirm.isNotBlank() && !passwordsMatch)
+                        "Passwords must match."
                     else null,
                     errorIcon = Icons.Default.Error,
                 )

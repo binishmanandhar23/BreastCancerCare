@@ -42,38 +42,44 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     val emailValidInstant = userDTO
         .map { dto -> dto.email.isBlank() || (dto.email.contains("@") && dto.email.contains(".")) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
-    val passwordValidInstant = combine(password, confirmPassword) { pw, cpw ->
-        pw.length >= 6 && pw == cpw
+
+    val passwordLengthValid = password
+        .map { it.length >= 6 }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    val passwordsMatch = combine(password, confirmPassword) { pw, cpw ->
+        cpw.isNotBlank() && pw == cpw
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-    val canRegister = combine(
+
+    val baseValid = combine(
         userDTO,
         emailValidInstant,
         phoneValid,
-        passwordValidInstant,
-        agree
-    ) { dto, emailOK, phoneOK, pwOK, agreeOK ->
+        passwordLengthValid,
+        passwordsMatch
+    ) { dto, emailOK, phoneOK, lenOK, matchOK ->
         dto.firstName.isNotBlank() &&
                 dto.lastName.isNotBlank() &&
-                emailOK && phoneOK && pwOK && agreeOK
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+                emailOK && phoneOK && lenOK && matchOK
+    }
 
-    private var _passwordValid = MutableStateFlow(true)
-    val passwordValid = _passwordValid.asStateFlow()
+    val canRegister = baseValid
+        .combine(agree) { base, agreeOK -> base && agreeOK }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
 
     private var _loginUIState = MutableStateFlow<LoginUIState>(LoginUIState.Initial)
     val loginUIState = _loginUIState.asStateFlow()
 
-
     fun updatePassword(password: String) =
-        _password.update { password }.also { updatePasswordValid(true) }
+        _password.update { password }
 
     fun updateConfirmPassword(password: String) =
-        _confirmPassword.update { password }.also { updatePasswordValid(true) }
+        _confirmPassword.update { password }
 
     fun toggleAgree(checked: Boolean) = _agree.update { checked }
 
     fun updateEmailValid(valid: Boolean) = _emailValid.update { valid }
-    fun updatePasswordValid(valid: Boolean) = _passwordValid.update { valid }
 
     fun updateUserDTO(userDTO: UserDTO) =
         _userDTO.update {

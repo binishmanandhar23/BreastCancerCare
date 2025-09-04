@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.asStateFlow
 
 
 class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
@@ -41,8 +40,6 @@ class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
     private val _selectedGuide = MutableStateFlow<GuideDTO?>(null)
     val selectedGuide: StateFlow<GuideDTO?> = _selectedGuide.asStateFlow()
     fun onGuideSelected(guide: GuideDTO) { _selectedGuide.value = guide }
-
-    val guides: StateFlow<List<GuideDTO>> = _guides.asStateFlow()
 
     private val allFaqs: StateFlow<List<FAQDTO>> =
         _faqUIState.map { (it as? FAQUIState.Success)?.data ?: emptyList() }

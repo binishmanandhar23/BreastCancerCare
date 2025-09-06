@@ -36,7 +36,7 @@ import kotlin.math.min
 @Composable
 fun OverlappingZoomHeaderWithParallax(
     modifier: Modifier = Modifier,
-    header: Painter,
+    header: @Composable (modifier: Modifier) -> Unit,
     baseHeaderHeight: Dp = 250.dp,
     defaultOverlap: Dp = 24.dp,          // <-- how much to overlap at rest
     maxExtraPullPx: Float = 600f,
@@ -128,14 +128,9 @@ fun OverlappingZoomHeaderWithParallax(
                     .height(headerHeight),
                 contentAlignment = Alignment.TopCenter
             ) {
-                Image(
-                    painter = header,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .offset { IntOffset(0, parallaxOffsetY) },
-                    contentScale = ContentScale.Crop
-                )
+                header(Modifier
+                    .fillMaxSize()
+                    .offset { IntOffset(0, parallaxOffsetY) })
             }
 
             // FRONT: Scrollable content, drawn above and overlapping by default

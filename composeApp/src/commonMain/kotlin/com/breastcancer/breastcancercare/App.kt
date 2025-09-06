@@ -20,6 +20,7 @@ import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
 import com.breastcancer.breastcancercare.components.loader.CustomLoader
 import com.breastcancer.breastcancercare.components.loader.rememberLoaderState
@@ -217,17 +218,12 @@ fun App() {
 
                         composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
 
-                        composable<Route.Main.BlogDetail> {
-                            BlogDetailScreen(onBack = {
+                        composable<Route.Main.BlogDetail> { backStackEntry ->
+                            val slug = backStackEntry.toRoute<Route.Main.BlogDetail>().slug
+                            BlogDetailScreen(loaderState = loaderState, slug = slug, onBack = {
                                 navigator.popBackStack()
                             })
                         }
-
-
-                        /*Test Purpose changes*/
-
-                        /*Test Purpose changes*/
-                        /*Test Purpose changes*/
                     }
                 }
             }

@@ -51,7 +51,7 @@ fun MainScreen(
         ) { page ->
             when (Tabs.entries[page].text) {
                 Tabs.Home.text -> HomeScreen(onBlogClick = {
-                    onSubScreenChange(Route.Main.BlogDetail)
+                    onSubScreenChange(Route.Main.BlogDetail(slug = it.slug))
                 })
                 Tabs.Calendar.text -> CalendarScreen()
                 Tabs.FAQ.text -> FAQScreen(

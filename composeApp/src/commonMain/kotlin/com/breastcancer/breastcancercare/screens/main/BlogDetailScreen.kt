@@ -1,12 +1,10 @@
 package com.breastcancer.breastcancercare.screens.main
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -15,49 +13,87 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.breastcancer.breastcancercare.Res
-import com.breastcancer.breastcancercare.default_blog_image
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.UrlImage
+import com.breastcancer.breastcancercare.components.loader.LoaderState
+import com.breastcancer.breastcancercare.states.BlogUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.utils.OverlappingZoomHeaderWithParallax
-import com.breastcancer.breastcancercare.utils.text.LoremIpsum
-import org.jetbrains.compose.resources.painterResource
+import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
+import kotlinx.coroutines.Dispatchers
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun BlogDetailScreen(modifier: Modifier = Modifier.fillMaxSize(), onBack: () -> Unit) {
-    OverlappingZoomHeaderWithParallax(
-        modifier = modifier,
-        header = painterResource(Res.drawable.default_blog_image),
-        onBackClick = onBack
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(
-                    horizontal = DefaultHorizontalPaddingMedium,
-                    vertical = DefaultVerticalPaddingLarge
-                ),
-                verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
-            ) {
-                Text(
-                    text = "Blog Title",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
-                HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                Text(
-                    text = LoremIpsum,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+fun BlogDetailScreen(
+    modifier: Modifier = Modifier.fillMaxSize(),
+    blogViewModel: BlogViewModel = koinViewModel(),
+    loaderState: LoaderState,
+    slug: String,
+    onBack: () -> Unit
+) {
+    val blogUIState by blogViewModel.blogUIState.collectAsStateWithLifecycle()
+    LaunchedEffect(slug) {
+        with(Dispatchers.Default) {
+            blogViewModel.getBlogBySlug(slug)
+        }
+    }
+    LaunchedEffect(blogUIState) {
+        when (blogUIState) {
+            is BlogUIState.Loading -> loaderState.show()
+            else -> loaderState.hide()
+        }
+    }
+    AnimatedContent(modifier = Modifier.fillMaxSize(), targetState = blogUIState) { state ->
+        when (state) {
+            is BlogUIState.Success -> {
+                val blog by remember { derivedStateOf { state.data } }
+                OverlappingZoomHeaderWithParallax(
+                    modifier = modifier,
+                    header = {
+                        UrlImage(
+                            modifier = it,
+                            url = blog?.image ?: "",
+                            contentDescription = blog?.title
+                        )
+                    },
+                    onBackClick = onBack
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(
+                                horizontal = DefaultHorizontalPaddingMedium,
+                                vertical = DefaultVerticalPaddingLarge
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
+                        ) {
+                            Text(
+                                text = blog?.title ?: "",
+                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                            )
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                            Text(
+                                text = blog?.body ?: "",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                }
             }
+
+            else -> Unit
         }
     }
 }

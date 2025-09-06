@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.combine
@@ -82,24 +83,21 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
             updateEmailValid(true)
         }
 
-    fun onLogin() {
-        _loginUIState.update {
-            LoginUIState.Loading
-        }
-        viewModelScope.launch(Dispatchers.Default) {
-            onboardingRepository.getUser(userDTO.value.email).collect { user ->
-                if (user == null)
-                    _loginUIState.update { LoginUIState.Error("User not found") }
-                else {
-                    if (user.password == password.value) {
-                        onboardingRepository.setLoggedInUser(user)
-                        _loginUIState.update { LoginUIState.Success("Welcome Back! ${user.firstName}") }
-                        reset()
-                    } else
-                        _loginUIState.update { LoginUIState.Error("Incorrect Password") }
-                }
+    suspend fun onLogin() {
+        _loginUIState.update { LoginUIState.Loading }
+        onboardingRepository.getUser(userDTO.value.email).let { user ->
+            if (user == null)
+                _loginUIState.update { LoginUIState.Error("User not found") }
+            else {
+                if (user.password == password.value) {
+                    onboardingRepository.setLoggedInUser(user)
+                    _loginUIState.update { LoginUIState.Success("Welcome Back! ${user.firstName}") }
+                    reset()
+                } else
+                    _loginUIState.update { LoginUIState.Error("Incorrect Password") }
             }
         }
+
     }
 
     fun onRegister() {

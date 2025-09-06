@@ -24,7 +24,7 @@ fun commonModule(): Module = module {
     single<FAQRepository> { FAQRepository(get<AppDatabase>().getFAQDAO()) }
     single<CalendarRepository> { CalendarRepository(get<AppDatabase>().getCalendarDAO()) }
     single<OnboardingRepository> { OnboardingRepository(get<AppDatabase>().getUserDAO()) }
-    single<HomeRepository> { HomeRepository(userDao = get<AppDatabase>().getUserDAO(), blogDAO = get<AppDatabase>().getBlogDAO()) }
+    single<HomeRepository> { HomeRepository(userDao = get<AppDatabase>().getUserDAO(), blogDAO = get<AppDatabase>().getBlogDAO(), calendarDAO = get<AppDatabase>().getCalendarDAO()) }
     single<BlogRepository> { BlogRepository(blogDAO = get<AppDatabase>().getBlogDAO()) }
     single<UserDao> { get<AppDatabase>().getUserDAO() }
 

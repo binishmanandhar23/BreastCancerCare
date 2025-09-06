@@ -41,19 +41,19 @@ fun BlogDetailScreen(
     slug: String,
     onBack: () -> Unit
 ) {
-    val blogUIState by blogViewModel.blogUIState.collectAsStateWithLifecycle()
+    val blogUIDetailState by blogViewModel.blogUIDetailState.collectAsStateWithLifecycle()
     LaunchedEffect(slug) {
         with(Dispatchers.Default) {
             blogViewModel.getBlogBySlug(slug)
         }
     }
-    LaunchedEffect(blogUIState) {
-        when (blogUIState) {
+    LaunchedEffect(blogUIDetailState) {
+        when (blogUIDetailState) {
             is BlogUIState.Loading -> loaderState.show()
             else -> loaderState.hide()
         }
     }
-    AnimatedContent(modifier = Modifier.fillMaxSize(), targetState = blogUIState) { state ->
+    AnimatedContent(modifier = Modifier.fillMaxSize(), targetState = blogUIDetailState) { state ->
         when (state) {
             is BlogUIState.Success -> {
                 val blog by remember { derivedStateOf { state.data } }

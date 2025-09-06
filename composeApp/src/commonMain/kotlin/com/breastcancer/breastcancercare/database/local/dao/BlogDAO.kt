@@ -22,8 +22,8 @@ interface BlogDAO {
     @Query("SELECT * FROM blogentity ORDER BY RANDOM() LIMIT 5")
     fun getRecommendedBlogs(): Flow<List<BlogEntity>>
 
-    @Query("SELECT * FROM blogentity WHERE categories IN (:categories)")
-    fun getBlogsBasedOnCategories(categories: List<String>): Flow<List<BlogEntity>>
+    /*@Query("SELECT * FROM blogentity WHERE categories IN (:categories)")
+    fun getBlogsBasedOnCategories(categories: List<String>): Flow<List<BlogEntity>>*/
 
     @Query("SELECT * FROM blogentity WHERE tags IN (:tags)")
     fun getBlogsBasedOnTags(tags: List<String>): Flow<List<BlogEntity>>

@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.CategoriesLabelSection
 import com.breastcancer.breastcancercare.components.UrlImage
 import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.states.BlogUIState
@@ -79,6 +80,7 @@ fun BlogDetailScreen(
                             ),
                             verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
                         ) {
+                            CategoriesLabelSection(categories = blog?.categories?: emptyList())
                             Text(
                                 text = blog?.title ?: "",
                                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)

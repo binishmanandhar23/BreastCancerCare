@@ -46,6 +46,7 @@ import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultTopHeaderTextSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
+import com.breastcancer.breastcancercare.theme.OffBackground
 import com.breastcancer.breastcancercare.theme.spToDp
 import com.breastcancer.breastcancercare.utils.emojiFor
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
@@ -64,7 +65,7 @@ fun HomeScreen(
     LazyColumnCollapsibleHeader(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(OffBackground)
             .overscroll(overscrollEffect = overscrollEffect),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(20.dp),

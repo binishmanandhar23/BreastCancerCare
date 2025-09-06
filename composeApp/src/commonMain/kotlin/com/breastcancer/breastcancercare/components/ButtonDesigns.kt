@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
@@ -33,6 +34,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.breastcancer.breastcancercare.utils.roundedClickableNoClip
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -44,7 +46,7 @@ fun BottomBarIcon(
     onClick: (() -> Unit)? = null
 ) {
     Column(
-        modifier = modifier.clip(shape = MaterialTheme.shapes.medium).clickable(onClick = onClick ?: {}),
+        modifier = modifier.clip(MaterialTheme.shapes.medium).padding(2.dp).clickable(onClick = onClick ?: {}),
         verticalArrangement = Arrangement.spacedBy(5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

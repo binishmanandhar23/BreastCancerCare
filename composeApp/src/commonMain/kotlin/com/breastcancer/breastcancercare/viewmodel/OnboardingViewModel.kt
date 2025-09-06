@@ -87,21 +87,17 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
             LoginUIState.Loading
         }
         viewModelScope.launch(Dispatchers.Default) {
-            checkEmailValidity().let { valid ->
-                updateEmailValid(valid)
-                if (valid)
-                    onboardingRepository.getUser(userDTO.value.email).collect { user ->
-                        if (user == null)
-                            _loginUIState.update { LoginUIState.Error("User not found") }
-                        else {
-                            if (user.password == password.value) {
-                                onboardingRepository.setLoggedInUser(user)
-                                _loginUIState.update { LoginUIState.Success("Welcome Back! ${user.firstName}") }
-                                reset()
-                            } else
-                                _loginUIState.update { LoginUIState.Error("Incorrect Password") }
-                        }
-                    }
+            onboardingRepository.getUser(userDTO.value.email).collect { user ->
+                if (user == null)
+                    _loginUIState.update { LoginUIState.Error("User not found") }
+                else {
+                    if (user.password == password.value) {
+                        onboardingRepository.setLoggedInUser(user)
+                        _loginUIState.update { LoginUIState.Success("Welcome Back! ${user.firstName}") }
+                        reset()
+                    } else
+                        _loginUIState.update { LoginUIState.Error("Incorrect Password") }
+                }
             }
         }
     }

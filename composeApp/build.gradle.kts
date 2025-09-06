@@ -41,6 +41,14 @@ kotlin {
             implementation(libs.firebase.config)
             implementation(libs.firebase.database.ktx)
             implementation(libs.firebase.common.ktx)
+
+            /*Ktor*/
+            implementation(libs.ktor.client.android)
+        }
+        appleMain {
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -89,6 +97,10 @@ kotlin {
 
             /*Alarmee*/
             implementation(libs.alarmee)
+
+            /*Coil*/
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

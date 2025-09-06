@@ -6,6 +6,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContactSupport
+import androidx.compose.material.icons.filled.Feedback
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.SupervisedUserCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,6 +27,7 @@ import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import dev.icerock.moko.permissions.PermissionState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.vector.ImageVector
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,13 +58,14 @@ fun SettingsScreen(
         Pair<String, @Composable (ColumnScope.() -> Unit)>(
             "Account",
             {
-                NavRow(text = "Profile", onClick = onOpenProfile)
+                NavRow(imageVector = Icons.Default.SupervisedUserCircle, text = "Profile", onClick = onOpenProfile)
             },
         ),
         Pair<String, @Composable (ColumnScope.() -> Unit)>(
             "Notifications",
             {
                 SwitchRow(
+                    imageVector = Icons.Default.Notifications,
                     text = "Notifications",
                     checked = notificationsEnabled,
                     onCheckedChange = { notificationsEnabled = it }
@@ -66,20 +75,20 @@ fun SettingsScreen(
         Pair<String, @Composable (ColumnScope.() -> Unit)>(
             "Feedback",
             {
-                NavRow(text = "Feedback", onClick = { showFeedbackDialog = true })
+                NavRow(imageVector = Icons.Default.Feedback, text = "Feedback", onClick = { showFeedbackDialog = true })
             },
         ),
         Pair<String, @Composable (ColumnScope.() -> Unit)>(
             "Help",
             {
-                NavRow(text = "About", onClick = onOpenAbout)
-                NavRow(text = "Contact support", onClick = onContactSupport)
+                NavRow(imageVector = Icons.Default.Info, text = "About", onClick = onOpenAbout)
+                NavRow(imageVector = Icons.Default.ContactSupport, text = "Contact support", onClick = onContactSupport)
             },
         ),
         Pair<String, @Composable (ColumnScope.() -> Unit)>(
             "",
             {
-                NavRow(text = "Log Out", onClick = onLogOut)
+                NavRow(imageVector = Icons.Default.Logout, text = "Log Out", onClick = onLogOut)
             },
         )
     )
@@ -139,13 +148,14 @@ private fun SettingsSection(
 }
 
 @Composable
-private fun IconPlaceholder(size: Int = 24) {
-    Box(
+private fun IconPlaceholder(icon: ImageVector, size: Int = 24) {
+    Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(size.dp), tint = MaterialTheme.colorScheme.primary)
+    /*Box(
         Modifier
             .size(size.dp)
             .clip(RoundedCornerShape(6.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-    )
+    )*/
 }
 
 @Composable
@@ -161,6 +171,7 @@ private fun TrailingPlaceholder(size: Int = 16) {
 
 @Composable
 private fun NavRow(
+    imageVector: ImageVector,
     text: String,
     onClick: () -> Unit
 ) {
@@ -172,7 +183,7 @@ private fun NavRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconPlaceholder()
+        IconPlaceholder(icon = imageVector)
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
@@ -187,6 +198,7 @@ private fun NavRow(
 @Suppress("SameParameterValue")
 @Composable
 private fun SwitchRow(
+    imageVector: ImageVector,
     text: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
@@ -199,7 +211,7 @@ private fun SwitchRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(Modifier.alignBy { it.measuredHeight / 2 }) {
-            IconPlaceholder()
+            IconPlaceholder(icon = imageVector)
         }
 
         Text(

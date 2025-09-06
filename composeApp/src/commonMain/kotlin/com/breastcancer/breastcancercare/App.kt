@@ -2,8 +2,6 @@ package com.breastcancer.breastcancercare
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -15,8 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavOptions
-import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -32,7 +28,7 @@ import com.breastcancer.breastcancercare.screens.main.BlogDetailScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
 import com.breastcancer.breastcancercare.screens.main.MainScreen
-import com.breastcancer.breastcancercare.screens.main.ProfileRoute
+import com.breastcancer.breastcancercare.screens.main.ProfileScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
@@ -70,7 +66,9 @@ fun App() {
 
     Scaffold { innerPadding ->
         Surface(
-            modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             CustomLoader(loaderState = loaderState) {
                 CustomSnackBar(
@@ -175,9 +173,11 @@ fun App() {
                                         }
                                         launchSingleTop = true
                                     }
+                                },
+                                onOpenGuideDetail = {
+                                    navigator.navigate(Route.Main.GuideDetail)
                                 }
                             )
-
                             if (permissionImportantDialog)
                                 BreastCancerAlertDialog(
                                     title = "Important!",
@@ -196,10 +196,11 @@ fun App() {
                                 )
                         }
 
+
                         composable<Route.Main.Contact> { ContactSupportScreen { navigator.popBackStack() } }
 
                         composable<Route.Main.Profile> {
-                            ProfileRoute(
+                            ProfileScreen(
                                 onBack = { navigator.popBackStack() },
                                 onEditProfile = {
                                     navigator.navigate(
@@ -214,20 +215,26 @@ fun App() {
                                 onBack = { navigator.popBackStack() }
                             )
                         }
-
-                        composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
-
                         composable<Route.Main.BlogDetail> {
                             BlogDetailScreen(onBack = {
                                 navigator.popBackStack()
                             })
                         }
 
+                        composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
 
-                        /*Test Purpose changes*/
-
-                        /*Test Purpose changes*/
-                        /*Test Purpose changes*/
+                        composable<Route.Main.GuideDetail> {
+                            val vm = koinViewModel<com.breastcancer.breastcancercare.viewmodel.FAQViewModel>()
+                            val guide by vm.selectedGuide.collectAsStateWithLifecycle()
+                            if (guide != null) {
+                                com.breastcancer.breastcancercare.screens.main.GuideDetailScreen(
+                                    guide = guide!!,
+                                    onBack = { navigator.popBackStack() }
+                                )
+                            } else {
+                                LaunchedEffect(Unit) { navigator.popBackStack() }
+                            }
+                        }
                     }
                 }
             }

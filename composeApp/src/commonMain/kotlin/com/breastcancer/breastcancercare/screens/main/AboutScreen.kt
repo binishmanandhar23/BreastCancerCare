@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.foundation.layout.WindowInsets
+
 
 @Composable
 fun AboutScreen(onBack: () -> Unit = {}) {
@@ -21,6 +23,7 @@ fun AboutScreen(onBack: () -> Unit = {}) {
     Scaffold(
         topBar = {
             TopAppBar(
+                windowInsets = WindowInsets(0),
                 title = { Text("About") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

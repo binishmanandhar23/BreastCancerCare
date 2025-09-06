@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 
-class EditProfileViewModel(
+class SettingsViewModel(
     private val repo: OnboardingRepository
 ) : ViewModel() {
 
@@ -68,8 +68,6 @@ class EditProfileViewModel(
         s.copy(canSave = canSave(s.firstName, s.lastName, s.phoneNumber))
     }
 
-    fun onAddressChange(value: String) = _state.update { it.copy(address = value) }
-
     fun save() {
         val id = currentId ?: return
         val s = _state.value
@@ -102,4 +100,5 @@ class EditProfileViewModel(
         val phoneOk = digits.length in 8..15
         return firstName.isNotBlank() && lastName.isNotBlank() && phoneOk
     }
+
 }

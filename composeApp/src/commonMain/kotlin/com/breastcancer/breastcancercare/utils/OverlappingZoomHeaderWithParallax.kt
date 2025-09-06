@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.zIndex
+import com.breastcancer.breastcancercare.components.BreastCancerBackButton
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import kotlin.math.max
@@ -148,23 +149,7 @@ fun OverlappingZoomHeaderWithParallax(
             }
         }
         if (backButton)
-            Box(
-                modifier = Modifier.padding(
-                    horizontal = DefaultHorizontalPaddingMedium,
-                    vertical = DefaultVerticalPaddingMedium
-                ).background(
-                    color = MaterialTheme.colorScheme.background.copy(
-                        alpha = 0.5f
-                    ), shape = CircleShape
-                ).clip(CircleShape).clickable{
-                    onBackClick()
-                }.padding(5.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBackIosNew,
-                    contentDescription = "Back button"
-                )
-            }
+            BreastCancerBackButton(onBackClick = onBackClick)
 
     }
 }

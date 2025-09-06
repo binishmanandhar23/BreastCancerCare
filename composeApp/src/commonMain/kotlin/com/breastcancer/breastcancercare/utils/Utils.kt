@@ -46,6 +46,7 @@ import com.kizitonwose.calendar.core.plusDays
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
@@ -310,4 +311,17 @@ fun Modifier.roundedClickableNoClip(
                 )
             )
     )
+}
+
+@OptIn(ExperimentalTime::class)
+fun emojiFor(): String {
+    val zone = TimeZone.currentSystemDefault()
+    val now: LocalTime = Clock.System.now().toLocalDateTime(zone).time
+    return when (now.hour) {
+        in 5..8 -> "🌅"  // sunrise
+        in 9..16 -> "🌞"  // daytime / afternoon sun
+        in 17..19 -> "🌇"  // sunset
+        else -> "🌙"  // night
+    }
+
 }

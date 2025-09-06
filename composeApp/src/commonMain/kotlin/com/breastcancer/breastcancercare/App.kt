@@ -29,6 +29,7 @@ import com.breastcancer.breastcancercare.components.snackbar.rememberSnackBarSta
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.SplashScreen
 import com.breastcancer.breastcancercare.screens.main.AboutScreen
+import com.breastcancer.breastcancercare.screens.main.AllBlogsScreen
 import com.breastcancer.breastcancercare.screens.main.BlogDetailScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
@@ -222,6 +223,12 @@ fun App() {
                             val slug = backStackEntry.toRoute<Route.Main.BlogDetail>().slug
                             BlogDetailScreen(loaderState = loaderState, slug = slug, onBack = {
                                 navigator.popBackStack()
+                            })
+                        }
+
+                        composable<Route.Main.AllBlogs> {
+                            AllBlogsScreen(loaderState = loaderState, onSubScreenChange = {
+                                navigator.navigate(it)
                             })
                         }
                     }

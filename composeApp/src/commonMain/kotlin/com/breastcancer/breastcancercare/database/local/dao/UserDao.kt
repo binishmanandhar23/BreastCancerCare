@@ -14,7 +14,7 @@ interface UserDao {
     suspend fun insertUser(userEntity: UserEntity)
 
     @Query("SELECT * FROM userentity WHERE email = :email")
-    fun getUser(email: String): Flow<UserEntity?>
+    suspend fun getUser(email: String): UserEntity?
 
     @Query("SELECT COALESCE(MAX(id), 0) FROM userentity")
     suspend fun getMaxId(): Long

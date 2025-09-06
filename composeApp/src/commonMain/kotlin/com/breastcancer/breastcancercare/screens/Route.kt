@@ -23,5 +23,8 @@ sealed interface Route {
         data object EditProfile: Route
         @Serializable
         data class BlogDetail(val slug: String): Route
+
+        @Serializable
+        data object AllBlogs: Route
     }
 }

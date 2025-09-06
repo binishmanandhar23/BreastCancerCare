@@ -6,10 +6,7 @@ import com.breastcancer.breastcancercare.models.interfaces.toProgramDTO
 import com.breastcancer.breastcancercare.models.toEventDTO
 import com.breastcancer.breastcancercare.models.toSuitabilityDTO
 import com.breastcancer.breastcancercare.utils.checkIfDateHasProgram
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.datetime.LocalDate
 
 class CalendarRepository(val calendarDAO: CalendarDAO) {

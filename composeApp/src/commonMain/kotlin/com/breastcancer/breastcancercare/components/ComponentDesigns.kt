@@ -3,6 +3,9 @@ package com.breastcancer.breastcancercare.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -81,11 +84,13 @@ import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -93,6 +98,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.lerp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
@@ -100,6 +107,7 @@ import com.breastcancer.breastcancercare.database.local.types.Suitability
 import com.breastcancer.breastcancercare.models.CategoryDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.utils.DefaultImage
 import com.breastcancer.breastcancercare.utils.PentagonShape
@@ -171,44 +179,7 @@ fun EventProgramDesign(
                             SuitabilityShape(suitability = suitability)
                         }
                     }
-                Row {
-                    Text(
-                        text = selectedDate.format(LocalDate.Format {
-                            monthName(MonthNames.ENGLISH_FULL)
-                            char(' ')
-                            day()
-                        }),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                    programEventDTO.startTime?.let {
-                        Text(
-                            text = it.format(LocalTime.Format {
-                                char(' ')
-                                char('@')
-                                char(' ')
-                                amPmHour()
-                                char(':')
-                                minute()
-                                amPmMarker("am", "pm")
-                            }),
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
-                    programEventDTO.endTime?.let {
-                        Text(
-                            text = it.format(LocalTime.Format {
-                                char(' ')
-                                char('-')
-                                char(' ')
-                                amPmHour()
-                                char(':')
-                                minute()
-                                amPmMarker("am", "pm")
-                            }),
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
-                }
+                TimeAndDateFormat(programEventDTO = programEventDTO, selectedDate = selectedDate)
                 Text(
                     text = programEventDTO.name,
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
@@ -225,6 +196,46 @@ fun EventProgramDesign(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun TimeAndDateFormat(programEventDTO: ProgramEventDTO, selectedDate: LocalDate) = Row {
+    Text(
+        text = selectedDate.format(LocalDate.Format {
+            monthName(MonthNames.ENGLISH_FULL)
+            char(' ')
+            day()
+        }),
+        style = MaterialTheme.typography.labelSmall
+    )
+    programEventDTO.startTime?.let {
+        Text(
+            text = it.format(LocalTime.Format {
+                char(' ')
+                char('@')
+                char(' ')
+                amPmHour()
+                char(':')
+                minute()
+                amPmMarker("am", "pm")
+            }),
+            style = MaterialTheme.typography.labelSmall
+        )
+    }
+    programEventDTO.endTime?.let {
+        Text(
+            text = it.format(LocalTime.Format {
+                char(' ')
+                char('-')
+                char(' ')
+                amPmHour()
+                char(':')
+                minute()
+                amPmMarker("am", "pm")
+            }),
+            style = MaterialTheme.typography.labelSmall
+        )
     }
 }
 
@@ -815,6 +826,7 @@ fun UrlImage(url: String, contentDescription: String? = null, modifier: Modifier
         }
     }
 }
+
 @Composable
 fun CoreHomeCardDesign(
     modifier: Modifier,
@@ -837,7 +849,12 @@ fun CoreHomeCardDesign(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             image()
-            Column(modifier = Modifier.padding(horizontal = DefaultHorizontalPaddingSmall, vertical = DefaultVerticalPaddingSmall)) {
+            Column(
+                modifier = Modifier.padding(
+                    horizontal = DefaultHorizontalPaddingSmall,
+                    vertical = DefaultVerticalPaddingSmall
+                )
+            ) {
                 categories?.invoke(this)
                 title()
                 subtitle()
@@ -847,32 +864,62 @@ fun CoreHomeCardDesign(
 }
 
 @Composable
-fun CategoriesLabelSection(categories: List<CategoryDTO>){
-        FlowRow(
-            maxItemsInEachRow = 3,
-            modifier = Modifier.fillMaxWidth().padding(vertical = DefaultVerticalPaddingSmall),
-            horizontalArrangement = Arrangement.spacedBy(DefaultHorizontalPaddingSmall),
-            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
-        ) {
-            categories.forEach { category ->
-                CategoryChip(categoryName = category.name)
-            }
+fun CategoriesLabelSection(categories: List<CategoryDTO>) {
+    FlowRow(
+        maxItemsInEachRow = 3,
+        modifier = Modifier.fillMaxWidth().padding(vertical = DefaultVerticalPaddingSmall),
+        horizontalArrangement = Arrangement.spacedBy(DefaultHorizontalPaddingSmall),
+        verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
+    ) {
+        categories.forEach { category ->
+            CategoryChip(categoryName = category.name)
         }
+    }
 }
 
 @Composable
-fun CategoryChip(modifier: Modifier = Modifier, categoryName: String) = Card(
-    modifier = modifier,
-    shape = MaterialTheme.shapes.extraSmall,
-    colors = CardDefaults.cardColors(
+fun CategoryChip(
+    modifier: Modifier = Modifier, categoryName: String,
+    colors: CardColors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.secondary,
         contentColor = MaterialTheme.colorScheme.onSecondary
-    )
+    ),
+    border: BorderStroke? = null,
+    onClick: (() -> Unit)? = null,
+) = Card(
+    modifier = modifier,
+    shape = MaterialTheme.shapes.extraSmall,
+    colors = colors,
+    border = border,
+    onClick = { onClick?.invoke() }
 ) {
     Text(
         modifier = Modifier.padding(vertical = 3.dp, horizontal = 5.dp),
         text = categoryName,
         style = MaterialTheme.typography.labelSmall
     )
+}
+
+@Composable
+fun BreastCancerBackButton(
+    modifier: Modifier = Modifier.padding(
+        horizontal = DefaultHorizontalPaddingMedium,
+        vertical = DefaultVerticalPaddingMedium
+    ), onBackClick: () -> Unit
+) {
+    Box(
+        modifier = modifier.background(
+            color = MaterialTheme.colorScheme.background.copy(
+                alpha = 0.5f
+            ), shape = CircleShape
+        ).clip(CircleShape).clickable {
+            onBackClick()
+        }.padding(5.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.ArrowBackIosNew,
+            contentDescription = "Back button"
+        )
+    }
 }
 

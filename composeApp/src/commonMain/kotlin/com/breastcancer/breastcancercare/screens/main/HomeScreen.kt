@@ -4,9 +4,11 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,14 +26,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.Res
 import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
+import com.breastcancer.breastcancercare.components.CategoriesLabelSection
+import com.breastcancer.breastcancercare.components.CategoryChip
 import com.breastcancer.breastcancercare.components.CoreHomeCardDesign
 import com.breastcancer.breastcancercare.components.UrlImage
 import com.breastcancer.breastcancercare.default_blog_image
@@ -44,7 +50,10 @@ import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel(), onBlogClick: (blog: BlogDTO) -> Unit) {
+fun HomeScreen(
+    homeViewModel: HomeViewModel = koinViewModel(),
+    onBlogClick: (blog: BlogDTO) -> Unit
+) {
     val greetingText by homeViewModel.homeGreeting.collectAsStateWithLifecycle()
     val recommendedBlogsUIState by homeViewModel.recommendedBlogUIState.collectAsStateWithLifecycle()
     val overscrollEffect = rememberOverscrollEffect()
@@ -66,7 +75,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel(), onBlogClick: (blo
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 25.sp,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.primary
                 )
             )
         }
@@ -81,20 +90,38 @@ fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel(), onBlogClick: (blo
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (state is HomeUIState.Success || state is HomeUIState.Loading)
-                        Text(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = DefaultHorizontalPaddingLarge),
-                            text = "Recommended Blogs",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(horizontal = DefaultHorizontalPaddingLarge),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Text(
+                                modifier = Modifier,
+                                text = "Recommended Blogs",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                )
                             )
-                        )
+                            Text(
+                                modifier = Modifier.clip(MaterialTheme.shapes.extraSmall)
+                                    .clickable {
+
+                                    },
+                                text = "Show All",
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontWeight = FontWeight.Normal,
+                                    textDecoration = TextDecoration.Underline
+                                )
+                            )
+                        }
                     when (state) {
                         is HomeUIState.Loading, is HomeUIState.Initial -> BreastCancerCircularLoader()
                         is HomeUIState.Success -> {
                             LazyRow(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(300.dp).overscroll(overscrollEffect = overscrollEffect),
+                                    .height(330.dp).overscroll(overscrollEffect = overscrollEffect),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 contentPadding = PaddingValues(horizontal = DefaultHorizontalPaddingLarge),
                             ) {
@@ -152,8 +179,8 @@ fun ProgramCard() =
 @Composable
 fun BlogCard(blog: BlogDTO, onClick: (blog: BlogDTO) -> Unit) =
     CoreHomeCardDesign(
-        onClick = {onClick(blog)},
-        modifier = Modifier.fillMaxHeight().width(280.dp)
+        onClick = { onClick(blog) },
+        modifier = Modifier.fillMaxHeight().width(300.dp)
             .padding(vertical = DefaultVerticalPaddingMedium), image = {
             UrlImage(
                 modifier = Modifier.fillMaxWidth().height(150.dp),
@@ -171,4 +198,6 @@ fun BlogCard(blog: BlogDTO, onClick: (blog: BlogDTO) -> Unit) =
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
+        }, categories = {
+            CategoriesLabelSection(blog.categories)
         })

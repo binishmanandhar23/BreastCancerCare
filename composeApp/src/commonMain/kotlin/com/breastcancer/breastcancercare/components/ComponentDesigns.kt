@@ -72,9 +72,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -94,6 +97,7 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.breastcancer.breastcancercare.database.local.types.Suitability
+import com.breastcancer.breastcancercare.models.CategoryDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
@@ -672,35 +676,6 @@ fun BreastCancerToolbar(
 }
 
 @Composable
-fun CoreHomeCardDesign(
-    modifier: Modifier,
-    image: @Composable ColumnScope.() -> Unit = {
-        DefaultImage(
-            modifier = Modifier.fillMaxWidth().height(150.dp), contentScale = ContentScale.Crop
-        )
-    },
-    title: @Composable ColumnScope.() -> Unit,
-    subtitle: @Composable ColumnScope.() -> Unit,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = modifier,
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-        shape = MaterialTheme.shapes.large,
-        onClick = onClick
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            image()
-            Column(modifier = Modifier.padding(horizontal = DefaultHorizontalPaddingSmall)) {
-                title()
-                subtitle()
-            }
-        }
-    }
-}
-
-@Composable
 fun SuitabilityFilterChips(
     modifier: Modifier = Modifier.fillMaxWidth(),
     suitabilities: List<SuitabilityDTO>,
@@ -809,12 +784,13 @@ fun SuitabilityShape(suitability: SuitabilityDTO) {
 }
 
 @Composable
-fun BreastCancerCircularLoader(modifier: Modifier = Modifier.size(40.dp)) = Box(modifier = modifier) {
-    CircularProgressIndicator(
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.primary
-    )
-}
+fun BreastCancerCircularLoader(modifier: Modifier = Modifier.size(40.dp)) =
+    Box(modifier = modifier) {
+        CircularProgressIndicator(
+            modifier = modifier,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
 
 @Composable
 fun UrlImage(url: String, contentDescription: String? = null, modifier: Modifier = Modifier) {
@@ -831,10 +807,72 @@ fun UrlImage(url: String, contentDescription: String? = null, modifier: Modifier
         when (painterState) {
             is AsyncImagePainter.State.Loading ->
                 BreastCancerCircularLoader()
+
             is AsyncImagePainter.State.Error ->
                 DefaultImage()
+
             else -> SubcomposeAsyncImageContent()
         }
     }
+}
+@Composable
+fun CoreHomeCardDesign(
+    modifier: Modifier,
+    image: @Composable ColumnScope.() -> Unit = {
+        DefaultImage(
+            modifier = Modifier.fillMaxWidth().height(150.dp), contentScale = ContentScale.Crop
+        )
+    },
+    title: @Composable ColumnScope.() -> Unit,
+    subtitle: @Composable ColumnScope.() -> Unit,
+    categories: @Composable (ColumnScope.() -> Unit)? = null,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        shape = MaterialTheme.shapes.large,
+        onClick = onClick
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            image()
+            Column(modifier = Modifier.padding(horizontal = DefaultHorizontalPaddingSmall, vertical = DefaultVerticalPaddingSmall)) {
+                categories?.invoke(this)
+                title()
+                subtitle()
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoriesLabelSection(categories: List<CategoryDTO>){
+        FlowRow(
+            maxItemsInEachRow = 3,
+            modifier = Modifier.fillMaxWidth().padding(vertical = DefaultVerticalPaddingSmall),
+            horizontalArrangement = Arrangement.spacedBy(DefaultHorizontalPaddingSmall),
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
+        ) {
+            categories.forEach { category ->
+                CategoryChip(categoryName = category.name)
+            }
+        }
+}
+
+@Composable
+fun CategoryChip(modifier: Modifier = Modifier, categoryName: String) = Card(
+    modifier = modifier,
+    shape = MaterialTheme.shapes.extraSmall,
+    colors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.secondary,
+        contentColor = MaterialTheme.colorScheme.onSecondary
+    )
+) {
+    Text(
+        modifier = Modifier.padding(vertical = 3.dp, horizontal = 5.dp),
+        text = categoryName,
+        style = MaterialTheme.typography.labelSmall
+    )
 }
 

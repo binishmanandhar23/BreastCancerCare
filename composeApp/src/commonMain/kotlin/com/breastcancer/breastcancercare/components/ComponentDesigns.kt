@@ -869,7 +869,6 @@ fun CategoriesLabelSection(categories: List<CategoryDTO>) {
         maxItemsInEachRow = 3,
         modifier = Modifier.fillMaxWidth().padding(vertical = DefaultVerticalPaddingSmall),
         horizontalArrangement = Arrangement.spacedBy(DefaultHorizontalPaddingSmall),
-        verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
     ) {
         categories.forEach { category ->
             CategoryChip(categoryName = category.name)

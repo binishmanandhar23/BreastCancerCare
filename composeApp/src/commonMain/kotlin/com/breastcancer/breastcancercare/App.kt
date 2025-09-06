@@ -66,7 +66,9 @@ fun App() {
 
     Scaffold { innerPadding ->
         Surface(
-            modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             CustomLoader(loaderState = loaderState) {
                 CustomSnackBar(
@@ -222,19 +224,17 @@ fun App() {
                         composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
 
                         composable<Route.Main.GuideDetail> {
-                            val vm =
-                                koinViewModel<com.breastcancer.breastcancercare.viewmodel.FAQViewModel>()
-                            val guide = vm.selectedGuide.collectAsStateWithLifecycle().value
+                            val vm = koinViewModel<com.breastcancer.breastcancercare.viewmodel.FAQViewModel>()
+                            val guide by vm.selectedGuide.collectAsStateWithLifecycle()
                             if (guide != null) {
                                 com.breastcancer.breastcancercare.screens.main.GuideDetailScreen(
-                                    guide = guide,
+                                    guide = guide!!,
                                     onBack = { navigator.popBackStack() }
                                 )
                             } else {
                                 LaunchedEffect(Unit) { navigator.popBackStack() }
                             }
                         }
-
                     }
                 }
             }

@@ -32,7 +32,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.breastcancer.breastcancercare.utils.text.removeSpaces
+import androidx.compose.foundation.selection.toggleable
 
 @Composable
 fun RegisterScreen(
@@ -54,6 +54,7 @@ fun RegisterScreen(
     val passwordLengthValid by onboardingViewModel.passwordLengthValid.collectAsStateWithLifecycle()
     val passwordsMatch by onboardingViewModel.passwordsMatch.collectAsStateWithLifecycle()
     val canRegister by onboardingViewModel.canRegister.collectAsStateWithLifecycle()
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(loginUIState) {
         when (loginUIState) {
@@ -72,23 +73,31 @@ fun RegisterScreen(
         }
     }
 
+    val colors = MaterialTheme.colorScheme
     val tfColors = TextFieldDefaults.colors(
         focusedContainerColor = Color.Transparent,
         unfocusedContainerColor = Color.Transparent,
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
-        cursorColor = MaterialTheme.colorScheme.primary
+        cursorColor = colors.primary
     )
-    val borderNormal = MaterialTheme.colorScheme.outline
-    val borderFocused = MaterialTheme.colorScheme.primary
+    val borderNormal = colors.outline
+    val borderFocused = colors.primary
+    val formWidth = remember(screenW) { (screenW * 0.88f).coerceAtMost(520.dp) }
+    val emailError by remember(emailValidInstant, userDTO.email) { derivedStateOf { userDTO.email.isNotBlank() && !emailValidInstant } }
+    val phoneError by remember(phoneValid, userDTO.phoneNumber) { derivedStateOf { userDTO.phoneNumber.isNotBlank() && !phoneValid } }
+    val pwError by remember(passwordLengthValid, pw) { derivedStateOf { pw.isNotBlank() && !passwordLengthValid } }
+    val confirmError by remember(passwordsMatch, confirm) { derivedStateOf { confirm.isNotBlank() && !passwordsMatch } }
+    val canSubmit by remember(canRegister, loginUIState) { derivedStateOf { canRegister && loginUIState !is LoginUIState.Loading } }
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
 
-    val formWidth = (screenW * 0.88f).coerceAtMost(520.dp)
+
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(start = 20.dp, end = 20.dp, top = 12.dp)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
@@ -138,11 +147,12 @@ fun RegisterScreen(
                     label = "Email",
                     value = userDTO.email,
                     leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email") },
-                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO = userDTO.copy(email = it.removeSpaces())) },
+                    onValueChange = onboardingViewModel::updateEmail,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
-                    errorText = if (userDTO.email.isNotBlank() && !emailValidInstant) "Invalid email" else null,
+                    errorText = if (emailError) "Invalid email" else null,
                     errorIcon = Icons.Default.Error,
                 )
 
@@ -151,12 +161,12 @@ fun RegisterScreen(
                     label = "Phone number",
                     value = userDTO.phoneNumber,
                     leadingIcon = { Icon(Icons.Outlined.Phone, contentDescription = "Phone") },
-                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO.copy(phoneNumber = it.removeSpaces())) },
+                    onValueChange = onboardingViewModel::updatePhone,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
-                    errorText = if (!phoneValid && userDTO.phoneNumber.isNotBlank()) "Invalid phone number" else null,
+                    errorText = if (phoneError) "Invalid phone number" else null,
                     errorIcon = Icons.Default.Error
                 )
 
@@ -172,12 +182,14 @@ fun RegisterScreen(
                     },
                     onValueChange = onboardingViewModel::updatePassword,
                     visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                        onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Down) }
+                    ),
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
-                    errorText = if (pw.isNotBlank() && !passwordLengthValid)
-                        "At least 6 characters."
-                    else null,
+                    errorText = if (pwError) "At least 6 characters." else null,
                     errorIcon = Icons.Default.Error,
                 )
 
@@ -188,36 +200,49 @@ fun RegisterScreen(
                     leadingIcon = { Icon(Icons.Outlined.Password, contentDescription = "Confirm") },
                     onValueChange = onboardingViewModel::updateConfirmPassword,
                     visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                        onDone = {
+                            if (canSubmit) {
+                                onboardingViewModel.onRegister()
+                            }
+                        }
+                    ),
                     colors = tfColors,
                     borderColor = borderNormal,
                     focusedBorderColor = borderFocused,
-                    errorText = if (confirm.isNotBlank() && !passwordsMatch)
-                        "Passwords must match."
-                    else null,
+                    errorText = if (confirmError) "Passwords must match." else null,
                     errorIcon = Icons.Default.Error,
                 )
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp),
+                        .padding(top = 4.dp)
+                        .toggleable(
+                            value = agree,
+                            onValueChange = onboardingViewModel::toggleAgree,
+                            role = androidx.compose.ui.semantics.Role.Checkbox
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Checkbox(checked = agree, onCheckedChange = onboardingViewModel::toggleAgree)
+                    Checkbox(checked = agree, onCheckedChange = null)
                     Text("I agree to the Terms & Privacy")
                 }
             }
         }
 
         Box(
-            modifier = Modifier.width(formWidth),
+            modifier = Modifier
+                .width(formWidth)
+                .navigationBarsPadding()
+                .imePadding(),
             contentAlignment = Alignment.Center
         ) {
             BreastCancerButton(
                 text = "Create account",
-                enabled = canRegister && loginUIState !is LoginUIState.Loading,
+                enabled = canSubmit,
                 onClick = onboardingViewModel::onRegister,
                 onDisabledClick = {
                     customSnackBarState.show(

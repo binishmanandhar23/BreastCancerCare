@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.combine
+import com.breastcancer.breastcancercare.utils.text.removeSpaces
+
 
 class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : ViewModel() {
 
@@ -87,6 +89,13 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         }.also {
             updateEmailValid(true)
         }
+    fun updateEmail(email: String) {
+        _userDTO.update { it.copy(email = email.removeSpaces()) }
+    }
+
+    fun updatePhone(phone: String) {
+        _userDTO.update { it.copy(phoneNumber = phone.removeSpaces()) }
+    }
 
     fun onLogin() {
         _loginUIState.update {

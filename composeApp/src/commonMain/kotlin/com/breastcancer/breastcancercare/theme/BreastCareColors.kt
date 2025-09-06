@@ -8,6 +8,8 @@ val SecondaryColor = Color(0xFF04C4D9)
 val TertiaryColor = Color(0xFFFFA500)
 val BackgroundColor = Color.White
 
+val OffBackground = PrimaryColor.copy(alpha = 0.02f)
+
 val otherColor1 = Color(0xFF741F81)
 val otherColor2 = Color(0xFF295FA6)
 

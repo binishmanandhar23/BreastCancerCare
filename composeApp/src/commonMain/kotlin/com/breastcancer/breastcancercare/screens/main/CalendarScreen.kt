@@ -93,6 +93,7 @@ import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
+import com.breastcancer.breastcancercare.theme.OffBackground
 import com.breastcancer.breastcancercare.utils.pagerTabIndicatorOffset
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.kizitonwose.calendar.compose.VerticalCalendar
@@ -143,7 +144,7 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         VerticalCalendar(
-            modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
+            modifier = Modifier.background(OffBackground),
             state = state,
             dayContent = {
                 var hasEvents by remember { mutableStateOf(false) }

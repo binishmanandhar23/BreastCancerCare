@@ -323,5 +323,4 @@ fun emojiFor(): String {
         in 17..19 -> "🌇"  // sunset
         else -> "🌙"  // night
     }
-
 }

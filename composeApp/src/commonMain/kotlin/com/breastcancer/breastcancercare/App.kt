@@ -12,9 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavOptions
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
@@ -37,6 +40,7 @@ import com.breastcancer.breastcancercare.screens.main.MainScreen
 import com.breastcancer.breastcancercare.screens.main.ProfileRoute
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
+import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
@@ -220,16 +224,28 @@ fun App() {
                         composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
 
                         composable<Route.Main.BlogDetail> { backStackEntry ->
+                            val parentEntry = remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                            val blogViewModel = koinViewModel<BlogViewModel>(
+                                viewModelStoreOwner = parentEntry
+                            )
                             val slug = backStackEntry.toRoute<Route.Main.BlogDetail>().slug
-                            BlogDetailScreen(loaderState = loaderState, slug = slug, onBack = {
+                            BlogDetailScreen(loaderState = loaderState, slug = slug, blogViewModel = blogViewModel, onBack = {
                                 navigator.popBackStack()
                             })
                         }
 
-                        composable<Route.Main.AllBlogs> {
-                            AllBlogsScreen(loaderState = loaderState, onSubScreenChange = {
-                                navigator.navigate(it)
-                            })
+                        composable<Route.Main.AllBlogs> { backStackEntry ->
+                            val parentEntry = remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                            val blogViewModel = koinViewModel<BlogViewModel>(
+                                viewModelStoreOwner = parentEntry
+                            )
+                            AllBlogsScreen(
+                                blogViewModel = blogViewModel,
+                                loaderState = loaderState,
+                                onBackPress = { navigator.popBackStack() },
+                                onSubScreenChange = {
+                                    navigator.navigate(it)
+                                })
                         }
                     }
                 }

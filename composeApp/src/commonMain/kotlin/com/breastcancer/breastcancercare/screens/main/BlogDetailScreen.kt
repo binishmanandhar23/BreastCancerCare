@@ -36,7 +36,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun BlogDetailScreen(
     modifier: Modifier = Modifier.fillMaxSize(),
-    blogViewModel: BlogViewModel = koinViewModel(),
+    blogViewModel: BlogViewModel,
     loaderState: LoaderState,
     slug: String,
     onBack: () -> Unit

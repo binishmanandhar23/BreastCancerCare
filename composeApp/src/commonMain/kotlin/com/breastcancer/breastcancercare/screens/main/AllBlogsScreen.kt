@@ -52,8 +52,9 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AllBlogsScreen(
-    blogViewModel: BlogViewModel = koinViewModel(),
+    blogViewModel: BlogViewModel,
     loaderState: LoaderState,
+    onBackPress: () -> Unit,
     onSubScreenChange: (Route) -> Unit
 ) {
     val allCategories by blogViewModel.allCategories.collectAsStateWithLifecycle()
@@ -103,8 +104,8 @@ fun AllBlogsScreen(
                         ) {
                             item { DefaultSpacer() }
                             item {
-                                val selectedContainerColor by animateColorAsState(if (selectedCategory?.name == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
-                                val selectedContentColor by animateColorAsState(if (selectedCategory?.name == null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground)
+                                val selectedContainerColor by animateColorAsState(if (selectedCategory.data?.name == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
+                                val selectedContentColor by animateColorAsState(if (selectedCategory.data?.name == null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground)
                                 CategoryChip(
                                     categoryName = "All",
                                     border = borderStroke,
@@ -115,8 +116,8 @@ fun AllBlogsScreen(
                                     onClick = { blogViewModel.selectCategory(null) })
                             }
                             items(items = allCategories) { category ->
-                                val selectedContainerColor by animateColorAsState(if (selectedCategory?.name == category.name) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
-                                val selectedContentColor by animateColorAsState(if (selectedCategory?.name == category.name) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground)
+                                val selectedContainerColor by animateColorAsState(if (selectedCategory.data?.name == category.name) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
+                                val selectedContentColor by animateColorAsState(if (selectedCategory.data?.name == category.name) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground)
                                 CategoryChip(
                                     categoryName = category.name,
                                     border = borderStroke,
@@ -153,7 +154,7 @@ fun AllBlogsScreen(
             }
         }
         BreastCancerBackButton {
-            onSubScreenChange(Route.Main)
+            onBackPress()
         }
     }
 }

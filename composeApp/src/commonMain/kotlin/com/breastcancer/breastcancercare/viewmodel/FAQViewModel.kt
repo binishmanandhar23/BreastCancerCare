@@ -2,7 +2,6 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
 import com.breastcancer.breastcancercare.database.local.types.Suitability
 import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
@@ -36,10 +35,12 @@ class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
     private val _selectedSuitabilityKey = MutableStateFlow<String?>(null)
     val selectedSuitabilityKey = _selectedSuitabilityKey.asStateFlow()
 
-    // --- Guides (demo data for now) ---
     private val _guides = MutableStateFlow(sampleGuides())
 
-    // --- Derived flows (output to UI) ---
+    private val _selectedGuide = MutableStateFlow<GuideDTO?>(null)
+    val selectedGuide: StateFlow<GuideDTO?> = _selectedGuide.asStateFlow()
+    fun onGuideSelected(guide: GuideDTO) { _selectedGuide.value = guide }
+
     private val allFaqs: StateFlow<List<FAQDTO>> =
         _faqUIState.map { (it as? FAQUIState.Success)?.data ?: emptyList() }
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -59,21 +60,31 @@ class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val displayedGuides: StateFlow<List<GuideDTO>> =
-        combine(_guides, _searchQuery) { guides, q ->
-            if (q.isBlank()) guides
-            else {
-                val needle = q.trim().lowercase()
-                guides.filter {
-                    it.title.lowercase().contains(needle) || it.summary.lowercase().contains(needle)
+        combine(_guides, _selectedSuitabilityKey, _searchQuery) { guides, key, q ->
+            val bySuitability = if (key.isNullOrEmpty()) {
+                guides
+            } else {
+                guides.filter { g -> g.suitabilityKeys.contains(key) }
+            }
+
+            val needle = q.trim().lowercase()
+            if (needle.isBlank()) {
+                bySuitability
+            } else {
+                bySuitability.filter { g ->
+                    g.title.lowercase().contains(needle) ||
+                            g.summary.lowercase().contains(needle) ||
+                            g.category.lowercase().contains(needle)
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    // --- Input updaters ---
+
+
     fun onSearchChange(q: String) { _searchQuery.value = q }
     fun onSuitabilityChange(key: String?) { _selectedSuitabilityKey.value = key }
 
-    // --- Demo guides (multiplatform-safe: use label string for date) ---
+
     private fun sampleGuides(): List<GuideDTO> = listOf(
         GuideDTO(
             id = "g1",
@@ -81,7 +92,8 @@ class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
             summary = "Key tests, staging basics, and what to ask at your first appointment.",
             category = "Diagnosis",
             readTimeMin = 4,
-            updatedAtLabel = "Aug 2025"
+            updatedAtLabel = "Aug 2025",
+            suitabilityKeys = listOf(Suitability.Newly.key)
         ),
         GuideDTO(
             id = "g2",
@@ -89,7 +101,8 @@ class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
             summary = "Practical tips for fatigue, nausea, and skin care during chemo or radiotherapy.",
             category = "Treatment",
             readTimeMin = 5,
-            updatedAtLabel = "Jun 2025"
+            updatedAtLabel = "Jun 2025",
+            suitabilityKeys = listOf(Suitability.Newly.key, Suitability.Metastatic.key)
         ),
         GuideDTO(
             id = "g3",
@@ -97,9 +110,11 @@ class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
             summary = "Follow-up schedules, lifestyle changes, and mental wellbeing after active treatment.",
             category = "Survivorship",
             readTimeMin = 3,
-            updatedAtLabel = "Apr 2025"
+            updatedAtLabel = "Apr 2025",
+            suitabilityKeys = listOf(Suitability.Early.key)
         )
     )
+
 
     init {
         populateSuitabilities()

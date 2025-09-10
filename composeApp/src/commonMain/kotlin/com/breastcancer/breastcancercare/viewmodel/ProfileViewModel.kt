@@ -24,11 +24,13 @@ class ProfileViewModel(
                         ProfileUiState(
                             name = "${loggedIn.firstName} ${loggedIn.lastName}",
                             email = loggedIn.email,
-                            initials = (
-                                    loggedIn.firstName?.firstOrNull()
-                                        ?: loggedIn.lastName?.firstOrNull()
-                                        ?: loggedIn.email?.firstOrNull()
-                                    )?.uppercase(),
+                            initials = run {
+                                val c: Char? =
+                                    loggedIn.firstName.takeIf { it.isNotBlank() }?.firstOrNull()
+                                        ?: loggedIn.lastName.takeIf { it.isNotBlank() }?.firstOrNull()
+                                        ?: loggedIn.email.takeIf { it.isNotBlank() }?.firstOrNull()
+                                c?.uppercaseChar()?.toString() ?: ""
+                            },
                             loading = false
                         )
                     }

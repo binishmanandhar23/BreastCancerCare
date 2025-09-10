@@ -7,5 +7,6 @@ data class GuideDTO(
     val category: String,
     val readTimeMin: Int,
     val updatedAtLabel: String,
+    val suitabilityKeys: List<String> = emptyList(),
     val sourceUrl: String? = null
 )

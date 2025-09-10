@@ -5,10 +5,8 @@
 
 package com.breastcancer.breastcancercare.screens.main
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,19 +20,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -49,16 +43,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.loader.LoaderState
@@ -68,53 +56,51 @@ import com.breastcancer.breastcancercare.models.GuideDTO
 import com.breastcancer.breastcancercare.states.FAQUIState
 import com.breastcancer.breastcancercare.theme.DefaultElevation
 import com.breastcancer.breastcancercare.theme.InfoAnim
-import com.breastcancer.breastcancercare.theme.InfoColors
 import com.breastcancer.breastcancercare.theme.InfoDimens
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.RadioButton
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.width
+import com.breastcancer.breastcancercare.screens.InfoTab
+import com.breastcancer.breastcancercare.utils.formatMeta
+import com.breastcancer.breastcancercare.utils.highlightQuery
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
 
-
-private enum class InfoTab { FAQs, Guides }
-
-private fun formatMeta(readTimeMin: Int, updatedAtLabel: String): String {
-    return "${readTimeMin} min read · Updated $updatedAtLabel"
-}
-
-
-@Composable
-private fun highlightQuery(text: String, query: String): androidx.compose.ui.text.AnnotatedString {
-    if (query.isBlank()) return androidx.compose.ui.text.AnnotatedString(text)
-    val lower = text.lowercase()
-    val q = query.lowercase()
-    val builder = buildAnnotatedString {
-        var start = 0
-        while (true) {
-            val idx = lower.indexOf(q, startIndex = start)
-            if (idx < 0) {
-                append(text.substring(start))
-                break
-            }
-            append(text.substring(start, idx))
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)) {
-                append(text.substring(idx, idx + q.length))
-            }
-            start = idx + q.length
-        }
-    }
-    return builder
-}
 
 
 @Composable
 fun FAQScreen(
     loaderState: LoaderState,
     snackBarState: SnackBarState,
-    viewModel: FAQViewModel = koinViewModel()
+    viewModel: FAQViewModel = koinViewModel(),
+    onGuideClick: (GuideDTO) -> Unit
 ) {
     val uiState by viewModel.faqUIState.collectAsStateWithLifecycle()
     val suitabilities by viewModel.suitabilities.collectAsStateWithLifecycle()
 
-    var menuExpanded by remember { mutableStateOf(false) }
+    var showFilter by remember { mutableStateOf(false) }
     var currentTab by rememberSaveable { mutableStateOf(InfoTab.FAQs) }
 
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -125,6 +111,9 @@ fun FAQScreen(
     }
     val displayedFaqs by viewModel.displayedFaqs.collectAsStateWithLifecycle()
     val displayedGuides by viewModel.displayedGuides.collectAsStateWithLifecycle()
+    var selectedFaqIndex by rememberSaveable { mutableStateOf<Int?>(null) }
+    var showFaqSheet by rememberSaveable { mutableStateOf(false) }
+
 
 
 
@@ -177,7 +166,16 @@ fun FAQScreen(
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
 
-                    TabRow(selectedTabIndex = currentTab.ordinal) {
+                    TabRow(
+                        selectedTabIndex = currentTab.ordinal,
+                        indicator = { tabPositions ->
+                            TabRowDefaults.SecondaryIndicator(
+                                modifier = Modifier.tabIndicatorOffset(tabPositions[currentTab.ordinal]),
+                                height = 3.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    ) {
                         Tab(
                             selected = currentTab == InfoTab.FAQs,
                             onClick = { currentTab = InfoTab.FAQs },
@@ -190,14 +188,14 @@ fun FAQScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
 
-                    // Search bar
+                    Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
+                    val focusManager = LocalFocusManager.current
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { viewModel.onSearchChange(it) },
                         singleLine = true,
-                        label = { Text("Search topics") },
+                        placeholder = { Text("Search topics") },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Filled.Search,
@@ -205,178 +203,211 @@ fun FAQScreen(
                             )
                         },
                         trailingIcon = {
-                            if (searchQuery.isNotBlank()) {
-                                IconButton(onClick = { viewModel.onSearchChange("") }) {
+                            Row {
+                                if (searchQuery.isNotBlank()) {
+                                    IconButton(
+                                        onClick = { viewModel.onSearchChange("") },
+                                        modifier = Modifier.minimumInteractiveComponentSize()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = "Clear"
+                                        )
+                                    }
+                                }
+
+                                val currentFilterLabel = if (selectedKey == null) "All" else selectedLabel
+
+                                IconButton(
+                                    onClick = { showFilter = true },
+                                    modifier = Modifier.minimumInteractiveComponentSize()
+                                ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = "Clear"
+                                        imageVector = Icons.Filled.FilterList,
+                                        contentDescription = "Open filter. Current: $currentFilterLabel"
                                     )
                                 }
                             }
-                        },
+                        }
+                        ,
                         shape = MaterialTheme.shapes.large,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("SearchField"),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
 
-                    if (currentTab == InfoTab.FAQs) {
-                        ExposedDropdownMenuBox(
-                            expanded = menuExpanded,
-                            onExpandedChange = { menuExpanded = !menuExpanded },
-                            modifier = Modifier.fillMaxWidth()
+                    if (showFilter) {
+                        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                        ModalBottomSheet(
+                            onDismissRequest = { showFilter = false },
+                            sheetState = sheetState
                         ) {
-                            OutlinedTextField(
-                                value = if (selectedKey == null) "All" else selectedLabel,
-                                onValueChange = {},
-                                readOnly = true,
-                                singleLine = true,
-                                label = { Text("Suitability") },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
-                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                                shape = MaterialTheme.shapes.large,
+
+                            Text(
+                                text = when (currentTab) {
+                                    InfoTab.FAQs -> "Suitability"
+                                    InfoTab.Guides -> "Suitability"
+                                },
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier
+                                    .padding(horizontal = InfoDimens.ScreenHPadding, vertical = 8.dp)
+                                    .semantics { heading() }
+                            )
+                            Spacer(Modifier.height(8.dp))
+
+
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = menuExpanded,
-                                onDismissRequest = { menuExpanded = false }
+                                    .heightIn(min = 48.dp)
+                                    .clickable {
+                                        viewModel.onSuitabilityChange(null)
+                                        showFilter = false
+                                    }
+                                    .padding(horizontal = InfoDimens.ScreenHPadding),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                DropdownMenuItem(
-                                    text = { Text("All") },
+                                RadioButton(
+                                    selected = (selectedKey == null),
                                     onClick = {
                                         viewModel.onSuitabilityChange(null)
-                                        menuExpanded = false
+                                        showFilter = false
                                     }
                                 )
-                                suitabilities.forEach { s ->
-                                    DropdownMenuItem(
-                                        text = { Text(s.name) },
+                                Text("All", modifier = Modifier.padding(start = 8.dp))
+                            }
+
+                            HorizontalDivider()
+
+                            suitabilities.forEach { s ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 48.dp)
+                                        .clickable {
+                                            viewModel.onSuitabilityChange(s.key)
+                                            showFilter = false
+                                        }
+                                        .padding(horizontal = InfoDimens.ScreenHPadding),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = (selectedKey == s.key),
                                         onClick = {
                                             viewModel.onSuitabilityChange(s.key)
-                                            menuExpanded = false
+                                            showFilter = false
                                         }
                                     )
+                                    Text(s.name, modifier = Modifier.padding(start = 8.dp))
                                 }
+
+                                HorizontalDivider()
                             }
+
+                            Spacer(Modifier.height(16.dp))
                         }
-                        Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding))
+                    }
+
+                }
+            }
+        }
+        when (currentTab) {
+            InfoTab.FAQs -> {
+                if (displayedFaqs.isEmpty()) {
+                    item {
+                        Text(
+                            modifier = Modifier.padding(
+                                horizontal = InfoDimens.ScreenHPadding,
+                                vertical = InfoDimens.ScreenVPadding
+                            ),
+                            text = "No FAQs for the current filter.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    itemsIndexed(items = displayedFaqs) { index, item ->
+                        FaqListItem(
+                            question = item.question,
+                            query = searchQuery,
+                            onClick = {
+                                selectedFaqIndex = index
+                                showFaqSheet = true
+                            }
+                        )
+                    }
+                }
+            }
+            InfoTab.Guides -> {
+                if (displayedGuides.isEmpty()) {
+                    item {
+                        Text(
+                            modifier = Modifier.padding(
+                                horizontal = InfoDimens.ScreenHPadding,
+                                vertical = InfoDimens.ScreenVPadding
+                            ),
+                            text = "No guides for the current search.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    itemsIndexed(displayedGuides) { _, g ->
+                        GuideCard(
+                            item = g,
+                            onClick = { clicked -> onGuideClick(clicked) }
+                        )
                     }
                 }
             }
         }
-            when (currentTab) {
-                InfoTab.FAQs -> {
-                    if (displayedFaqs.isEmpty()) {
-                        item {
-                            Text(
-                                modifier = Modifier.padding(
-                                    horizontal = InfoDimens.ScreenHPadding,
-                                    vertical = InfoDimens.ScreenVPadding
-                                ),
-                                text = "No FAQs for the current filter.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    } else {
-                        itemsIndexed(items = displayedFaqs) { key, item ->
-                            val color = InfoColors.faqCard(key)
-                            val onColor = InfoColors.onFaqCard()
-                            var isExpanded by rememberSaveable(item.question) { mutableStateOf(false) }
-                            val angle: Float by animateFloatAsState(
-                                targetValue = if (isExpanded) 180f else 0f,
-                                animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)
-                            )
 
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = InfoDimens.ScreenHPadding)
-                                    .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
-                                shape = MaterialTheme.shapes.large,
-                                colors = CardDefaults.cardColors(
-                                    containerColor = color,
-                                    contentColor = onColor
-                                ),
-                                elevation = CardDefaults.cardElevation(DefaultElevation),
-                                onClick = { isExpanded = !isExpanded }
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(
-                                        horizontal = InfoDimens.ScreenHPadding,
-                                        vertical = InfoDimens.ScreenVPadding
-                                    )
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.Top,
-                                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                    ) {
-                                        Icon(
-                                            modifier = Modifier.rotate(angle),
-                                            imageVector = Icons.Default.ArrowDropDown,
-                                            contentDescription = if (isExpanded) "Collapse" else "Expand"
-                                        )
-                                        Text(
-                                            text = highlightQuery(item.question, searchQuery),
-                                            color = onColor,
-                                            style = LocalTextStyle.current.copy(
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 20.sp
-                                            )
-                                        )
-                                    }
-                                    AnimatedVisibility(visible = isExpanded) {
-                                        Text(
-                                            modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
-                                            text = item.answer,
-                                            color = onColor
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                InfoTab.Guides -> {
-                    if (displayedGuides.isEmpty()) {
-                        item {
-                            Text(
-                                modifier = Modifier.padding(
-                                    horizontal = InfoDimens.ScreenHPadding,
-                                    vertical = InfoDimens.ScreenVPadding
-                                ),
-                                text = "No guides for the current search.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    } else {
-                        itemsIndexed(displayedGuides) { _, g ->
-                            GuideCard(item = g)
-                        }
-                    }
-                }
-            }
+    }
+    if (showFaqSheet && selectedFaqIndex != null) {
+        val item = displayedFaqs[selectedFaqIndex!!]
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = { showFaqSheet = false },
+            sheetState = sheetState
+        ) {
+            FaqDetailSheet(
+                question = item.question,
+                answer = item.answer
+            )
         }
     }
+}
 
 @Composable
-private fun GuideCard(item: GuideDTO) {
+private fun GuideCard(
+    item: GuideDTO,
+    onClick: (GuideDTO) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = InfoDimens.ScreenHPadding)
-            .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
+            .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing))
+            .clickable { onClick(item) },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface
         ),
-        elevation = CardDefaults.cardElevation(DefaultElevation),
-        onClick = { /* TODO: navigate to guide detail when available */ }
+        elevation = CardDefaults.cardElevation(DefaultElevation)
     ) {
         Column(
             modifier = Modifier.padding(
@@ -421,3 +452,96 @@ private fun GuideCard(item: GuideDTO) {
         }
     }
 }
+
+@Composable
+private fun FaqListItem(
+    question: String,
+    query: String,
+    onClick: () -> Unit
+) {
+    val container = MaterialTheme.colorScheme.surface
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = InfoDimens.ScreenHPadding),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = container,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        elevation = CardDefaults.cardElevation(DefaultElevation),
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = InfoDimens.ScreenHPadding,
+                    vertical = InfoDimens.ScreenVPadding
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = highlightQuery(question, query),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .heightIn(min = 48.dp)
+                    .width(48.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Open",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+
+
+
+@Composable
+private fun FaqDetailSheet(
+    question: String,
+    answer: String
+) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = InfoDimens.ScreenHPadding, vertical = InfoDimens.ScreenVPadding)
+            .navigationBarsPadding(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            Text(
+                text = question,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    lineHeight = 28.sp
+                ),
+                modifier = Modifier.focusRequester(focusRequester).semantics { heading() }
+            )
+            HorizontalDivider()
+        }
+        item {
+            Text(
+                text = answer,
+                style = MaterialTheme.typography.bodyMedium,
+                lineHeight = 22.sp
+            )
+        }
+        item { Spacer(Modifier.height(8.dp)) }
+    }
+}
+

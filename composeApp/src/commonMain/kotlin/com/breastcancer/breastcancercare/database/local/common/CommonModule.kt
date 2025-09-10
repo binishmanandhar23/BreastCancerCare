@@ -18,7 +18,6 @@ import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.viewmodel.SettingsViewModel
 import com.breastcancer.breastcancercare.repo.BlogRepository
 import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
-import com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel
 import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
 
 fun commonModule(): Module = module {

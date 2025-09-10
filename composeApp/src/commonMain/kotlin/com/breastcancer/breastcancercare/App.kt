@@ -13,11 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.navigation.NavOptions
-import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -223,10 +219,6 @@ fun App() {
                                 onBack = { navigator.popBackStack() }
                             )
                         }
-                        composable<Route.Main.BlogDetail> {
-                            BlogDetailScreen(onBack = {
-
-                        composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
 
                         composable<Route.Main.BlogDetail> { backStackEntry ->
                             val parentEntry = remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }

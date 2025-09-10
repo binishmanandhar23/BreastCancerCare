@@ -1,6 +1,5 @@
 package com.breastcancer.breastcancercare.screens
 
-import com.breastcancer.breastcancercare.models.BlogDTO
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
@@ -23,10 +22,8 @@ sealed interface Route {
         data object EditProfile: Route
         @Serializable
         data class BlogDetail(val slug: String): Route
-
         @Serializable
         data object AllBlogs: Route
-        data object BlogDetail: Route
         @Serializable
         data object GuideDetail: Route
     }

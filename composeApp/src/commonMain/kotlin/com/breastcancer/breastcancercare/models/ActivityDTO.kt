@@ -37,10 +37,10 @@ fun ActivityEntity.toEventDTO() = ActivityDTO(
     startTime = startTime?.let { LocalTime.parse(it) },
     endTime = endTime?.let { LocalTime.parse(it) },
     location = location,
-    category = UserCategory.valueOf(category),
+    category = UserCategory.fromCategory(category),
     isOnline = isOnline,
     onlineLink = onlineLink,
     audience = audience,
     frequency = FrequencyType.valueOf(frequency),
-    activityType = ActivityUtils.fromType(category = UserCategory.valueOf(category), type = activityType)
+    activityType = ActivityUtils.fromType(category = UserCategory.fromCategory(category), type = activityType)
 )

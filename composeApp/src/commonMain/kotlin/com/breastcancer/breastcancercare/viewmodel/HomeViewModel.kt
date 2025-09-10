@@ -65,7 +65,7 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
         delay(1500L)
         homeRepository.getAllEvents().collectLatest { events ->
             _upcomingEventsUIState.update {  _ ->
-               HomeUIState.Success(data = events.filter { it.endDate >= LocalDate.now() }.take(5))
+               HomeUIState.Success(data = events.filter { it.startDate >= LocalDate.now() }.take(5))
             }
         }
     }

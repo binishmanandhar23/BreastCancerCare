@@ -87,16 +87,16 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
         val localService = alarmeeService.local
         events.forEach { event ->
             run NotificationLogic@ {
-                if (event.endDate < LocalDate.now()) return@NotificationLogic
+                if (event.startDate < LocalDate.now()) return@NotificationLogic
                 val scheduledDateTime =
-                    if (event.startTime != null) event.endDate.atTime(
+                    if (event.startTime != null) event.startDate.atTime(
                         LocalTime(
                             hour = max(
                                 0,
                                 event.startTime.hour - 1
                             ), minute = event.startTime.minute
                         )
-                    ) else event.endDate.atTime(
+                    ) else event.startDate.atTime(
                         6,
                         0
                     )

@@ -46,7 +46,7 @@ fun UserInterface.toDTO() = UserDTO(
     password = password,
     phoneNumber = phoneNumber,
     address = address,
-    userCategory = UserCategory.valueOf(userCategory)
+    userCategory = UserCategory.fromCategory(category = userCategory)
 )
 
 

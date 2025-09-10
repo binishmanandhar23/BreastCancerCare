@@ -178,7 +178,7 @@ fun EventCard(event: ActivityDTO, onClick: (event: ActivityDTO) -> Unit) =
             )
         }, title = {
             Column(verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)) {
-                TimeAndDateFormat(activityDTO = event, selectedDate = event.endDate)
+                TimeAndDateFormat(activityDTO = event, selectedDate = event.startDate)
                 Text(
                     text = event.title,
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)

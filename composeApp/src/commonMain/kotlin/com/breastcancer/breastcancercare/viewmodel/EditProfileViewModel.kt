@@ -42,6 +42,7 @@ class EditProfileViewModel(
                         phoneNumber = dto.phoneNumber,
                         address = dto.address.orEmpty(),
                         loading = false,
+                        userCategory = dto.userCategory,
                         canSave = canSave(
                             firstName = dto.firstName,
                             lastName = dto.lastName,
@@ -84,7 +85,8 @@ class EditProfileViewModel(
                 email = s.email,
                 phoneNumber = s.phoneNumber,
                 address = s.address,
-                password = currentPassword
+                password = currentPassword,
+                userCategory = s.userCategory
             )
             try {
                 repo.updateUser(dto)

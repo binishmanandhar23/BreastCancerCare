@@ -12,5 +12,6 @@ data class LoggedInUserEntity(
     override val password: String,
     override val email: String,
     override val phoneNumber: String,
-    override val address: String?
+    override val address: String?,
+    override val userCategory: String
 ): UserInterface

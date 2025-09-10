@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel
 import org.koin.compose.koinInject
 
@@ -38,6 +39,7 @@ data class EditProfileUiState(
     val phoneNumber: String = "",
     val address: String = "",
     val loading: Boolean = false,
+    val userCategory: UserCategory = UserCategory.StartingStrong, //Dummy value
     val error: String? = null,
     val canSave: Boolean = false
 )

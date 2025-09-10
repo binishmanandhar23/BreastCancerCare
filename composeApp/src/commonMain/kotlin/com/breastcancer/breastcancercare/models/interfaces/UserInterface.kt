@@ -8,4 +8,6 @@ interface UserInterface {
     val email: String
     val phoneNumber: String
     val address: String?
+
+    val userCategory: String
 }

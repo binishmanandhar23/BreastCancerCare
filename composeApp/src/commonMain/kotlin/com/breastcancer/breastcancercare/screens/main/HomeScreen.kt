@@ -40,7 +40,7 @@ import com.breastcancer.breastcancercare.components.LazyColumnCollapsibleHeader
 import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
 import com.breastcancer.breastcancercare.models.BlogDTO
-import com.breastcancer.breastcancercare.models.EventDTO
+import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.states.HomeUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultTopHeaderTextSize
@@ -81,7 +81,7 @@ fun HomeScreen(
                 ) {
                     append(greetingText)
                 }
-                withStyle(style = SpanStyle(fontSize = DefaultTopHeaderTextSize / 1.5f)){
+                withStyle(style = SpanStyle(fontSize = DefaultTopHeaderTextSize / 1.5f)) {
                     append(" ${emojiFor()}")
                 }
             }
@@ -167,7 +167,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun EventCard(event: EventDTO, onClick: (event: EventDTO) -> Unit) =
+fun EventCard(event: ActivityDTO, onClick: (event: ActivityDTO) -> Unit) =
     CoreHomeCardDesign(
         onClick = { onClick(event) },
         modifier = Modifier.fillMaxHeight().width(300.dp)
@@ -178,9 +178,9 @@ fun EventCard(event: EventDTO, onClick: (event: EventDTO) -> Unit) =
             )
         }, title = {
             Column(verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)) {
-                TimeAndDateFormat(programEventDTO = event, selectedDate = event.date)
+                TimeAndDateFormat(activityDTO = event, selectedDate = event.endDate)
                 Text(
-                    text = event.name,
+                    text = event.title,
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }

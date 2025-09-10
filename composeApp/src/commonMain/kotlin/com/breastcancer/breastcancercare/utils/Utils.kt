@@ -10,18 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheetDefaults.properties
 import androidx.compose.material3.TabPosition
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
@@ -113,7 +108,7 @@ fun checkIfDateHasProgram(
     endDate: LocalDate
 ): Boolean {
     when (frequencyType) {
-        FrequencyType.Daily -> {
+        FrequencyType.Ongoing -> {
             var date = startDate
             var i = 0
             while (date <= endDate) {
@@ -149,7 +144,7 @@ fun checkIfDateHasProgram(
             }
         }
 
-        FrequencyType.Yearly -> {
+        FrequencyType.Series -> {
             var date = startDate
             var i = 0
             while (date <= endDate) {
@@ -160,6 +155,9 @@ fun checkIfDateHasProgram(
                     i++
             }
         }
+
+        FrequencyType.OnceOff -> return selectedDate == startDate
+        FrequencyType.Block -> return false
     }
     return false
 }

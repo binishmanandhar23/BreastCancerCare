@@ -2,15 +2,12 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.breastcancer.breastcancercare.database.local.types.FrequencyType
-import com.breastcancer.breastcancercare.models.EventDTO
+import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
-import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.notifications.NotificationChannels
 import com.breastcancer.breastcancercare.notifications.createAlarmeePlatformConfiguration
 import com.breastcancer.breastcancercare.repo.CalendarRepository
 import com.kizitonwose.calendar.core.now
-import com.kizitonwose.calendar.core.plusDays
 import com.tweener.alarmee.createAlarmeeService
 import com.tweener.alarmee.model.Alarmee
 import com.tweener.alarmee.model.AndroidNotificationConfiguration
@@ -21,16 +18,11 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
-import kotlinx.datetime.Month
 import kotlinx.datetime.atTime
-import kotlinx.datetime.plus
 import kotlin.math.max
 import kotlin.time.ExperimentalTime
 
@@ -45,17 +37,11 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
     private var _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate = _selectedDate.asStateFlow()
 
-    private var _allEvents = MutableStateFlow<List<EventDTO>>(emptyList())
+    private var _allEvents = MutableStateFlow<List<ActivityDTO>>(emptyList())
     val allEvents = _allEvents.asStateFlow()
 
-    private var _allPrograms = MutableStateFlow<List<ProgramDTO>>(emptyList())
-    val allPrograms = _allPrograms.asStateFlow()
-
-    private var _selectedDayEvents = MutableStateFlow<List<EventDTO>>(emptyList())
+    private var _selectedDayEvents = MutableStateFlow<List<ActivityDTO>>(emptyList())
     val selectedDayEvents = _selectedDayEvents.asStateFlow()
-
-    private var _selectedDayPrograms = MutableStateFlow<List<ProgramDTO>>(emptyList())
-    val selectedDayPrograms = _selectedDayPrograms.asStateFlow()
 
     private var _allDatesWithEvents = MutableStateFlow<List<String>>(emptyList())
     val allDatesWithEvents = _allDatesWithEvents.asStateFlow()
@@ -73,7 +59,6 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
         configureNotifications()
         getAllEventsAndPrograms()
         getAllEventsOnSelectedDate()
-        getAllProgramsOnSelectedDate()
         getAllSuitabilities()
         findAllDatesWithEventsAndPrograms()
     }
@@ -96,28 +81,22 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
             _allEvents.update { events }
             scheduleNotificationsForEvents(events = events)
         }
-    }.also {
-        viewModelScope.launch(Dispatchers.IO) {
-            calendarRepository.getAllPrograms().collect { programs ->
-                _allPrograms.update { programs }
-            }
-        }
     }
 
-    private fun scheduleNotificationsForEvents(events: List<EventDTO>) {
+    private fun scheduleNotificationsForEvents(events: List<ActivityDTO>) {
         val localService = alarmeeService.local
         events.forEach { event ->
             run NotificationLogic@ {
-                if (event.date < LocalDate.now()) return@NotificationLogic
+                if (event.endDate < LocalDate.now()) return@NotificationLogic
                 val scheduledDateTime =
-                    if (event.startTime != null) event.date.atTime(
+                    if (event.startTime != null) event.endDate.atTime(
                         LocalTime(
                             hour = max(
                                 0,
                                 event.startTime.hour - 1
                             ), minute = event.startTime.minute
                         )
-                    ) else event.date.atTime(
+                    ) else event.endDate.atTime(
                         6,
                         0
                     )
@@ -149,78 +128,12 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
         }
     }
 
-    private fun getAllProgramsOnSelectedDate() = viewModelScope.launch(Dispatchers.IO) {
-        combine(
-            selectedDate,
-            selectedSuitability,
-            transform = { date, suitability ->
-                Pair(date, suitability)
-            }).collectLatest { (date, suitability) ->
-            calendarRepository.getAllProgramsFromSelectedDate(date = date) { programs ->
-                _selectedDayPrograms.update { _ ->
-                    if (suitability != null) programs.filter { program ->
-                        program.suitability.map { it.key }.contains(suitability.key)
-                    } else programs
-                }
-            }
-        }
-    }
 
 
     private fun findAllDatesWithEventsAndPrograms() {
         viewModelScope.launch(Dispatchers.IO) {
             allEvents.collect { events ->
-                _allDatesWithEvents.update { events.map { it.date.toString() }.distinct() }
-            }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            allPrograms.collect { programs ->
-                val dates = mutableListOf<LocalDate>()
-                programs.forEach { program ->
-                    when (program.frequency) {
-                        FrequencyType.Daily -> {
-                            var date = program.startDate
-                            var i = 0
-                            while (date <= program.endDate) {
-                                date = program.startDate.plusDays(i)
-                                dates.add(date)
-                                i++
-                            }
-                        }
-
-                        FrequencyType.Weekly -> {
-                            var date = program.startDate
-                            var i = 0
-                            while (date <= program.endDate) {
-                                date = program.startDate.plus(i, DateTimeUnit.WEEK)
-                                dates.add(date)
-                                i++
-                            }
-                        }
-
-                        FrequencyType.Monthly -> {
-                            var date = program.startDate
-                            var i = 0
-                            while (date <= program.endDate) {
-                                date = program.startDate.plus(i, DateTimeUnit.MONTH)
-                                dates.add(date)
-                                i++
-                            }
-                        }
-
-                        FrequencyType.Yearly -> {
-                            var date = program.startDate
-                            var i = 0
-                            while (date <= program.endDate) {
-                                date = program.startDate.plus(i, DateTimeUnit.YEAR)
-                                dates.add(date)
-                                i++
-                            }
-                        }
-                    }
-
-                }
-                _allDatesWithPrograms.update { dates.map { it.toString() }.distinct() }
+                _allDatesWithEvents.update { events.map { it.endDate.toString() }.distinct() }
             }
         }
     }

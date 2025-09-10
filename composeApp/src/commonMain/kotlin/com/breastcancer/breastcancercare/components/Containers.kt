@@ -2,10 +2,10 @@ package com.breastcancer.breastcancercare.components
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
+import com.breastcancer.breastcancercare.theme.OffBackground
 
 @Composable
 fun LazyColumnWithStickyFooter(
@@ -117,8 +117,7 @@ fun LazyColumnCollapsibleHeader(
                     .graphicsLayer {
                         alpha = animatedAlpha
                         translationY = translationYPx
-                    }
-                    .padding(horizontal = DefaultHorizontalPaddingMedium, vertical = DefaultVerticalPaddingSmall)
+                    }.padding(horizontal = DefaultHorizontalPaddingMedium, vertical = DefaultVerticalPaddingSmall)
             ) {
                 header()
             }

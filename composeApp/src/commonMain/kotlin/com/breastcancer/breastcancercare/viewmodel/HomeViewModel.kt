@@ -3,10 +3,9 @@ package com.breastcancer.breastcancercare.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.breastcancer.breastcancercare.models.BlogDTO
-import com.breastcancer.breastcancercare.models.EventDTO
+import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.repo.HomeRepository
 import com.breastcancer.breastcancercare.states.HomeUIState
-import com.breastcancer.breastcancercare.utils.emojiFor
 import com.breastcancer.breastcancercare.utils.getHomeGreetingText
 import com.kizitonwose.calendar.core.now
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +28,7 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
     val recommendedBlogsUIState = _recommendedBlogsUIState.asStateFlow()
 
     private var _upcomingEventsUIState =
-        MutableStateFlow<HomeUIState<List<EventDTO>>>(HomeUIState.Initial())
+        MutableStateFlow<HomeUIState<List<ActivityDTO>>>(HomeUIState.Initial())
     val upcomingEventsUIState = _upcomingEventsUIState.asStateFlow()
 
     init {
@@ -66,7 +65,7 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
         delay(1500L)
         homeRepository.getAllEvents().collectLatest { events ->
             _upcomingEventsUIState.update {  _ ->
-               HomeUIState.Success(data = events.filter { it.date >= LocalDate.now() }.take(5))
+               HomeUIState.Success(data = events.filter { it.endDate >= LocalDate.now() }.take(5))
             }
         }
     }

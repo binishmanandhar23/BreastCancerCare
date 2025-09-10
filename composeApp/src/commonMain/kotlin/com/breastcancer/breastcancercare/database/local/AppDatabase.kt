@@ -15,18 +15,17 @@ import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
 import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.database.local.entity.BlogEntity
 import com.breastcancer.breastcancercare.database.local.entity.CategoryEntity
-import com.breastcancer.breastcancercare.database.local.entity.EventEntity
+import com.breastcancer.breastcancercare.database.local.entity.ActivityEntity
 import com.breastcancer.breastcancercare.database.local.entity.FAQEntity
 import com.breastcancer.breastcancercare.database.local.entity.LoggedInUserEntity
-import com.breastcancer.breastcancercare.database.local.entity.ProgramEntity
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
 import com.breastcancer.breastcancercare.database.local.entity.UserEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
-    entities = [FAQEntity::class, ProgramEntity::class, EventEntity::class, UserEntity::class, LoggedInUserEntity::class, SuitabilityEntity::class, BlogEntity::class, CategoryEntity::class],
-    version = 14
+    entities = [FAQEntity::class, ActivityEntity::class, UserEntity::class, LoggedInUserEntity::class, SuitabilityEntity::class, BlogEntity::class, CategoryEntity::class],
+    version = 15
 )
 @TypeConverters(FAQConverter::class, BlogConverter::class, ListConverter::class)
 @ConstructedBy(AppDatabaseConstructor::class)

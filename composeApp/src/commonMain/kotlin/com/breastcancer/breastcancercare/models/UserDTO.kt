@@ -2,6 +2,7 @@ package com.breastcancer.breastcancercare.models
 
 import com.breastcancer.breastcancercare.database.local.entity.LoggedInUserEntity
 import com.breastcancer.breastcancercare.database.local.entity.UserEntity
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.interfaces.UserInterface
 
 data class UserDTO(
@@ -11,7 +12,8 @@ data class UserDTO(
     val email: String = "",
     val password: String = "",
     val phoneNumber: String = "",
-    val address: String? = ""
+    val address: String? = "",
+    val userCategory: UserCategory = UserCategory.StartingStrong
 )
 
 fun UserDTO.toEntity() = UserEntity(
@@ -21,7 +23,8 @@ fun UserDTO.toEntity() = UserEntity(
     email = email,
     password = password,
     phoneNumber = phoneNumber,
-    address = address
+    address = address,
+    userCategory = userCategory.category
 )
 
 fun UserDTO.toLoggedInEntity() = LoggedInUserEntity(
@@ -31,7 +34,8 @@ fun UserDTO.toLoggedInEntity() = LoggedInUserEntity(
     email = email,
     password = password,
     phoneNumber = phoneNumber,
-    address = address
+    address = address,
+    userCategory = userCategory.category
 )
 
 fun UserInterface.toDTO() = UserDTO(
@@ -41,7 +45,8 @@ fun UserInterface.toDTO() = UserDTO(
     email = email,
     password = password,
     phoneNumber = phoneNumber,
-    address = address
+    address = address,
+    userCategory = UserCategory.valueOf(userCategory)
 )
 
 

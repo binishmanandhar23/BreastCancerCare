@@ -14,5 +14,6 @@ data class UserEntity(
     override val password: String,
     @ColumnInfo(collate = ColumnInfo.NOCASE) override  val email: String,
     override val phoneNumber: String,
-    override val address: String?
+    override val address: String?,
+    override val userCategory: String,
 ): UserInterface

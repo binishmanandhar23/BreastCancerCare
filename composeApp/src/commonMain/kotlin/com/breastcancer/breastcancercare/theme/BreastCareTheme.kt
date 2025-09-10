@@ -12,6 +12,7 @@ val LightAppColorScheme = lightColorScheme(
     tertiary = TertiaryColor,
     background = BackgroundColor,
     onBackground = TextColorLight,
+    surface = ColorWhite,
     // ... define other Material3 colors
 )
 
@@ -20,6 +21,7 @@ val DarkAppColorScheme = darkColorScheme(
     secondary = SecondaryColor,
     tertiary = TertiaryColor,
     background = PrimaryColor,
-    onBackground = TextColorDark
+    onBackground = TextColorDark,
+    surface = PrimaryColor,
     // ... define other Material3 colors
 )

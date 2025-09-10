@@ -1,8 +1,10 @@
 package com.breastcancer.breastcancercare.database.local.types
 
 enum class FrequencyType(val type: String) {
-    Daily("Daily"),
-    Weekly("Weekly"),
+    Ongoing("Ongoing"),
     Monthly("Monthly"),
-    Yearly("Yearly")
+    Weekly("Weekly"),
+    OnceOff("OnceOff"),
+    Series("Series"),
+    Block("Block"),
 }

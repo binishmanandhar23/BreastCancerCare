@@ -1,17 +1,12 @@
 package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,23 +31,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.HourglassEmpty
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -83,18 +70,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.EventProgramDesign
-import com.breastcancer.breastcancercare.components.EventProgramTabRow
 import com.breastcancer.breastcancercare.components.LazyColumnWithStickyFooter
-import com.breastcancer.breastcancercare.components.SuitabilityFilterChips
-import com.breastcancer.breastcancercare.database.local.types.EventType
-import com.breastcancer.breastcancercare.models.EventDTO
+import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
-import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.theme.OffBackground
-import com.breastcancer.breastcancercare.utils.pagerTabIndicatorOffset
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -134,7 +115,6 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
     val onDateClicked: (selectedDate: LocalDate) -> Unit = calendarViewModel::changeSelectedDate
 
     val selectedDayEvents by calendarViewModel.selectedDayEvents.collectAsStateWithLifecycle()
-    val selectedDayPrograms by calendarViewModel.selectedDayPrograms.collectAsStateWithLifecycle()
 
     val allDatesWithEvents by calendarViewModel.allDatesWithEvents.collectAsStateWithLifecycle()
     val allDatesWithPrograms by calendarViewModel.allDatesWithPrograms.collectAsStateWithLifecycle()
@@ -210,11 +190,10 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
         BottomInfoCard(
             modifier = Modifier.align(alignment = Alignment.BottomCenter),
             selectedTab = selectedTab,
-            selectedDayEvents = selectedDayEvents,
+            selectedDayActivities = selectedDayEvents,
             allSuitabilities = allSuitabilities,
             selectedSuitability = selectedSuitability,
             selectedDate = selectedDate,
-            selectedDayPrograms = selectedDayPrograms,
             onTabSelected = calendarViewModel::changeTab,
             onSuitabilitySelected = calendarViewModel::updateSelectedSuitability
         )
@@ -332,8 +311,7 @@ fun BottomInfoCard(
     selectedDate: LocalDate,
     allSuitabilities: List<SuitabilityDTO>,
     selectedSuitability: SuitabilityDTO?,
-    selectedDayEvents: List<EventDTO>,
-    selectedDayPrograms: List<ProgramDTO>,
+    selectedDayActivities: List<ActivityDTO>,
     onTabSelected: (index: Int) -> Unit,
     onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit
 ) {
@@ -428,15 +406,9 @@ fun BottomInfoCard(
                 )
                 EventSection(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedTab = selectedTab,
                     selectedDate = selectedDate,
-                    allSuitabilities = allSuitabilities,
-                    selectedSuitability = selectedSuitability,
-                    selectedDayEvents = selectedDayEvents,
+                    selectedDayEvents = selectedDayActivities,
                     bottomSpacer = with(LocalDensity.current) { offsetAnim.value.toDp() },
-                    selectedDayPrograms = selectedDayPrograms,
-                    onTabSelected = onTabSelected,
-                    onSuitabilitySelected = onSuitabilitySelected
                 )
             }
         }
@@ -446,52 +418,16 @@ fun BottomInfoCard(
 @Composable
 private fun EventSection(
     modifier: Modifier = Modifier,
-    selectedTab: Int,
     selectedDate: LocalDate,
-    allSuitabilities: List<SuitabilityDTO>,
-    selectedSuitability: SuitabilityDTO?,
-    selectedDayEvents: List<EventDTO>,
-    selectedDayPrograms: List<ProgramDTO>,
+    selectedDayEvents: List<ActivityDTO>,
     bottomSpacer: Dp,
-    onTabSelected: (index: Int) -> Unit,
-    onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { EventType.entries.size })
-    LaunchedEffect(selectedTab) {
-        pagerState.animateScrollToPage(selectedTab)
-    }
     Column(modifier = modifier) {
-        TabRow(
-            modifier = Modifier.fillMaxWidth(),
-            containerColor = MaterialTheme.colorScheme.background,
-            selectedTabIndex = selectedTab,
-            indicator = {
-                TabRowDefaults.PrimaryIndicator(
-                    modifier = Modifier.pagerTabIndicatorOffset(pagerState = pagerState, tabPositions = it),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            },
-            tabs = {
-                EventType.entries.forEachIndexed { index, type ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { onTabSelected(EventType.entries[index].ordinal) },
-                        text = {
-                            EventProgramTabRow(eventType = EventType.entries[index])
-                        }
-                    )
-                }
-            })
         EventsProgramsPager(
             modifier = Modifier.fillMaxWidth(),
-            pagerState = pagerState,
             selectedDate = selectedDate,
-            selectedSuitability = selectedSuitability,
-            selectedDayPrograms = selectedDayPrograms,
             selectedDayEvents = selectedDayEvents,
             bottomSpacer = bottomSpacer,
-            allSuitabilities = allSuitabilities,
-            onSuitabilitySelected = onSuitabilitySelected
         )
     }
 }
@@ -500,89 +436,38 @@ private fun EventSection(
 private fun EventsProgramsPager(
     modifier: Modifier,
     selectedDate: LocalDate,
-    allSuitabilities: List<SuitabilityDTO>,
-    selectedSuitability: SuitabilityDTO?,
-    selectedDayEvents: List<EventDTO>,
-    selectedDayPrograms: List<ProgramDTO>,
+    selectedDayEvents: List<ActivityDTO>,
     bottomSpacer: Dp,
-    pagerState: PagerState,
-    onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit
 ) {
-    HorizontalPager(modifier = modifier, state = pagerState) { page ->
-        when (page) {
-            EventType.Event.ordinal ->
-                AnimatedContent(selectedDayEvents, label = "Events") { events ->
-                    LazyColumnWithStickyFooter(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
-                        bottomSpacer = bottomSpacer + 100.dp,
-                        forceSpacer = true
-                    ) {
-                        if (events.isEmpty())
-                            item {
-                                EmptyContainer(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    eventType = EventType.Event
-                                )
-                            }
-                        else
-                            items(events) { events ->
-                                EventProgramDesign(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    selectedDate = selectedDate,
-                                    programEventDTO = events,
-                                    onClick = {
-                                        /*TODO: Code for Event/Program Detail Page*/
-                                    })
-                            }
-                    }
+    AnimatedContent(selectedDayEvents, label = "Events") { events ->
+        LazyColumnWithStickyFooter(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
+            bottomSpacer = bottomSpacer + 100.dp,
+            forceSpacer = true
+        ) {
+            if (events.isEmpty())
+                item {
+                    EmptyContainer(
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
-
-            EventType.Program.ordinal ->
-                LazyColumnWithStickyFooter(
-                    modifier = Modifier.fillMaxSize().animateContentSize(),
-                    bottomSpacer = bottomSpacer + 100.dp,
-                    forceSpacer = true
-                ) {
-                    stickyHeader {
-                        SuitabilityFilterChips(
-                            suitabilities = allSuitabilities,
-                            selected = selectedSuitability,
-                            onClick = onSuitabilitySelected
-                        )
-                    }
-                    item {
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            AnimatedVisibility(
-                                modifier = Modifier.align(Alignment.Center),
-                                visible = selectedDayPrograms.isEmpty(),
-                                enter = fadeIn() + expandIn(expandFrom = Alignment.Center),
-                                exit = shrinkOut(shrinkTowards = Alignment.Center) + fadeOut(),
-                            ) {
-                                EmptyContainer(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    eventType = EventType.Program
-                                )
-                            }
-                        }
-                    }
-                    items(selectedDayPrograms) { program ->
-                        EventProgramDesign(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = DefaultVerticalPaddingSmall),
-                            selectedDate = selectedDate,
-                            programEventDTO = program,
-                            onClick = {
-
-                            })
-                    }
+            else
+                items(events) { events ->
+                    EventProgramDesign(
+                        modifier = Modifier.fillMaxWidth(),
+                        selectedDate = selectedDate,
+                        activityDTO = events,
+                        onClick = {
+                            /*TODO: Code for Event/Program Detail Page*/
+                        })
                 }
-
         }
     }
 }
 
 @Composable
-private fun EmptyContainer(modifier: Modifier, eventType: EventType) {
+private fun EmptyContainer(modifier: Modifier) {
     Box(modifier = modifier) {
         Column(
             modifier = Modifier.fillMaxWidth().alpha(0.5f)
@@ -595,7 +480,7 @@ private fun EmptyContainer(modifier: Modifier, eventType: EventType) {
         ) {
             Icon(imageVector = Icons.Outlined.HourglassEmpty, contentDescription = "Empty Icon")
             Text(
-                text = "Oops! \nIt seems that there are no ${if (eventType == EventType.Event) "events" else "programs"} on this day.",
+                text = "Oops! \nIt seems that there are no activities registered for today.",
                 textAlign = TextAlign.Center
             )
         }

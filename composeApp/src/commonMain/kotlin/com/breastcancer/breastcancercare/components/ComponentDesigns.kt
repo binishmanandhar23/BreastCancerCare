@@ -3,8 +3,6 @@ package com.breastcancer.breastcancercare.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -46,8 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -56,9 +51,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
-import com.breastcancer.breastcancercare.database.local.types.EventType
-import com.breastcancer.breastcancercare.models.EventDTO
-import com.breastcancer.breastcancercare.models.interfaces.ProgramEventDTO
+import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import kotlinx.datetime.LocalDate
@@ -76,15 +69,8 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.FlowRowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Shape
@@ -98,15 +84,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.lerp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.breastcancer.breastcancercare.database.local.types.Suitability
 import com.breastcancer.breastcancercare.models.CategoryDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
-import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.utils.DefaultImage
@@ -119,10 +102,9 @@ import com.breastcancer.breastcancercare.utils.TriangleShape
 fun EventProgramDesign(
     modifier: Modifier,
     selectedDate: LocalDate,
-    programEventDTO: ProgramEventDTO,
+    activityDTO: ActivityDTO,
     onClick: () -> Unit
 ) {
-    var finalHeight by remember { mutableStateOf(0) }
     Card(
         modifier = modifier,
         onClick = onClick,
@@ -134,9 +116,7 @@ fun EventProgramDesign(
             modifier = Modifier.padding(
                 horizontal = DefaultHorizontalPaddingSmall,
                 vertical = DefaultVerticalPaddingMedium
-            ).onSizeChanged {
-                finalHeight = it.height
-            },
+            ),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.Top
         ) {
@@ -154,44 +134,25 @@ fun EventProgramDesign(
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                 )
             }
-            if (programEventDTO is EventDTO)
-                Box(
-                    modifier = Modifier.height(with(LocalDensity.current) { finalHeight.toDp() })
-                        .width(4.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = if (programEventDTO.isFeatured) 1f else 0f),
-                            shape = MaterialTheme.shapes.medium
-                        )
-                )
             Column(
                 modifier = Modifier.fillMaxWidth(0.9f),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (programEventDTO is EventDTO && programEventDTO.isFeatured)
-                    FeaturedLabel()
-                if (programEventDTO is ProgramDTO)
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(3.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        for (suitability in programEventDTO.suitability) {
-                            SuitabilityShape(suitability = suitability)
-                        }
-                    }
-                TimeAndDateFormat(programEventDTO = programEventDTO, selectedDate = selectedDate)
+
+                TimeAndDateFormat(activityDTO = activityDTO, selectedDate = selectedDate)
                 Text(
-                    text = programEventDTO.name,
+                    text = activityDTO.title,
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                 )
-                programEventDTO.location?.let {
+                activityDTO.location?.let {
                     Text(
                         text = it,
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
                 Text(
-                    text = programEventDTO.description,
+                    text = activityDTO.description,
                     style = MaterialTheme.typography.labelMedium
                 )
             }
@@ -200,7 +161,7 @@ fun EventProgramDesign(
 }
 
 @Composable
-fun TimeAndDateFormat(programEventDTO: ProgramEventDTO, selectedDate: LocalDate) = Row {
+fun TimeAndDateFormat(activityDTO: ActivityDTO, selectedDate: LocalDate) = Row {
     Text(
         text = selectedDate.format(LocalDate.Format {
             monthName(MonthNames.ENGLISH_FULL)
@@ -209,7 +170,7 @@ fun TimeAndDateFormat(programEventDTO: ProgramEventDTO, selectedDate: LocalDate)
         }),
         style = MaterialTheme.typography.labelSmall
     )
-    programEventDTO.startTime?.let {
+    activityDTO.startTime?.let {
         Text(
             text = it.format(LocalTime.Format {
                 char(' ')
@@ -223,7 +184,7 @@ fun TimeAndDateFormat(programEventDTO: ProgramEventDTO, selectedDate: LocalDate)
             style = MaterialTheme.typography.labelSmall
         )
     }
-    programEventDTO.endTime?.let {
+    activityDTO.endTime?.let {
         Text(
             text = it.format(LocalTime.Format {
                 char(' ')
@@ -239,25 +200,6 @@ fun TimeAndDateFormat(programEventDTO: ProgramEventDTO, selectedDate: LocalDate)
     }
 }
 
-@Composable
-fun EventProgramTabRow(modifier: Modifier = Modifier, eventType: EventType) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        Box(
-            modifier = Modifier.size(10.dp).background(
-                color = if (eventType == EventType.Program) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                shape = CircleShape
-            )
-        )
-        Text(
-            modifier = Modifier.padding(10.dp),
-            text = if (eventType == EventType.Program) "Programs" else "Events"
-        )
-    }
-}
 
 @Composable
 fun FeaturedLabel(modifier: Modifier = Modifier) = Card(

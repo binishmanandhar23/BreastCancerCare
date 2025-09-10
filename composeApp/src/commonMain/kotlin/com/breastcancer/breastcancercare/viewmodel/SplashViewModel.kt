@@ -2,15 +2,15 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.breastcancer.breastcancercare.database.local.entity.ActivityEntity
 import com.breastcancer.breastcancercare.database.local.entity.BlogEntity
 import com.breastcancer.breastcancercare.database.local.entity.CategoryEntity
-import com.breastcancer.breastcancercare.database.local.entity.EventEntity
-import com.breastcancer.breastcancercare.database.local.entity.ProgramEntity
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
 import com.breastcancer.breastcancercare.database.local.types.CategoryType
-import com.breastcancer.breastcancercare.database.local.types.EventType
 import com.breastcancer.breastcancercare.database.local.types.FrequencyType
+import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
 import com.breastcancer.breastcancercare.database.local.types.Suitability
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.models.toSuitabilityDTO
 import com.breastcancer.breastcancercare.repo.BlogRepository
@@ -65,164 +65,180 @@ class SplashViewModel(
             calendarRepository.calendarDAO.insertAllSuitabilities(allSuitabilities)
         }
         viewModelScope.launch {
-            calendarRepository.calendarDAO.insertAllEvents(
+            calendarRepository.calendarDAO.insertAllActivities(
                 listOf(
-                    EventEntity(
+                    ActivityEntity(
                         id = 1,
-                        name = "Early Breast Cancer Group – Mandurah",
+                        title = "Early Breast Cancer Group – Mandurah",
                         description = "This group is for all women undergoing or recently completed treatment for early breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 8, 19).toString(),
+                        category = UserCategory.StartingStrong.category,
+                        activityType = StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum.SupportGroups.type,
+                        startDate = LocalDate(2025, 8, 19).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = false,
                         location = "Mandurah, Western Australia, Australia",
-                        isFeatured = false,
+                        onlineLink = null,
+                        audience = "People with breast cancer (by group type) ",
+                        frequency = FrequencyType.OnceOff.type
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 2,
-                        name = "Young Women’s Early Breast Cancer Group – Online",
+                        title = "Young Women’s Early Breast Cancer Group – Online",
                         description = "This support group is for women with early breast cancer that are under 45 or with school aged children.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 8, 19).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 8, 19).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = true,
                         location = null, // ⬅️ online
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 3,
-                        name = "Online Partners of Women with Metastatic Breast Cancer Support Group",
+                        title = "Online Partners of Women with Metastatic Breast Cancer Support Group",
                         description = "This group is for partners of women living with metastatic breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 8, 21).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 8, 21).toString(),
+                        endDate = null,
                         startTime = LocalTime(19, 0, 0).toString(),
                         endTime = LocalTime(20, 0, 0).toString(),
                         isOnline = false,
                         location = "Cottesloe, Western Australia, Australia",
                         isFeatured = true,
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 4,
-                        name = "Young Women’s Early Breast Cancer Group – Hamersley",
+                        title = "Young Women’s Early Breast Cancer Group – Hamersley",
                         description = "This support group is for women with early breast cancer that are under 45 or with school aged children.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 8, 22).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 8, 22).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = false,
                         location = "Hamersley, Western Australia, Australia",
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 5,
-                        name = "Young Women’s Metastatic Support Group – Online",
+                        title = "Young Women’s Metastatic Support Group – Online",
                         description = "This support group is for women living with metastatic breast cancer who are under 45 or have school-aged children.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 8, 26).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 8, 26).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = true,
                         location = null, // ⬅️ online
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 6,
-                        name = "Early Breast Cancer Group – Midland",
+                        title = "Early Breast Cancer Group – Midland",
                         description = "This group is for all women undergoing or recently completed treatment for early breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 8, 28).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 8, 28).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = false,
                         location = "Midland, Western Australia, Australia",
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 7,
-                        name = "Early Breast Cancer Group – Online",
+                        title = "Early Breast Cancer Group – Online",
                         description = "This group is for all women undergoing or recently completed treatment for early breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 10, 7).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 10, 7).toString(),
+                        endDate = null,
                         startTime = LocalTime(12, 30, 0).toString(),
                         endTime = LocalTime(13, 30, 0).toString(),
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/bccwa-231025-natasha-242-WEB-ONLY.jpg",
                         isOnline = true,
                         location = null, // ⬅️ online
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 8,
-                        name = "Metastatic Support Group – Cottesloe",
+                        title = "Metastatic Support Group – Cottesloe",
                         description = "This support group is for women living with metastatic breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 10, 1).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 10, 1).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = false,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/21035_1222-2048x1365.jpg",
                         location = "Cottesloe, Western Australia, Australia",
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 9,
-                        name = "Metastatic Support Group – Mandurah",
+                        title = "Metastatic Support Group – Mandurah",
                         description = "This support group is for women living with metastatic breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 9, 10).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 9, 10).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = false,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/21035_1154.jpg",
                         location = "Mandurah, Western Australia, Australia",
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 10,
-                        name = "Metastatic Support Group – Online",
+                        title = "Metastatic Support Group – Online",
                         description = "This support group is for women living with metastatic breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 9, 10).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 9, 10).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = true,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/bccwa-231025-natasha-239-PRINT-ONLY.jpg",
                         location = null, // ⬅️ online
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 11,
-                        name = "Young Women’s Early Breast Cancer Group – Murdoch",
+                        title = "Young Women’s Early Breast Cancer Group – Murdoch",
                         description = "This support group is for women with early breast cancer that are under 45 or with school aged children.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 9, 11).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 9, 11).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = false,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/bcwa-230614-stock-250-WEB-ONLY.jpg",
                         location = "Murdoch, Western Australia, Australia",
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 12,
-                        name = "Metastatic Support Group – Bunbury",
+                        title = "Metastatic Support Group – Bunbury",
                         description = "This support group is for women living with metastatic breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 9, 11).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 9, 11).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = false,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/21035_0517.jpg",
                         location = "Bunbury, Western Australia, Australia",
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 13,
-                        name = "Living Well Discussion Group – Online",
+                        title = "Living Well Discussion Group – Online",
                         description = "Discussion group for women who have recently completed treatment for early breast cancer; topics include fear of recurrence, side effects, stress management, healthy lifestyle and goal setting.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 9, 11).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 9, 11).toString(),
+                        endDate = null,
                         startTime = LocalTime(19, 0, 0).toString(),
                         endTime = LocalTime(20, 0, 0).toString(),
                         isOnline = true,
@@ -230,67 +246,49 @@ class SplashViewModel(
                         location = null, // ⬅️ online
                         isFeatured = true,
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 14,
-                        name = "Early Breast Cancer Group – Hamersley",
+                        title = "Early Breast Cancer Group – Hamersley",
                         description = "This group is for all women undergoing or recently completed treatment for early breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 9, 12).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 9, 12).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = false,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/bcwa-230620-stock-32-WEB-ONLY.jpg",
                         location = "Hamersley, Western Australia, Australia",
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 15,
-                        name = "Metastatic Support Group – Joondalup",
+                        title = "Metastatic Support Group – Joondalup",
                         description = "This support group is for women living with metastatic breast cancer.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 9, 19).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 9, 19).toString(),
+                        endDate = null,
                         startTime = null,
                         endTime = null,
                         isOnline = false,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/21035_0433.jpg",
                         location = "Joondalup, Western Australia, Australia",
-                        isFeatured = false,
+
                     ),
-                    EventEntity(
+                    ActivityEntity(
                         id = 16,
-                        name = "Living Well Early Breast Cancer Support Group – Bunbury",
+                        title = "Living Well Early Breast Cancer Support Group – Bunbury",
                         description = "Group for women living well after treatment; Thursdays 7–8pm covering fear of recurrence, side effects, stress management, healthy lifestyle and goal setting.",
-                        eventType = EventType.Event.type,
-                        date = LocalDate(2025, 11, 6).toString(),
+                        activityType = EventType.Event.type,
+                        startDate = LocalDate(2025, 11, 6).toString(),
+                        endDate = null,
                         startTime = LocalTime(19, 0, 0).toString(),
                         endTime = LocalTime(20, 0, 0).toString(),
                         isOnline = false,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2024/01/bcwa-230620-stock-36-WEB-ONLY.jpg",
                         location = "Bunbury, Western Australia, Australia",
-                        isFeatured = true,
                     ),
                 )
 
-            )
-        }
-        viewModelScope.launch {
-            calendarRepository.calendarDAO.insertAllPrograms(
-                events = listOf(
-                    ProgramEntity(
-                        id = 1,
-                        name = "Yoga",
-                        description = "Daily Yoga Session",
-                        eventType = EventType.Program.type,
-                        startTime = LocalTime(7, 0, 0).toString(),
-                        endTime = LocalTime(8, 0, 0).toString(),
-                        isOnline = true,
-                        location = null,
-                        startDate = LocalDate(2025, 8, 1).toString(),
-                        endDate = LocalDate(2035, 8, 1).toString(),
-                        suitabilities = allSuitabilities,
-                        frequency = FrequencyType.Daily.type
-                    )
-                )
             )
         }
         viewModelScope.launch(Dispatchers.IO) {

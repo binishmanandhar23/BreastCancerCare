@@ -1,8 +1,6 @@
 package com.breastcancer.breastcancercare.repo
 
 import com.breastcancer.breastcancercare.database.local.dao.CalendarDAO
-import com.breastcancer.breastcancercare.models.interfaces.ProgramDTO
-import com.breastcancer.breastcancercare.models.interfaces.toProgramDTO
 import com.breastcancer.breastcancercare.models.toEventDTO
 import com.breastcancer.breastcancercare.models.toSuitabilityDTO
 import com.breastcancer.breastcancercare.utils.checkIfDateHasProgram
@@ -17,7 +15,7 @@ class CalendarRepository(val calendarDAO: CalendarDAO) {
         calendarDAO.getEventsFromSelectedDate(date = date.toString())
             .map { eventEntities -> eventEntities.map { it.toEventDTO() } }
 
-    suspend fun getAllProgramsFromSelectedDate(date: LocalDate, selectedDatePrograms: (MutableList<ProgramDTO>) -> Unit) {
+    /*suspend fun getAllProgramsFromSelectedDate(date: LocalDate, selectedDatePrograms: (MutableList<ProgramDTO>) -> Unit) {
         getAllPrograms().collect { programs ->
             val selectedDatePrograms = mutableListOf<ProgramDTO>()
             programs.forEach { program ->
@@ -32,13 +30,7 @@ class CalendarRepository(val calendarDAO: CalendarDAO) {
             }
             selectedDatePrograms(selectedDatePrograms)
         }
-    }
-
-    fun getAllPrograms() = calendarDAO.getAllPrograms().map { programEntities ->
-        programEntities.map {
-            it.toProgramDTO()
-        }
-    }
+    }*/
 
     fun getAllSuitabilities() = calendarDAO.getAllSuitabilities().map { it.toSuitabilityDTO() }
 }

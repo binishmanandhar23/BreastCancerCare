@@ -4,8 +4,10 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideIn
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,6 +42,8 @@ import com.breastcancer.breastcancercare.screens.main.MainScreen
 import com.breastcancer.breastcancercare.screens.main.ProfileRoute
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
+import com.breastcancer.breastcancercare.theme.BreastCareTypography
+import com.breastcancer.breastcancercare.theme.LightAppColorScheme
 import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
 import dev.icerock.moko.permissions.PermissionState
@@ -50,6 +54,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun App() {
+    val darkTheme = isSystemInDarkTheme()
     val loaderState = rememberLoaderState()
     val customSnackBarState = rememberSnackBarState()
     val permissionViewModel = koinViewModel<PermissionViewModel>()
@@ -73,179 +78,189 @@ fun App() {
         }
     }
 
-
-    Scaffold { innerPadding ->
-        Surface(
-            modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())
-        ) {
-            CustomLoader(loaderState = loaderState) {
-                CustomSnackBar(
-                    text = "",
-                    snackBarState = customSnackBarState,
-                    useBox = true
-                ) {
-                    val navigator = rememberNavController()
-                    NavHost(
-                        navController = navigator,
-                        startDestination = Route.Splash,
-                        enterTransition = {
-                            slideIntoContainer(
-                                towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                                animationSpec = tween(300)
-                            )
-                        },
-                        exitTransition = {
-                            slideOutOfContainer(
-                                towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                                animationSpec = tween(300)
-                            )
-                        },
-                        popEnterTransition = {
-                            slideIntoContainer(
-                                towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                                animationSpec = tween(300)
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutOfContainer(
-                                towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                                animationSpec = tween(300)
-                            )
-                        }) {
-                        composable<Route.Splash> {
-                            SplashScreen(onAlreadyLoggedIn = {
-                                navigator.navigate(route = Route.Main) {
-                                    popUpTo(route = Route.Splash) {
-                                        inclusive = true
-                                    }
-                                    launchSingleTop = true
-                                }
-                            }, onNotLoggedIn = {
-                                navigator.navigate(route = Route.Onboarding) {
-                                    popUpTo(route = Route.Splash) {
-                                        inclusive = true
-                                    }
-                                    launchSingleTop = true
-                                }
-                            })
-                        }
-                        composable<Route.Onboarding> {
-                            OnboardingScreen(
-                                loaderState = loaderState,
-                                customSnackBarState = customSnackBarState,
-                                onLogin = {
-                                    navigator.navigate(Route.Main) {
-                                        popUpTo(route = Route.Onboarding) {
+    MaterialTheme(
+        colorScheme = if (darkTheme) LightAppColorScheme else LightAppColorScheme,
+        typography = BreastCareTypography()
+    ) {
+        Scaffold { innerPadding ->
+            Surface(
+                modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())
+            ) {
+                CustomLoader(loaderState = loaderState) {
+                    CustomSnackBar(
+                        text = "",
+                        snackBarState = customSnackBarState,
+                        useBox = true
+                    ) {
+                        val navigator = rememberNavController()
+                        NavHost(
+                            navController = navigator,
+                            startDestination = Route.Splash,
+                            enterTransition = {
+                                slideIntoContainer(
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                                    animationSpec = tween(300)
+                                )
+                            },
+                            exitTransition = {
+                                slideOutOfContainer(
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                                    animationSpec = tween(300)
+                                )
+                            },
+                            popEnterTransition = {
+                                slideIntoContainer(
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                                    animationSpec = tween(300)
+                                )
+                            },
+                            popExitTransition = {
+                                slideOutOfContainer(
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                                    animationSpec = tween(300)
+                                )
+                            }) {
+                            composable<Route.Splash> {
+                                SplashScreen(onAlreadyLoggedIn = {
+                                    navigator.navigate(route = Route.Main) {
+                                        popUpTo(route = Route.Splash) {
                                             inclusive = true
                                         }
                                         launchSingleTop = true
                                     }
-                                },
-                                onRegister = {
-                                    navigator.navigate(
-                                        route = Route.Onboarding.Register
-                                    )
-                                }
-                            )
-                        }
-                        composable<Route.Onboarding.Register> {
-                            RegisterScreen(
-                                customSnackBarState = customSnackBarState,
-                                loaderState = loaderState,
-                                onBack = { navigator.popBackStack() },
-                                registrationSuccessful = {
-                                    navigator.navigate(Route.Onboarding) {
-                                        popUpTo(route = Route.Onboarding) {
+                                }, onNotLoggedIn = {
+                                    navigator.navigate(route = Route.Onboarding) {
+                                        popUpTo(route = Route.Splash) {
                                             inclusive = true
                                         }
                                         launchSingleTop = true
                                     }
-                                }
-                            )
-                        }
-
-                        composable<Route.Main> {
-                            MainScreen(
-                                permissionState = permissionState,
-                                loaderState = loaderState,
-                                customSnackBarState = customSnackBarState,
-                                onSubScreenChange = {
-                                    navigator.navigate(
-                                        route = it
-                                    )
-                                },
-                                onLogOut = {
-                                    navigator.navigate(Route.Onboarding) {
-                                        popUpTo(route = Route.Main) {
-                                            inclusive = true
+                                })
+                            }
+                            composable<Route.Onboarding> {
+                                OnboardingScreen(
+                                    loaderState = loaderState,
+                                    customSnackBarState = customSnackBarState,
+                                    onLogin = {
+                                        navigator.navigate(Route.Main) {
+                                            popUpTo(route = Route.Onboarding) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true
                                         }
-                                        launchSingleTop = true
-                                    }
-                                }
-                            )
-
-                            if (permissionImportantDialog)
-                                BreastCancerAlertDialog(
-                                    title = "Important!",
-                                    text = {
-                                        Text("It is very important that you grant the notifications permission to receive notifications regarding events and programs from us.\nPlease grant the permission to receive updates.")
                                     },
-                                    confirmText = "Grant",
-                                    dismissText = "Cancel",
-                                    onDismissRequest = { permissionViewModel.dismissDialog() },
-                                    onConfirm = {
-                                        coroutineScope.launch {
-                                            permissionViewModel.onRequestPermissionButtonPressed()
-                                        }
-                                        permissionViewModel.dismissDialog()
+                                    onRegister = {
+                                        navigator.navigate(
+                                            route = Route.Onboarding.Register
+                                        )
                                     }
                                 )
-                        }
+                            }
+                            composable<Route.Onboarding.Register> {
+                                RegisterScreen(
+                                    customSnackBarState = customSnackBarState,
+                                    loaderState = loaderState,
+                                    onBack = { navigator.popBackStack() },
+                                    registrationSuccessful = {
+                                        navigator.navigate(Route.Onboarding) {
+                                            popUpTo(route = Route.Onboarding) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                )
+                            }
 
-                        composable<Route.Main.Contact> { ContactSupportScreen { navigator.popBackStack() } }
+                            composable<Route.Main> {
+                                MainScreen(
+                                    permissionState = permissionState,
+                                    loaderState = loaderState,
+                                    customSnackBarState = customSnackBarState,
+                                    onSubScreenChange = {
+                                        navigator.navigate(
+                                            route = it
+                                        )
+                                    },
+                                    onLogOut = {
+                                        navigator.navigate(Route.Onboarding) {
+                                            popUpTo(route = Route.Main) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                )
 
-                        composable<Route.Main.Profile> {
-                            ProfileRoute(
-                                onBack = { navigator.popBackStack() },
-                                onEditProfile = {
-                                    navigator.navigate(
-                                        route = Route.Main.EditProfile
+                                if (permissionImportantDialog)
+                                    BreastCancerAlertDialog(
+                                        title = "Important!",
+                                        text = {
+                                            Text("It is very important that you grant the notifications permission to receive notifications regarding events and programs from us.\nPlease grant the permission to receive updates.")
+                                        },
+                                        confirmText = "Grant",
+                                        dismissText = "Cancel",
+                                        onDismissRequest = { permissionViewModel.dismissDialog() },
+                                        onConfirm = {
+                                            coroutineScope.launch {
+                                                permissionViewModel.onRequestPermissionButtonPressed()
+                                            }
+                                            permissionViewModel.dismissDialog()
+                                        }
                                     )
-                                }
-                            )
-                        }
+                            }
 
-                        composable<Route.Main.EditProfile> {
-                            EditProfileRoute(
-                                onBack = { navigator.popBackStack() }
-                            )
-                        }
+                            composable<Route.Main.Contact> { ContactSupportScreen { navigator.popBackStack() } }
 
-                        composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
+                            composable<Route.Main.Profile> {
+                                ProfileRoute(
+                                    onBack = { navigator.popBackStack() },
+                                    onEditProfile = {
+                                        navigator.navigate(
+                                            route = Route.Main.EditProfile
+                                        )
+                                    }
+                                )
+                            }
 
-                        composable<Route.Main.BlogDetail> { backStackEntry ->
-                            val parentEntry = remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
-                            val blogViewModel = koinViewModel<BlogViewModel>(
-                                viewModelStoreOwner = parentEntry
-                            )
-                            val slug = backStackEntry.toRoute<Route.Main.BlogDetail>().slug
-                            BlogDetailScreen(loaderState = loaderState, slug = slug, blogViewModel = blogViewModel, onBack = {
-                                navigator.popBackStack()
-                            })
-                        }
+                            composable<Route.Main.EditProfile> {
+                                EditProfileRoute(
+                                    onBack = { navigator.popBackStack() }
+                                )
+                            }
 
-                        composable<Route.Main.AllBlogs> { backStackEntry ->
-                            val parentEntry = remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
-                            val blogViewModel = koinViewModel<BlogViewModel>(
-                                viewModelStoreOwner = parentEntry
-                            )
-                            AllBlogsScreen(
-                                blogViewModel = blogViewModel,
-                                loaderState = loaderState,
-                                onBackPress = { navigator.popBackStack() },
-                                onSubScreenChange = {
-                                    navigator.navigate(it)
-                                })
+                            composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
+
+                            composable<Route.Main.BlogDetail> { backStackEntry ->
+                                val parentEntry =
+                                    remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                val blogViewModel = koinViewModel<BlogViewModel>(
+                                    viewModelStoreOwner = parentEntry
+                                )
+                                val slug = backStackEntry.toRoute<Route.Main.BlogDetail>().slug
+                                BlogDetailScreen(
+                                    loaderState = loaderState,
+                                    slug = slug,
+                                    blogViewModel = blogViewModel,
+                                    onBack = {
+                                        navigator.popBackStack()
+                                    })
+                            }
+
+                            composable<Route.Main.AllBlogs> { backStackEntry ->
+                                val parentEntry =
+                                    remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                val blogViewModel = koinViewModel<BlogViewModel>(
+                                    viewModelStoreOwner = parentEntry
+                                )
+                                AllBlogsScreen(
+                                    blogViewModel = blogViewModel,
+                                    loaderState = loaderState,
+                                    onBackPress = { navigator.popBackStack() },
+                                    onSubScreenChange = {
+                                        navigator.navigate(it)
+                                    })
+                            }
                         }
                     }
                 }

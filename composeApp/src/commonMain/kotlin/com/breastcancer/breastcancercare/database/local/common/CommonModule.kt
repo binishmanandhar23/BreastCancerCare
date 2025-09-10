@@ -16,13 +16,17 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.viewmodel.SettingsViewModel
+import com.breastcancer.breastcancercare.repo.BlogRepository
+import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
+import com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel
 import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
 
 fun commonModule(): Module = module {
     single<FAQRepository> { FAQRepository(get<AppDatabase>().getFAQDAO()) }
     single<CalendarRepository> { CalendarRepository(get<AppDatabase>().getCalendarDAO()) }
     single<OnboardingRepository> { OnboardingRepository(get<AppDatabase>().getUserDAO()) }
-    single<HomeRepository> { HomeRepository(get<AppDatabase>().getUserDAO()) }
+    single<HomeRepository> { HomeRepository(userDao = get<AppDatabase>().getUserDAO(), blogDAO = get<AppDatabase>().getBlogDAO(), calendarDAO = get<AppDatabase>().getCalendarDAO()) }
+    single<BlogRepository> { BlogRepository(blogDAO = get<AppDatabase>().getBlogDAO()) }
     single<UserDao> { get<AppDatabase>().getUserDAO() }
 
 
@@ -34,4 +38,5 @@ fun commonModule(): Module = module {
     singleOf(::SplashViewModel)
     singleOf(::SettingsViewModel)
     singleOf(::ProfileViewModel)
+    singleOf(::BlogViewModel)
 }

@@ -14,6 +14,7 @@ data class EventEntity(
     override val endTime: String? = null,
     override val isOnline: Boolean,
     override val location: String? = null,
+    val image: String? = null,
     val date: String,
     val isFeatured: Boolean = false
 ): ProgramEvent

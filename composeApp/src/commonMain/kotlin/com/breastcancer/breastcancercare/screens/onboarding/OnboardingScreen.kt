@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
@@ -40,6 +41,7 @@ import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.utils.rememberWindowSizeDp
 import com.breastcancer.breastcancercare.utils.text.ClickableText
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -58,6 +60,7 @@ fun OnboardingScreen(
     val emailValid by onboardingViewModel.emailValid.collectAsStateWithLifecycle()
     val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
     val windowSize = rememberWindowSizeDp()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(loginUIState) {
         when (loginUIState) {
@@ -111,7 +114,11 @@ fun OnboardingScreen(
                 onValueChange = onboardingViewModel::updatePassword,
                 visualTransformation = PasswordVisualTransformation()
             )
-            BreastCancerButton(text = "Login", onClick = onboardingViewModel::onLogin)
+            BreastCancerButton(text = "Login", onClick = {
+                coroutineScope.launch {
+                    onboardingViewModel.onLogin()
+                }
+            })
             ClickableText(
                 textStyle = TextStyle.Default.copy(fontSize = 12.sp),
                 onClick = { tag ->

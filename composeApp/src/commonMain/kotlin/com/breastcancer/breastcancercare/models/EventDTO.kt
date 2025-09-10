@@ -16,6 +16,7 @@ data class EventDTO(
     override val location: String? = null,
     override val eventType: EventType = EventType.Event,
     override val isOnline: Boolean = (location == null),
+    val image: String? = null,
     val date: LocalDate,
     val isFeatured: Boolean = false
 ): ProgramEventDTO
@@ -25,6 +26,7 @@ fun EventEntity.toEventDTO() = EventDTO(
     id = id,
     name = name,
     description = description,
+    image = image,
     date = LocalDate.parse(date),
     startTime = startTime?.let { LocalTime.parse(it) },
     endTime = endTime?.let { LocalTime.parse(it) },

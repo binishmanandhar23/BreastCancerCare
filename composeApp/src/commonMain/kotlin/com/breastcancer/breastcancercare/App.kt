@@ -10,12 +10,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation.NavOptions
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
 import com.breastcancer.breastcancercare.components.loader.CustomLoader
 import com.breastcancer.breastcancercare.components.loader.rememberLoaderState
@@ -24,6 +30,7 @@ import com.breastcancer.breastcancercare.components.snackbar.rememberSnackBarSta
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.SplashScreen
 import com.breastcancer.breastcancercare.screens.main.AboutScreen
+import com.breastcancer.breastcancercare.screens.main.AllBlogsScreen
 import com.breastcancer.breastcancercare.screens.main.BlogDetailScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
@@ -31,6 +38,7 @@ import com.breastcancer.breastcancercare.screens.main.MainScreen
 import com.breastcancer.breastcancercare.screens.main.ProfileScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
+import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
@@ -217,6 +225,16 @@ fun App() {
                         }
                         composable<Route.Main.BlogDetail> {
                             BlogDetailScreen(onBack = {
+
+                        composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
+
+                        composable<Route.Main.BlogDetail> { backStackEntry ->
+                            val parentEntry = remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                            val blogViewModel = koinViewModel<BlogViewModel>(
+                                viewModelStoreOwner = parentEntry
+                            )
+                            val slug = backStackEntry.toRoute<Route.Main.BlogDetail>().slug
+                            BlogDetailScreen(loaderState = loaderState, slug = slug, blogViewModel = blogViewModel, onBack = {
                                 navigator.popBackStack()
                             })
                         }
@@ -234,6 +252,19 @@ fun App() {
                             } else {
                                 LaunchedEffect(Unit) { navigator.popBackStack() }
                             }
+                        }
+                        composable<Route.Main.AllBlogs> { backStackEntry ->
+                            val parentEntry = remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                            val blogViewModel = koinViewModel<BlogViewModel>(
+                                viewModelStoreOwner = parentEntry
+                            )
+                            AllBlogsScreen(
+                                blogViewModel = blogViewModel,
+                                loaderState = loaderState,
+                                onBackPress = { navigator.popBackStack() },
+                                onSubScreenChange = {
+                                    navigator.navigate(it)
+                                })
                         }
                     }
                 }

@@ -1,13 +1,36 @@
 package com.breastcancer.breastcancercare.utils
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheetDefaults.properties
 import androidx.compose.material3.TabPosition
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
@@ -16,6 +39,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.lerp
 import com.breastcancer.breastcancercare.Res
@@ -26,6 +50,7 @@ import com.kizitonwose.calendar.core.plusDays
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
@@ -254,4 +279,79 @@ fun highlightQuery(text: String, query: String): androidx.compose.ui.text.Annota
         }
     }
     return builder
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Modifier.roundedClickableNoClip(
+    onClick: () -> Unit,
+    shape: Shape = MaterialTheme.shapes.medium,
+    containerColor: Color = Color.Unspecified,   // pass if you want a shaped background
+    pressedOverlay: Color = Color.Black.copy(alpha = 0.08f),
+    enableRipple: Boolean = true
+): Modifier = composed(inspectorInfo = debugInspectorInfo {
+    name = "roundedClickableNoClip"
+    properties["shape"] = shape
+}) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+
+    // Build ripple indication if enabled
+    val ripple: Indication? = if (enableRipple) ripple(bounded = true) else null
+
+    // We return a small layering DSL: the parent Box is clickable (no ripple),
+    // content is placed normally (NOT clipped), and we draw an overlay Box
+    // that is clipped to shape and carries the ripple + pressed tint.
+    this.then(
+        Modifier
+            // 1) Make the whole thing clickable, but don't attach indication here.
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                onClick = onClick
+            )
+            // 2) Draw shaped background behind content (does not clip the child).
+            .drawBehind {
+                if (containerColor.isSpecified) {
+                    val outline = shape.createOutline(size, layoutDirection, this)
+                    drawOutline(outline = outline, color = containerColor)
+                }
+            }
+            // 3) Add an overlay layer that matches the parent's size, clips to shape,
+            //    and hosts the ripple + pressed tint. This overlay does not affect
+            //    the children's clipping.
+            .then(
+                Modifier.layout { measurable, constraints ->
+                    // We need to inject a child overlay; layout returns the same placeable.
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                    }
+                }.then(
+                    Modifier
+                        .wrapContentSize()
+                        .clip(shape) // only the OVERLAY is clipped
+                        .indication(interaction, ripple)
+                        .drawWithContent {
+                            // Draw the pressed overlay *above* content (no content here, it's an overlay box)
+                            if (pressed) {
+                                val outline = shape.createOutline(size, layoutDirection, this)
+                                drawOutline(outline = outline, color = pressedOverlay)
+                            }
+                        }
+                )
+            )
+    )
+}
+
+@OptIn(ExperimentalTime::class)
+fun emojiFor(): String {
+    val zone = TimeZone.currentSystemDefault()
+    val now: LocalTime = Clock.System.now().toLocalDateTime(zone).time
+    return when (now.hour) {
+        in 5..8 -> "🌅"  // sunrise
+        in 9..16 -> "🌞"  // daytime / afternoon sun
+        in 17..19 -> "🌇"  // sunset
+        else -> "🌙"  // night
+    }
 }

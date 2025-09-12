@@ -40,7 +40,7 @@ fun RegisterScreen(
     customSnackBarState: SnackBarState,
     loaderState: LoaderState,
     onBack: () -> Unit,
-    registrationSuccessful: () -> Unit
+    goToEnterCodeScreen: () -> Unit
 ) {
     val (screenW, _) = rememberWindowSizeDp()
 
@@ -53,23 +53,6 @@ fun RegisterScreen(
     val emailValidInstant by onboardingViewModel.emailValidInstant.collectAsStateWithLifecycle()
     val passwordValidInstant by onboardingViewModel.passwordValidInstant.collectAsStateWithLifecycle()
     val canRegister by onboardingViewModel.canRegister.collectAsStateWithLifecycle()
-
-    LaunchedEffect(loginUIState) {
-        when (loginUIState) {
-            is LoginUIState.RegistrationSuccessful -> {
-                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
-                loaderState.hide()
-                onboardingViewModel.clearTransientLoginState()
-                registrationSuccessful()
-            }
-            is LoginUIState.Error -> {
-                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
-                loaderState.hide()
-            }
-            is LoginUIState.Loading -> loaderState.show()
-            else -> loaderState.hide()
-        }
-    }
 
     val tfColors = TextFieldDefaults.colors(
         focusedContainerColor = Color.Transparent,
@@ -91,7 +74,7 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        BreastCancerToolbar(onBack = onBack)
+        BreastCancerToolbar(title = "Create your account", onBack = onBack)
         Card(
             modifier = Modifier.width(formWidth),
             shape = RoundedCornerShape(20.dp),
@@ -216,7 +199,7 @@ fun RegisterScreen(
             BreastCancerButton(
                 text = "Create account",
                 enabled = canRegister && loginUIState !is LoginUIState.Loading,
-                onClick = onboardingViewModel::onRegister,
+                onClick = { onboardingViewModel.onRegister(canRegister = goToEnterCodeScreen) },
                 onDisabledClick = {
                     customSnackBarState.show(
                         overridingText = "Please check email, phone, password and agree to the Terms.",

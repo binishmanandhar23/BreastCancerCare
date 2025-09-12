@@ -69,12 +69,15 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.breastcancer.breastcancercare.components.EventProgramDesign
+import com.breastcancer.breastcancercare.components.ActivityDesign
 import com.breastcancer.breastcancercare.components.LazyColumnWithStickyFooter
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
+import com.breastcancer.breastcancercare.screens.Route
+import com.breastcancer.breastcancercare.theme.ColorSand
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.theme.OffBackground
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.kizitonwose.calendar.compose.VerticalCalendar
@@ -97,7 +100,7 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 @Composable
-fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
+fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel(), onSubScreenChange:(Route) -> Unit) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(12) } // Adjust as needed
     val endMonth = remember { currentMonth.plusMonths(50) } // Adjust as needed
@@ -114,7 +117,7 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
     val selectedDate by calendarViewModel.selectedDate.collectAsStateWithLifecycle()
     val onDateClicked: (selectedDate: LocalDate) -> Unit = calendarViewModel::changeSelectedDate
 
-    val selectedDayEvents by calendarViewModel.selectedDayEvents.collectAsStateWithLifecycle()
+    val selectedDayAvailableActivities by calendarViewModel.selectedDayAvailableActivities.collectAsStateWithLifecycle()
 
     val allDatesWithEvents by calendarViewModel.allDatesWithEvents.collectAsStateWithLifecycle()
     val allDatesWithPrograms by calendarViewModel.allDatesWithPrograms.collectAsStateWithLifecycle()
@@ -182,20 +185,23 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel()) {
                     textAlign = TextAlign.Center,
                     fontSize = 15.sp,
                     text = dayOfWeek,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onBackground
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
         }
         BottomInfoCard(
             modifier = Modifier.align(alignment = Alignment.BottomCenter),
             selectedTab = selectedTab,
-            selectedDayActivities = selectedDayEvents,
+            selectedDayAvailableActivities = selectedDayAvailableActivities,
             allSuitabilities = allSuitabilities,
             selectedSuitability = selectedSuitability,
             selectedDate = selectedDate,
             onTabSelected = calendarViewModel::changeTab,
-            onSuitabilitySelected = calendarViewModel::updateSelectedSuitability
+            onSuitabilitySelected = calendarViewModel::updateSelectedSuitability,
+            onActivityClick = {
+                onSubScreenChange(Route.Main.ActivityDetail(id = it))
+            }
         )
     }
 }
@@ -296,7 +302,7 @@ private fun MonthHeader(calendarMonth: CalendarMonth) {
             fontSize = 18.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.tertiary
         )
 
     }
@@ -311,9 +317,10 @@ fun BottomInfoCard(
     selectedDate: LocalDate,
     allSuitabilities: List<SuitabilityDTO>,
     selectedSuitability: SuitabilityDTO?,
-    selectedDayActivities: List<ActivityDTO>,
+    selectedDayAvailableActivities: List<ActivityDTO>,
     onTabSelected: (index: Int) -> Unit,
-    onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit
+    onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit,
+    onActivityClick:(id: Long) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     // Parent size needed to compute pixel offsets
@@ -377,7 +384,7 @@ fun BottomInfoCard(
                     }
                 ),
             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+            colors = CardDefaults.cardColors(containerColor = ColorSand),
         ) {
             Column(
                 modifier = Modifier
@@ -404,11 +411,12 @@ fun BottomInfoCard(
                             animateToOffset(if (isOpen) closedOffsetPx else 0f)
                         }.semantics { role = Role.Button }
                 )
-                EventSection(
-                    modifier = Modifier.fillMaxWidth(),
+                ActivitySection(
+                    modifier = Modifier.fillMaxSize(),
                     selectedDate = selectedDate,
-                    selectedDayEvents = selectedDayActivities,
+                    selectedDayAvailableActivities = selectedDayAvailableActivities,
                     bottomSpacer = with(LocalDensity.current) { offsetAnim.value.toDp() },
+                    onActivityClick = onActivityClick
                 )
             }
         }
@@ -416,52 +424,50 @@ fun BottomInfoCard(
 }
 
 @Composable
-private fun EventSection(
+private fun ActivitySection(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
-    selectedDayEvents: List<ActivityDTO>,
+    selectedDayAvailableActivities: List<ActivityDTO>,
     bottomSpacer: Dp,
+    onActivityClick:(id: Long) -> Unit
 ) {
-    Column(modifier = modifier) {
-        EventsProgramsPager(
-            modifier = Modifier.fillMaxWidth(),
-            selectedDate = selectedDate,
-            selectedDayEvents = selectedDayEvents,
-            bottomSpacer = bottomSpacer,
-        )
-    }
-}
-
-@Composable
-private fun EventsProgramsPager(
-    modifier: Modifier,
-    selectedDate: LocalDate,
-    selectedDayEvents: List<ActivityDTO>,
-    bottomSpacer: Dp,
-) {
-    AnimatedContent(selectedDayEvents, label = "Events") { events ->
+    AnimatedContent(selectedDayAvailableActivities, label = "Activities") { activities ->
         LazyColumnWithStickyFooter(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
             bottomSpacer = bottomSpacer + 100.dp,
             forceSpacer = true
         ) {
-            if (events.isEmpty())
+            if (activities.isEmpty())
                 item {
                     EmptyContainer(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-            else
-                items(events) { events ->
-                    EventProgramDesign(
+            else {
+                stickyHeader {
+                    Text(
+                        modifier = Modifier.fillMaxWidth().background(brush = Brush.verticalGradient(
+                            colors = listOf(
+                                ColorSand,
+                                ColorSand.copy(0.9f),
+                                ColorSand.copy(alpha = 0f)
+                            )
+                        )).padding(vertical = DefaultVerticalPaddingSmall),
+                        text = "Activities available to you on this day",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+                items(activities) { activity ->
+                    ActivityDesign(
                         modifier = Modifier.fillMaxWidth(),
                         selectedDate = selectedDate,
-                        activityDTO = events,
+                        activityDTO = activity,
                         onClick = {
-                            /*TODO: Code for Event/Program Detail Page*/
+                         onActivityClick(activity.id)
                         })
                 }
+            }
         }
     }
 }

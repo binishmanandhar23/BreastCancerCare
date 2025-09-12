@@ -99,7 +99,7 @@ import com.breastcancer.breastcancercare.utils.TriangleShape
 
 @OptIn(FormatStringsInDatetimeFormats::class)
 @Composable
-fun EventProgramDesign(
+fun ActivityDesign(
     modifier: Modifier,
     selectedDate: LocalDate,
     activityDTO: ActivityDTO,
@@ -607,8 +607,10 @@ fun BreastCancerAlertDialog(
 @Composable
 fun BreastCancerToolbar(
     modifier: Modifier = Modifier.fillMaxWidth().padding(
-        horizontal = DefaultHorizontalPaddingSmall
+        horizontal = DefaultHorizontalPaddingSmall,
+        vertical = DefaultVerticalPaddingMedium
     ),
+    title: String,
     onBack: () -> Unit
 ) = Row(
     modifier = modifier,
@@ -623,7 +625,7 @@ fun BreastCancerToolbar(
         ), imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back Button"
     )
     Text(
-        "Create your account",
+        title,
         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
     )
 }
@@ -826,6 +828,7 @@ fun CategoryChip(
         contentColor = MaterialTheme.colorScheme.onSecondary
     ),
     border: BorderStroke? = null,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall,
     onClick: (() -> Unit)? = null,
 ) = Card(
     modifier = modifier,
@@ -837,7 +840,7 @@ fun CategoryChip(
     Text(
         modifier = Modifier.padding(vertical = 3.dp, horizontal = 5.dp),
         text = categoryName,
-        style = MaterialTheme.typography.labelSmall
+        style = textStyle
     )
 }
 

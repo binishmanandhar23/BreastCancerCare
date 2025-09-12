@@ -2,6 +2,7 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.repo.OnboardingRepository
 import com.breastcancer.breastcancercare.states.LoginUIState
@@ -32,6 +33,9 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
 
     private var _emailValid = MutableStateFlow(true)
     val emailValid = _emailValid.asStateFlow()
+
+    private var _code = MutableStateFlow("")
+    val code = _code.asStateFlow()
 
     val phoneValid = userDTO
         .map { dto ->
@@ -83,6 +87,8 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
             updateEmailValid(true)
         }
 
+    fun updateCode(code: String) = _code.update { code }
+
     suspend fun onLogin() {
         _loginUIState.update { LoginUIState.Loading }
         onboardingRepository.getUser(userDTO.value.email).let { user ->
@@ -100,21 +106,31 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
 
     }
 
-    fun onRegister() {
-        if (!canRegister.value)
+    fun onRegister(canRegister: () -> Unit) {
+        if (!this.canRegister.value)
             _loginUIState.update { LoginUIState.Error("Please check your inputs.") }
         else
-            viewModelScope.launch {
-                try {
-                    val toSave = userDTO.value.copy(password = password.value)
+            canRegister()
+
+    }
+
+    fun onCodeSubmitted() =
+        viewModelScope.launch {
+            try {
+                if (code.value == "000000" || code.value == "111111") {
+                    val toSave = userDTO.value.copy(
+                        password = password.value,
+                        userCategory = if (code.value == "000000") UserCategory.StartingStrong else UserCategory.LivingWell
+                    )
                     onboardingRepository.insertUser(toSave)
                     _loginUIState.update { LoginUIState.RegistrationSuccessful(successMessage = "Registration Successful!") }
                     reset()
-                } catch (e: Exception) {
-                    _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }
-                }
+                } else
+                    throw Exception("Invalid Code")
+            } catch (e: Exception) {
+                _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }
             }
-    }
+        }
 
     fun onLogOut() = viewModelScope.launch {
         onboardingRepository.logOut()
@@ -129,6 +145,7 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         _password.update { "" }
         _confirmPassword.update { "" }
         _agree.update { false }
+        _code.update { "" }
     }
 
     fun clearTransientLoginState() {

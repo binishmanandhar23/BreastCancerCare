@@ -10,6 +10,8 @@ sealed interface Route {
     data object Onboarding: Route {
         @Serializable
         data object Register: Route
+        @Serializable
+        data object EnterCode: Route
     }
     @Serializable
     data object Main: Route {
@@ -26,5 +28,8 @@ sealed interface Route {
 
         @Serializable
         data object AllBlogs: Route
+
+        @Serializable
+        data class ActivityDetail(val id: Long): Route
     }
 }

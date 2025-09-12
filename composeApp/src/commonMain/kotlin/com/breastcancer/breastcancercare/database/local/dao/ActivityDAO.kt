@@ -9,7 +9,7 @@ import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface CalendarDAO {
+interface ActivityDAO {
     @Query("SELECT * FROM activityentity")
     fun getAllEvents(): Flow<List<ActivityEntity>>
 
@@ -24,5 +24,8 @@ interface CalendarDAO {
 
     @Query("SELECT * FROM suitabilityentity")
     fun getAllSuitabilities(): Flow<List<SuitabilityEntity>>
+
+    @Query("SELECT * FROM activityentity WHERE id = :id")
+    suspend fun getActivityById(id: Long): ActivityEntity
 
 }

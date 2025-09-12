@@ -34,17 +34,21 @@ import com.breastcancer.breastcancercare.components.snackbar.rememberSnackBarSta
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.SplashScreen
 import com.breastcancer.breastcancercare.screens.main.AboutScreen
+import com.breastcancer.breastcancercare.screens.main.ActivityDetailScreen
 import com.breastcancer.breastcancercare.screens.main.AllBlogsScreen
 import com.breastcancer.breastcancercare.screens.main.BlogDetailScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
 import com.breastcancer.breastcancercare.screens.main.MainScreen
 import com.breastcancer.breastcancercare.screens.main.ProfileRoute
+import com.breastcancer.breastcancercare.screens.onboarding.EnterCodeScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 import com.breastcancer.breastcancercare.theme.BreastCareTypography
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
+import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
+import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
@@ -137,7 +141,7 @@ fun App() {
                                     }
                                 })
                             }
-                            composable<Route.Onboarding> {
+                            composable<Route.Onboarding> { backStackEntry ->
                                 OnboardingScreen(
                                     loaderState = loaderState,
                                     customSnackBarState = customSnackBarState,
@@ -158,9 +162,26 @@ fun App() {
                             }
                             composable<Route.Onboarding.Register> {
                                 RegisterScreen(
+                                    onboardingViewModel = koinViewModel<OnboardingViewModel>(
+                                        viewModelStoreOwner = navigator.getBackStackEntry(Route.Onboarding)
+                                    ),
                                     customSnackBarState = customSnackBarState,
                                     loaderState = loaderState,
-                                    onBack = { navigator.popBackStack() },
+                                    onBack = { navigator.popBackStack() }, goToEnterCodeScreen = {
+                                        navigator.navigate(
+                                            route = Route.Onboarding.EnterCode
+                                        )
+                                    }
+                                )
+                            }
+
+                            composable<Route.Onboarding.EnterCode> { backStackEntry ->
+                                EnterCodeScreen(
+                                    onboardingViewModel = koinViewModel<OnboardingViewModel>(
+                                        viewModelStoreOwner = navigator.getBackStackEntry(Route.Onboarding)
+                                    ),
+                                    customSnackBarState = customSnackBarState,
+                                    loaderState = loaderState,
                                     registrationSuccessful = {
                                         navigator.navigate(Route.Onboarding) {
                                             popUpTo(route = Route.Onboarding) {
@@ -168,6 +189,8 @@ fun App() {
                                             }
                                             launchSingleTop = true
                                         }
+                                    }, onBack = {
+                                        navigator.popBackStack()
                                     }
                                 )
                             }
@@ -208,6 +231,18 @@ fun App() {
                                             permissionViewModel.dismissDialog()
                                         }
                                     )
+                            }
+
+                            composable<Route.Main.ActivityDetail> { backStackEntry ->
+                                val id = backStackEntry.toRoute<Route.Main.ActivityDetail>().id
+                                ActivityDetailScreen(
+                                    id = id,
+                                    activityViewModel = koinViewModel<ActivityViewModel>(
+                                        viewModelStoreOwner = navigator.getBackStackEntry<Route.Main>()
+                                    ), onBack = {
+                                        navigator.popBackStack()
+                                    }
+                                )
                             }
 
                             composable<Route.Main.Contact> { ContactSupportScreen { navigator.popBackStack() } }

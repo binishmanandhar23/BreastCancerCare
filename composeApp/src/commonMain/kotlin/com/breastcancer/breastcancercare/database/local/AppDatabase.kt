@@ -10,7 +10,7 @@ import com.breastcancer.breastcancercare.database.local.converters.BlogConverter
 import com.breastcancer.breastcancercare.database.local.converters.FAQConverter
 import com.breastcancer.breastcancercare.database.local.converters.ListConverter
 import com.breastcancer.breastcancercare.database.local.dao.BlogDAO
-import com.breastcancer.breastcancercare.database.local.dao.CalendarDAO
+import com.breastcancer.breastcancercare.database.local.dao.ActivityDAO
 import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
 import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.database.local.entity.BlogEntity
@@ -32,7 +32,7 @@ import kotlinx.coroutines.IO
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getFAQDAO(): FAQDAO
 
-    abstract fun getCalendarDAO(): CalendarDAO
+    abstract fun getCalendarDAO(): ActivityDAO
 
     abstract fun getUserDAO(): UserDao
 

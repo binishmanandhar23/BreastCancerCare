@@ -55,7 +55,7 @@ fun MainScreen(
                 }, onAllBlogs = {
                     onSubScreenChange(Route.Main.AllBlogs)
                 })
-                Tabs.Calendar.text -> CalendarScreen()
+                Tabs.Calendar.text -> CalendarScreen(onSubScreenChange = onSubScreenChange)
                 Tabs.FAQ.text -> FAQScreen(
                     loaderState = loaderState,
                     snackBarState = customSnackBarState

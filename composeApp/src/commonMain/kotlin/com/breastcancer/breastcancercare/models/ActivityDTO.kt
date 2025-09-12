@@ -27,7 +27,7 @@ data class ActivityDTO(
 )
 
 
-fun ActivityEntity.toEventDTO() = ActivityDTO(
+fun ActivityEntity.toActivityDTO() = ActivityDTO(
     id = id,
     title = title,
     description = description,

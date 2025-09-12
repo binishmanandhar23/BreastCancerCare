@@ -1,19 +1,18 @@
 package com.breastcancer.breastcancercare.repo
 
-import com.breastcancer.breastcancercare.database.local.dao.CalendarDAO
-import com.breastcancer.breastcancercare.models.toEventDTO
+import com.breastcancer.breastcancercare.database.local.dao.ActivityDAO
+import com.breastcancer.breastcancercare.models.toActivityDTO
 import com.breastcancer.breastcancercare.models.toSuitabilityDTO
-import com.breastcancer.breastcancercare.utils.checkIfDateHasProgram
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 
-class CalendarRepository(val calendarDAO: CalendarDAO) {
+class ActivityRepository(val activityDAO: ActivityDAO) {
     fun getAllEvents() =
-        calendarDAO.getAllEvents().map { eventEntities -> eventEntities.map { it.toEventDTO() } }
+        activityDAO.getAllEvents().map { eventEntities -> eventEntities.map { it.toActivityDTO() } }
 
     fun getEventsFromSelectedDate(date: LocalDate) =
-        calendarDAO.getEventsFromSelectedDate(date = date.toString())
-            .map { eventEntities -> eventEntities.map { it.toEventDTO() } }
+        activityDAO.getEventsFromSelectedDate(date = date.toString())
+            .map { eventEntities -> eventEntities.map { it.toActivityDTO() } }
 
     /*suspend fun getAllProgramsFromSelectedDate(date: LocalDate, selectedDatePrograms: (MutableList<ProgramDTO>) -> Unit) {
         getAllPrograms().collect { programs ->
@@ -32,5 +31,7 @@ class CalendarRepository(val calendarDAO: CalendarDAO) {
         }
     }*/
 
-    fun getAllSuitabilities() = calendarDAO.getAllSuitabilities().map { it.toSuitabilityDTO() }
+    fun getAllSuitabilities() = activityDAO.getAllSuitabilities().map { it.toSuitabilityDTO() }
+
+    suspend fun getActivityById(id: Long) = activityDAO.getActivityById(id = id).toActivityDTO()
 }

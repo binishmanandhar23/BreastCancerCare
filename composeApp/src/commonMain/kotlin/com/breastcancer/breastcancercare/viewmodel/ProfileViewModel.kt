@@ -3,6 +3,7 @@ package com.breastcancer.breastcancercare.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.breastcancer.breastcancercare.database.local.dao.UserDao
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.screens.main.ProfileUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -24,10 +25,11 @@ class ProfileViewModel(
                         ProfileUiState(
                             name = "${loggedIn.firstName} ${loggedIn.lastName}",
                             email = loggedIn.email,
+                            userCategory = UserCategory.fromCategory(loggedIn.userCategory),
                             initials = (
-                                    loggedIn.firstName?.firstOrNull()
-                                        ?: loggedIn.lastName?.firstOrNull()
-                                        ?: loggedIn.email?.firstOrNull()
+                                    loggedIn.firstName.firstOrNull()
+                                        ?: loggedIn.lastName.firstOrNull()
+                                        ?: loggedIn.email.firstOrNull()
                                     )?.uppercase(),
                             loading = false
                         )

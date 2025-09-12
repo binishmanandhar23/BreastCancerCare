@@ -27,12 +27,19 @@ import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.breastcancer.breastcancercare.components.BreastCancerToolbar
+import com.breastcancer.breastcancercare.components.CategoryChip
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import org.koin.compose.viewmodel.koinViewModel
 
 
 data class ProfileUiState(
     val name: String? = null,
     val email: String? = null,
+    val userCategory: UserCategory = UserCategory.StartingStrong,
     val initials: String? = null,
     val loading: Boolean = false,
     val error: String? = null
@@ -44,35 +51,22 @@ fun ProfileScreen(
     onBack: () -> Unit = {},
     onEditProfile: () -> Unit = {}
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Profile") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { inner ->
-
+    Column(modifier = Modifier.fillMaxSize().padding(vertical = 0.dp, horizontal = DefaultHorizontalPaddingMedium)) {
+        BreastCancerToolbar(title = "Profile", onBack = onBack)
         if (uiState.loading) {
             Box(
                 modifier = Modifier
-                    .padding(inner)
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
-            return@Scaffold
+            return@Column
         }
 
         if (uiState.error != null) {
             Box(
                 modifier = Modifier
-                    .padding(inner)
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
@@ -82,12 +76,11 @@ fun ProfileScreen(
                     color = MaterialTheme.colorScheme.error
                 )
             }
-            return@Scaffold
+            return@Column
         }
 
         LazyColumn(
             modifier = Modifier
-                .padding(inner)
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
@@ -97,11 +90,20 @@ fun ProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AvatarPlaceholder(
-                        initials = (uiState.initials ?: uiState.name?.firstOrNull()?.uppercase() ?: "U")
+                        initials = (uiState.initials ?: uiState.name?.firstOrNull()?.uppercase()
+                        ?: "U")
                     )
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Text(uiState.name ?: "—", style = MaterialTheme.typography.headlineSmall)
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(
+                            DefaultVerticalPaddingSmall
+                        )
+                    ) {
+                        Text(
+                            uiState.name ?: "—",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
                         Text(uiState.email ?: "—", style = MaterialTheme.typography.bodyMedium)
+                        CategoryChip(categoryName = UserCategory.getLabel(uiState.userCategory))
                     }
                 }
             }

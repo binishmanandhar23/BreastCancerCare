@@ -40,7 +40,7 @@ fun BottomBar(
     val selectedPage by remember(page) { mutableStateOf(Tabs.entries[page].text) }
 
     val homeColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.Home.text))
-    val eventsColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.Calendar.text))
+    val activitiesColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.Calendar.text))
     val infoColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.FAQ.text))
     val settingsColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.Settings.text))
     Box(modifier = outerModifier) {
@@ -59,8 +59,8 @@ fun BottomBar(
             BottomBarIcon(
                 modifier = Modifier,
                 imageVector = Icons.Default.Event,
-                text = "Events",
-                tint = eventsColor,
+                text = "Activities",
+                tint = activitiesColor,
                 onClick = onCalendar
             )
             Spacer(Modifier.size(buttonSize))

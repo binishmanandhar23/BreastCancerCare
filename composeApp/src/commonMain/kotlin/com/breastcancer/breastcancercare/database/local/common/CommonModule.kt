@@ -1,7 +1,7 @@
 package com.breastcancer.breastcancercare.database.local.common
 
 import com.breastcancer.breastcancercare.database.local.AppDatabase
-import com.breastcancer.breastcancercare.repo.CalendarRepository
+import com.breastcancer.breastcancercare.repo.ActivityRepository
 import com.breastcancer.breastcancercare.repo.FAQRepository
 import com.breastcancer.breastcancercare.repo.HomeRepository
 import com.breastcancer.breastcancercare.repo.OnboardingRepository
@@ -16,15 +16,16 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.repo.BlogRepository
+import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
 import com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel
 import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
 
 fun commonModule(): Module = module {
     single<FAQRepository> { FAQRepository(get<AppDatabase>().getFAQDAO()) }
-    single<CalendarRepository> { CalendarRepository(get<AppDatabase>().getCalendarDAO()) }
+    single<ActivityRepository> { ActivityRepository(get<AppDatabase>().getCalendarDAO()) }
     single<OnboardingRepository> { OnboardingRepository(get<AppDatabase>().getUserDAO()) }
-    single<HomeRepository> { HomeRepository(userDao = get<AppDatabase>().getUserDAO(), blogDAO = get<AppDatabase>().getBlogDAO(), calendarDAO = get<AppDatabase>().getCalendarDAO()) }
+    single<HomeRepository> { HomeRepository(userDao = get<AppDatabase>().getUserDAO(), blogDAO = get<AppDatabase>().getBlogDAO(), activityDAO = get<AppDatabase>().getCalendarDAO()) }
     single<BlogRepository> { BlogRepository(blogDAO = get<AppDatabase>().getBlogDAO()) }
     single<UserDao> { get<AppDatabase>().getUserDAO() }
 
@@ -38,4 +39,5 @@ fun commonModule(): Module = module {
     singleOf(::EditProfileViewModel)
     singleOf(::ProfileViewModel)
     singleOf(::BlogViewModel)
+    singleOf(::ActivityViewModel)
 }

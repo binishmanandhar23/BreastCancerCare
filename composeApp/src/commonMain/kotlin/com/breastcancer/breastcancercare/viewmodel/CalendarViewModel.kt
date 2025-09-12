@@ -6,7 +6,7 @@ import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.notifications.NotificationChannels
 import com.breastcancer.breastcancercare.notifications.createAlarmeePlatformConfiguration
-import com.breastcancer.breastcancercare.repo.CalendarRepository
+import com.breastcancer.breastcancercare.repo.ActivityRepository
 import com.kizitonwose.calendar.core.now
 import com.tweener.alarmee.createAlarmeeService
 import com.tweener.alarmee.model.Alarmee
@@ -27,7 +27,7 @@ import kotlin.math.max
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-class CalendarViewModel(private val calendarRepository: CalendarRepository) : ViewModel() {
+class CalendarViewModel(private val activityRepository: ActivityRepository) : ViewModel() {
 
     val alarmeeService = createAlarmeeService()
 
@@ -40,8 +40,8 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
     private var _allEvents = MutableStateFlow<List<ActivityDTO>>(emptyList())
     val allEvents = _allEvents.asStateFlow()
 
-    private var _selectedDayEvents = MutableStateFlow<List<ActivityDTO>>(emptyList())
-    val selectedDayEvents = _selectedDayEvents.asStateFlow()
+    private var _selectedDayAvailableActivities = MutableStateFlow<List<ActivityDTO>>(emptyList())
+    val selectedDayAvailableActivities = _selectedDayAvailableActivities.asStateFlow()
 
     private var _allDatesWithEvents = MutableStateFlow<List<String>>(emptyList())
     val allDatesWithEvents = _allDatesWithEvents.asStateFlow()
@@ -77,7 +77,7 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
     }
 
     fun getAllEventsAndPrograms() = viewModelScope.launch(Dispatchers.IO) {
-        calendarRepository.getAllEvents().collect { events ->
+        activityRepository.getAllEvents().collect { events ->
             _allEvents.update { events }
             scheduleNotificationsForEvents(events = events)
         }
@@ -121,9 +121,9 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
 
     private fun getAllEventsOnSelectedDate() = viewModelScope.launch(Dispatchers.IO) {
         selectedDate.collectLatest { date ->
-            calendarRepository.getEventsFromSelectedDate(date = date)
+            activityRepository.getEventsFromSelectedDate(date = date)
                 .collect { events ->
-                    _selectedDayEvents.update { events }
+                    _selectedDayAvailableActivities.update { events }
                 }
         }
     }
@@ -139,7 +139,7 @@ class CalendarViewModel(private val calendarRepository: CalendarRepository) : Vi
     }
 
     private fun getAllSuitabilities() = viewModelScope.launch(Dispatchers.IO) {
-        calendarRepository.getAllSuitabilities().collect { suitabilities ->
+        activityRepository.getAllSuitabilities().collect { suitabilities ->
             _allSuitabilities.update { suitabilities }
         }
     }

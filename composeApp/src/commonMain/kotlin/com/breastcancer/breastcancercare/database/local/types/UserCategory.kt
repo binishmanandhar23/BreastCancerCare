@@ -6,6 +6,11 @@ enum class UserCategory(val category: String) {
 
     companion object{
         fun fromCategory(category: String) = entries.find { it.category == category } ?: StartingStrong
+
+        fun getLabel(category: UserCategory) = when(category){
+            StartingStrong -> "Starting Strong"
+            LivingWell -> "Living Well"
+        }
     }
 }
 

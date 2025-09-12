@@ -15,7 +15,7 @@ import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.models.toSuitabilityDTO
 import com.breastcancer.breastcancercare.repo.BlogRepository
-import com.breastcancer.breastcancercare.repo.CalendarRepository
+import com.breastcancer.breastcancercare.repo.ActivityRepository
 import com.breastcancer.breastcancercare.repo.FAQRepository
 import com.breastcancer.breastcancercare.repo.OnboardingRepository
 import com.breastcancer.breastcancercare.states.SplashUIState
@@ -31,7 +31,7 @@ import kotlinx.datetime.LocalTime
 
 class SplashViewModel(
     val onboardingRepository: OnboardingRepository,
-    val calendarRepository: CalendarRepository,
+    val activityRepository: ActivityRepository,
     val faqRepository: FAQRepository,
     val blogRepository: BlogRepository
 ) : ViewModel() {
@@ -63,10 +63,10 @@ class SplashViewModel(
             )
         )
         viewModelScope.launch(Dispatchers.IO) {
-            calendarRepository.calendarDAO.insertAllSuitabilities(allSuitabilities)
+            activityRepository.activityDAO.insertAllSuitabilities(allSuitabilities)
         }
         viewModelScope.launch {
-            calendarRepository.calendarDAO.insertAllActivities(
+            activityRepository.activityDAO.insertAllActivities(
                 listOf(
                     ActivityEntity(
                         id = 1,

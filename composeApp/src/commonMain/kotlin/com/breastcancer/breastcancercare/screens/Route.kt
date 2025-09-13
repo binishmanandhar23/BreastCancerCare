@@ -30,6 +30,9 @@ sealed interface Route {
         data object AllBlogs: Route
 
         @Serializable
+        data object AllActivities: Route
+        @Serializable
         data class ActivityDetail(val id: Long): Route
+
     }
 }

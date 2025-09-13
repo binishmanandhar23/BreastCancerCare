@@ -35,6 +35,7 @@ import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.SplashScreen
 import com.breastcancer.breastcancercare.screens.main.AboutScreen
 import com.breastcancer.breastcancercare.screens.main.ActivityDetailScreen
+import com.breastcancer.breastcancercare.screens.main.AllActivitiesScreen
 import com.breastcancer.breastcancercare.screens.main.AllBlogsScreen
 import com.breastcancer.breastcancercare.screens.main.BlogDetailScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
@@ -291,6 +292,20 @@ fun App() {
                                 AllBlogsScreen(
                                     blogViewModel = blogViewModel,
                                     loaderState = loaderState,
+                                    onBackPress = { navigator.popBackStack() },
+                                    onSubScreenChange = {
+                                        navigator.navigate(it)
+                                    })
+                            }
+
+                            composable<Route.Main.AllActivities> { backStackEntry ->
+                                val parentEntry =
+                                    remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                val activityViewModel = koinViewModel<ActivityViewModel>(
+                                    viewModelStoreOwner = parentEntry
+                                )
+                                AllActivitiesScreen(
+                                    activityViewModel = activityViewModel,
                                     onBackPress = { navigator.popBackStack() },
                                     onSubScreenChange = {
                                         navigator.navigate(it)

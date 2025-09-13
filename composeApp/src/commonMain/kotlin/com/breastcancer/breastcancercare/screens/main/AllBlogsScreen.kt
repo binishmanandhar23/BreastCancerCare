@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CardDefaults
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.AllListContainer
 import com.breastcancer.breastcancercare.components.BreastCancerBackButton
 import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
 import com.breastcancer.breastcancercare.components.CategoriesLabelSection
@@ -60,78 +62,27 @@ fun AllBlogsScreen(
     val allCategories by blogViewModel.allCategories.collectAsStateWithLifecycle()
     val blogUILIstState by blogViewModel.blogUIListState.collectAsStateWithLifecycle()
     val selectedCategory by blogViewModel.selectedCategory.collectAsStateWithLifecycle()
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumnCollapsibleHeader(
-            modifier = Modifier.fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background),
-            collapseWithFade = true,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
-            header = {
-                Text(
-                    modifier = Modifier.align(Alignment.TopStart)
-                        .padding(start = DefaultHorizontalPaddingLarge + DefaultHorizontalPaddingMedium),
-                    text = "Blogs",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = DefaultTopHeaderTextSize,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+    AllListContainer(
+        title = "Blogs",
+        listOfCategories = allCategories,
+        selectedCategory = selectedCategory,
+        categorySectionContent = { borderStroke ->
+            items(items = allCategories) { category ->
+                val selectedContainerColor by animateColorAsState(if (selectedCategory.data?.name == category.name) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
+                val selectedContentColor by animateColorAsState(if (selectedCategory.data?.name == category.name) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground)
+                CategoryChip(
+                    categoryName = category.name,
+                    border = borderStroke,
+                    colors = CardDefaults.cardColors(
+                        containerColor = selectedContainerColor,
+                        contentColor = selectedContentColor
+                    ), onClick = { blogViewModel.selectCategory(category) }
                 )
-            }) {
-            stickyHeader {
-                val borderStroke =
-                    BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.primary)
-                AnimatedVisibility(allCategories.isNotEmpty()) {
-                    Column {
-                        Box(
-                            modifier = Modifier.fillMaxWidth().height(50.dp)
-                                .background(color = MaterialTheme.colorScheme.background)
-                        )
-                        LazyRow(
-                            modifier = Modifier.fillMaxWidth().background(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.background,
-                                        MaterialTheme.colorScheme.background.copy(0.8f),
-                                    )
-                                )
-                            ).padding(vertical = DefaultVerticalPaddingMedium),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(
-                                DefaultHorizontalPaddingSmall
-                            )
-                        ) {
-                            item { DefaultSpacer() }
-                            item {
-                                val selectedContainerColor by animateColorAsState(if (selectedCategory.data?.name == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
-                                val selectedContentColor by animateColorAsState(if (selectedCategory.data?.name == null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground)
-                                CategoryChip(
-                                    categoryName = "All",
-                                    border = borderStroke,
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = selectedContainerColor,
-                                        contentColor = selectedContentColor
-                                    ),
-                                    onClick = { blogViewModel.selectCategory(null) })
-                            }
-                            items(items = allCategories) { category ->
-                                val selectedContainerColor by animateColorAsState(if (selectedCategory.data?.name == category.name) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
-                                val selectedContentColor by animateColorAsState(if (selectedCategory.data?.name == category.name) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground)
-                                CategoryChip(
-                                    categoryName = category.name,
-                                    border = borderStroke,
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = selectedContainerColor,
-                                        contentColor = selectedContentColor
-                                    ), onClick = { blogViewModel.selectCategory(category) }
-                                )
-                            }
-                            item { DefaultSpacer() }
-                        }
-                    }
-                }
             }
+        },
+        onBack = onBackPress,
+        onAllClicked = { blogViewModel.selectCategory(null) },
+        content = {
             when (blogUILIstState) {
                 is BlogUIState.Loading -> item { BreastCancerCircularLoader() }
                 is BlogUIState.Success -> items(
@@ -149,15 +100,11 @@ fun AllBlogsScreen(
 
                 else -> Unit
             }
-            item {
-                DefaultSpacerSize()
-            }
         }
-        BreastCancerBackButton {
-            onBackPress()
-        }
-    }
+    )
 }
+
+
 
 @Composable
 private fun BlogCard(

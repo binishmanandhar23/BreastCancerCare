@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.breastcancer.breastcancercare.database.local.entity.BlogEntity
-import com.breastcancer.breastcancercare.database.local.entity.CategoryEntity
+import com.breastcancer.breastcancercare.database.local.entity.BlogCategoryEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -29,9 +29,9 @@ interface BlogDAO {
     fun getBlogsBasedOnTags(tags: List<String>): Flow<List<BlogEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllCategories(categories: List<CategoryEntity>)
+    suspend fun insertAllCategories(categories: List<BlogCategoryEntity>)
 
-    @Query("SELECT * FROM categoryentity")
-    fun getAllCategories(): Flow<List<CategoryEntity>>
+    @Query("SELECT * FROM blogcategoryentity")
+    fun getAllCategories(): Flow<List<BlogCategoryEntity>>
 
 }

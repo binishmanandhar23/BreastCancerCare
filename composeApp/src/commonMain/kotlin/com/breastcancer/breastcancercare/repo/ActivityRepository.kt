@@ -1,14 +1,18 @@
 package com.breastcancer.breastcancercare.repo
 
 import com.breastcancer.breastcancercare.database.local.dao.ActivityDAO
+import com.breastcancer.breastcancercare.database.local.types.ActivityType
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.toActivityDTO
 import com.breastcancer.breastcancercare.models.toSuitabilityDTO
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 
 class ActivityRepository(val activityDAO: ActivityDAO) {
-    fun getAllEvents() =
-        activityDAO.getAllEvents().map { eventEntities -> eventEntities.map { it.toActivityDTO() } }
+    fun getAllActivities(userCategory: UserCategory) =
+        activityDAO.getAllActivities(userCategory = userCategory.category).map { eventEntities -> eventEntities.map { it.toActivityDTO() } }
+
+    fun getAllActivitiesByType(activityType: ActivityType) = activityDAO.getAllActivitiesByType(activityType = activityType.type).map { eventEntities -> eventEntities.map { it.toActivityDTO() } }
 
     fun getEventsFromSelectedDate(date: LocalDate) =
         activityDAO.getEventsFromSelectedDate(date = date.toString())

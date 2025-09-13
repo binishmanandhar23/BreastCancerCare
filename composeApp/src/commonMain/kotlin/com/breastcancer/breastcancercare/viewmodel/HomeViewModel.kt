@@ -9,11 +9,21 @@ import com.breastcancer.breastcancercare.states.HomeUIState
 import com.breastcancer.breastcancercare.utils.getHomeGreetingText
 import com.kizitonwose.calendar.core.now
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -34,7 +44,7 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
     init {
         getHomeGreeting()
         getRecommendedBlogs()
-        getAllUpcomingEvents()
+        getAllUpcomingActivities()
     }
 
     fun getHomeGreeting() = viewModelScope.launch(Dispatchers.IO) {
@@ -58,16 +68,28 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
         }
     }
 
-    @OptIn(ExperimentalTime::class)
-    private fun getAllUpcomingEvents() = viewModelScope.launch(Dispatchers.IO) {
+    @OptIn(ExperimentalTime::class, ExperimentalCoroutinesApi::class, FlowPreview::class)
+    private fun getAllUpcomingActivities() = viewModelScope.launch(Dispatchers.IO) {
         delay(1000L)
         _upcomingEventsUIState.update { HomeUIState.Loading() }
-        delay(1500L)
-        homeRepository.getAllEvents().collectLatest { events ->
-            _upcomingEventsUIState.update {  _ ->
-               HomeUIState.Success(data = events.filter { it.startDate >= LocalDate.now() }.take(5))
+        homeRepository.getLoggedInUser()                 // Flow<User?>
+            .map { it?.userCategory }                    // Flow<UserCategory?>
+            .distinctUntilChanged()                      // don’t reload if same category
+            .flatMapLatest { category ->
+                if (category == null) flowOf(emptyList())    // or emit an Idle/Empty state
+                else homeRepository.getAllActivities(userCategory = category) // Flow<List<Event>>
             }
-        }
+            .mapLatest { events ->
+                events
+                    .filter { it.startDate >= LocalDate.now() }
+                    .sortedBy { it.startDate }          // ensure chronological
+                    .take(5)
+            }.debounce(1500L)
+            .onStart { _upcomingEventsUIState.value = HomeUIState.Loading() }
+            .catch { e -> _upcomingEventsUIState.value = HomeUIState.Error(e.message) }
+            .collectLatest { activities ->
+                _upcomingEventsUIState.update { HomeUIState.Success(activities) }
+            }
     }
 
 }

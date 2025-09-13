@@ -9,6 +9,6 @@ data class BlogEntity(
     val title: String,
     val body: String,
     val image: String,
-    val categories: List<CategoryEntity>,
+    val categories: List<BlogCategoryEntity>,
     val tags:List<String>
 )

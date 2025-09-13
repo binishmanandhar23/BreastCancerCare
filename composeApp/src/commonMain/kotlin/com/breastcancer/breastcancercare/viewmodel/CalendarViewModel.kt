@@ -7,6 +7,9 @@ import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.notifications.NotificationChannels
 import com.breastcancer.breastcancercare.notifications.createAlarmeePlatformConfiguration
 import com.breastcancer.breastcancercare.repo.ActivityRepository
+import com.breastcancer.breastcancercare.repo.HomeRepository
+import com.breastcancer.breastcancercare.repo.OnboardingRepository
+import com.breastcancer.breastcancercare.states.HomeUIState
 import com.kizitonwose.calendar.core.now
 import com.tweener.alarmee.createAlarmeeService
 import com.tweener.alarmee.model.Alarmee
@@ -14,10 +17,19 @@ import com.tweener.alarmee.model.AndroidNotificationConfiguration
 import com.tweener.alarmee.model.AndroidNotificationPriority
 import com.tweener.alarmee.model.IosNotificationConfiguration
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -27,7 +39,10 @@ import kotlin.math.max
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-class CalendarViewModel(private val activityRepository: ActivityRepository) : ViewModel() {
+class CalendarViewModel(
+    private val activityRepository: ActivityRepository,
+    private val homeRepository: HomeRepository
+) : ViewModel() {
 
     val alarmeeService = createAlarmeeService()
 
@@ -76,17 +91,30 @@ class CalendarViewModel(private val activityRepository: ActivityRepository) : Vi
         _selectedDate.update { date }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getAllEventsAndPrograms() = viewModelScope.launch(Dispatchers.IO) {
-        activityRepository.getAllEvents().collect { events ->
-            _allEvents.update { events }
-            scheduleNotificationsForEvents(events = events)
-        }
+        homeRepository.getLoggedInUser()                 // Flow<User?>
+            .map { it?.userCategory }                    // Flow<UserCategory?>
+            .distinctUntilChanged()                      // don’t reload if same category
+            .flatMapLatest { category ->
+                if (category == null) flowOf(emptyList())    // or emit an Idle/Empty state
+                else homeRepository.getAllActivities(userCategory = category) // Flow<List<Event>>
+            }
+            .mapLatest { events ->
+                events
+                    .filter { it.startDate >= LocalDate.now() }
+                    .sortedBy { it.startDate }          // ensure chronological
+                    .take(5)
+            }.collectLatest { activities ->
+                _allEvents.update { activities }
+                scheduleNotificationsForEvents(events = activities)
+            }
     }
 
     private fun scheduleNotificationsForEvents(events: List<ActivityDTO>) {
         val localService = alarmeeService.local
         events.forEach { event ->
-            run NotificationLogic@ {
+            run NotificationLogic@{
                 if (event.startDate < LocalDate.now()) return@NotificationLogic
                 val scheduledDateTime =
                     if (event.startTime != null) event.startDate.atTime(
@@ -127,7 +155,6 @@ class CalendarViewModel(private val activityRepository: ActivityRepository) : Vi
                 }
         }
     }
-
 
 
     private fun findAllDatesWithEventsAndPrograms() {

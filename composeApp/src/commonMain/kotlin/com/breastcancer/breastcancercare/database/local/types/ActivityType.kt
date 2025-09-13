@@ -9,8 +9,10 @@ import com.breastcancer.breastcancercare.database.local.types.StartingStrongActi
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType.SupportGroups
 
 
-interface ActivityType
-sealed class StartingStrongActivityType(val type: String) : ActivityType {
+interface ActivityType {
+    val type: String
+}
+sealed class StartingStrongActivityType(override val type: String) : ActivityType {
     class SupportGroups(type: String = StartingStrongActivityTypeEnum.SupportGroups.type) :
         StartingStrongActivityType(type)
 
@@ -27,9 +29,16 @@ sealed class StartingStrongActivityType(val type: String) : ActivityType {
         StartingStrongActivityType(type)
 
     companion object {
+        val all: List<ActivityType> = listOf(
+            SupportGroups(),
+            Workshops(),
+            Counselling(),
+            Nursing(),
+            FinancialAndPracticalHardshipSupport()
+        )
         enum class StartingStrongActivityTypeEnum(val type: String) {
             SupportGroups("support_groups"),
-            Workshops("workshops"),
+            Workshops("starting_strong_workshops"),
             Counselling("counselling"),
             Nursing("nursing"),
             FinancialAndPracticalHardshipSupport("financial_and_practical_hardship_support")
@@ -37,7 +46,7 @@ sealed class StartingStrongActivityType(val type: String) : ActivityType {
     }
 }
 
-sealed class LivingWellActivityType(val type: String) : ActivityType {
+sealed class LivingWellActivityType(override val type: String) : ActivityType {
     class DiscussionGroups(type: String = LivingWellActivityTypeEnum.DiscussionGroups.type) :
         LivingWellActivityType(type)
 
@@ -63,9 +72,19 @@ sealed class LivingWellActivityType(val type: String) : ActivityType {
         LivingWellActivityType(type)
 
     companion object {
+        val all: List<ActivityType> = listOf(
+            DiscussionGroups(),
+            Workshops(),
+            Webinars(),
+            WellnessActivities(),
+            MindfulRecoveryProgram(),
+            Counselling(),
+            Nursing(),
+            FinancialAndPracticalHardshipSupport()
+        )
         enum class LivingWellActivityTypeEnum(val type: String) {
             DiscussionGroups("discussion_groups"),
-            Workshops("workshops"),
+            Workshops("living_well_workshops"),
             Webinars("webinars"),
             WellnessActivities("wellness_activities"),
             MindfulRecoveryProgram("mindful_recovery_program"),
@@ -104,5 +123,22 @@ object ActivityUtils {
                 else -> throw IllegalArgumentException("Unknown type: $type")
             }
         }
+
+    fun getActivityTypeLabel(type: ActivityType): String = when (type) {
+        is SupportGroups -> "Support Groups"
+        is StartingStrongActivityType.Workshops -> "Workshops"
+        is StartingStrongActivityType.Counselling -> "Counselling"
+        is StartingStrongActivityType.Nursing -> "Nursing"
+        is StartingStrongActivityType.FinancialAndPracticalHardshipSupport -> "Financial and Practical Hardship Support"
+        is DiscussionGroups -> "Discussion Groups"
+        is LivingWellActivityType.Workshops -> "Workshops"
+        is Webinars -> "Webinars"
+        is WellnessActivities -> "Wellness Activities"
+        is MindfulRecoveryProgram -> "Mindful Recovery Program"
+        is LivingWellActivityType.Counselling -> "Counselling"
+        is LivingWellActivityType.Nursing -> "Nursing"
+        is LivingWellActivityType.FinancialAndPracticalHardshipSupport -> "Financial and Practical Hardship Support"
+        else -> ""
+    }
 }
 

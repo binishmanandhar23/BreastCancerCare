@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.breastcancer.breastcancercare.database.local.entity.ActivityEntity
 import com.breastcancer.breastcancercare.database.local.entity.BlogEntity
-import com.breastcancer.breastcancercare.database.local.entity.CategoryEntity
+import com.breastcancer.breastcancercare.database.local.entity.BlogCategoryEntity
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
 import com.breastcancer.breastcancercare.database.local.types.CategoryType
 import com.breastcancer.breastcancercare.database.local.types.FrequencyType
@@ -422,11 +422,11 @@ class SplashViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             blogRepository.insertAllCategories(
                 categories = listOf(
-                    CategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer"),
-                    CategoryEntity(CategoryType.SupportServices.type, "Support Services"),
-                    CategoryEntity(CategoryType.InTheNews.type, "In the News"),
-                    CategoryEntity(CategoryType.Volunteering.type, "Volunteering"),
-                    CategoryEntity(CategoryType.OurClients.type, "Our Clients")
+                    BlogCategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer"),
+                    BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services"),
+                    BlogCategoryEntity(CategoryType.InTheNews.type, "In the News"),
+                    BlogCategoryEntity(CategoryType.Volunteering.type, "Volunteering"),
+                    BlogCategoryEntity(CategoryType.OurClients.type, "Our Clients")
                 )
             )
         }
@@ -454,8 +454,8 @@ class SplashViewModel(
                                 "The support provided by metastatic breast care nurses like Melanie is invaluable. They not only offer clinical guidance but also provide emotional support, advocacy, and personalised care to help clients navigate the complexities of living with metastatic breast cancer. Through her work, Melanie ensures that those living with MBC have a dedicated advocate and a caring supporter throughout their experience.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2024/09/bcwa-230614-stock-401-WEB-ONLY-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer"),
-                            CategoryEntity(CategoryType.SupportServices.type, "Support Services")
+                            BlogCategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer"),
+                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services")
                         ),
                         tags = listOf("Metastatic", "support services")
                     ),
@@ -468,8 +468,8 @@ class SplashViewModel(
                                 "Her message encourages early screening, open conversations, and getting behind Purple Bra Day so families don’t face breast cancer alone.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2024/07/img-3841-jpg-afdb8d-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.InTheNews.type, "In the News"),
-                            CategoryEntity(CategoryType.OurClients.type, "Our Clients")
+                            BlogCategoryEntity(CategoryType.InTheNews.type, "In the News"),
+                            BlogCategoryEntity(CategoryType.OurClients.type, "Our Clients")
                         ),
                         tags = listOf("Purple Bra Day", "Ambassador", "Fundraising")
                     ),
@@ -482,8 +482,8 @@ class SplashViewModel(
                                 "Basil’s message: focus on what you can do, share hope, and back services that make a direct difference.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2024/05/Basils-Ride-2-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.OurClients.type, "Our Clients"),
-                            CategoryEntity(CategoryType.InTheNews.type, "In the News")
+                            BlogCategoryEntity(CategoryType.OurClients.type, "Our Clients"),
+                            BlogCategoryEntity(CategoryType.InTheNews.type, "In the News")
                         ),
                         tags = listOf("Fundraising", "Community stories")
                     ),
@@ -496,8 +496,8 @@ class SplashViewModel(
                                 "Together we can ‘close the care gap’ so every person affected by breast cancer receives timely, quality support.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2024/02/World-Cancer-Day-eDM-header-600-x-400-px.png",
                         categories = listOf(
-                            CategoryEntity(CategoryType.InTheNews.type, "In the News"),
-                            CategoryEntity(CategoryType.SupportServices.type, "Support Services")
+                            BlogCategoryEntity(CategoryType.InTheNews.type, "In the News"),
+                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services")
                         ),
                         tags = listOf("World Cancer Day", "Equity", "First Nations")
                     ),
@@ -510,8 +510,8 @@ class SplashViewModel(
                                 "BCCWA will continue offering programs that nurture wellbeing alongside clinical care.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/10/Massage2-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.SupportServices.type, "Support Services"),
-                            CategoryEntity(CategoryType.OurClients.type, "Our Clients")
+                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services"),
+                            BlogCategoryEntity(CategoryType.OurClients.type, "Our Clients")
                         ),
                         tags = listOf("Wellbeing", "Living well", "Metastatic")
                     ),
@@ -523,8 +523,8 @@ class SplashViewModel(
                         body = "October 13 recognises people living with metastatic breast cancer and the often ‘invisible’ realities of the disease. Jill’s poem “I Look Well” captures the fear, fatigue, side-effects, and financial strain many experience, even when they appear outwardly fine. BCCWA provides dedicated support groups, a specialist metastatic nurse, and tailored education to help people live as well as possible.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/21035_0547-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer"),
-                            CategoryEntity(CategoryType.InTheNews.type, "In the News")
+                            BlogCategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer"),
+                            BlogCategoryEntity(CategoryType.InTheNews.type, "In the News")
                         ),
                         tags = listOf("Metastatic", "Awareness")
                     ),
@@ -536,7 +536,7 @@ class SplashViewModel(
                         body = "CEO Max Clarke and Ambassador Kate joined Mix 94.5 to talk all things Purple Bra Day—why the campaign matters, how funds are used, and how to get involved. Listeners can tune in via the embedded audio and learn how to support free BCCWA services across Western Australia.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/09/MicrosoftTeams-image-32-e1693979081970-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.InTheNews.type, "In the News")
+                            BlogCategoryEntity(CategoryType.InTheNews.type, "In the News")
                         ),
                         tags = listOf("Purple Bra Day", "Media", "Fundraising")
                     ),
@@ -548,8 +548,8 @@ class SplashViewModel(
                         body = "BCCWA announced Hancock Prospecting funding for its Financial Assistance Program over the next two years, helping people facing breast cancer—especially in regional and remote WA—with essential costs during treatment and recovery. The partnership expands reach and impact where government funding does not apply.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/08/bcwa-230614-stock-190-WEB-ONLY-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.InTheNews.type, "In the News"),
-                            CategoryEntity(CategoryType.SupportServices.type, "Support Services")
+                            BlogCategoryEntity(CategoryType.InTheNews.type, "In the News"),
+                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services")
                         ),
                         tags = listOf("Donation", "Financial assistance", "Partnerships")
                     ),
@@ -562,8 +562,8 @@ class SplashViewModel(
                                 "Advice: understand the criteria, find clinicians who can document needs clearly, and keep appealing.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/08/iStock-936849736-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.OurClients.type, "Our Clients"),
-                            CategoryEntity(CategoryType.SupportServices.type, "Support Services")
+                            BlogCategoryEntity(CategoryType.OurClients.type, "Our Clients"),
+                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services")
                         ),
                         tags = listOf("NDIS", "Lymphoedema", "Survivorship")
                     ),
@@ -576,8 +576,8 @@ class SplashViewModel(
                                 "Her advice for would-be fundraisers: ‘just do it’—every effort helps families across WA.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/07/bcwa-230614-stock-9-WEB-ONLY-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.OurClients.type, "Our Clients"),
-                            CategoryEntity(CategoryType.InTheNews.type, "In the News")
+                            BlogCategoryEntity(CategoryType.OurClients.type, "Our Clients"),
+                            BlogCategoryEntity(CategoryType.InTheNews.type, "In the News")
                         ),
                         tags = listOf("Purple Bra Day", "Ambassador", "Survivorship")
                     ),
@@ -590,9 +590,9 @@ class SplashViewModel(
                                 "Equity in access, information, and culturally safe support is essential to improve outcomes.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/05/National-Reconciliation-Week-600-%C3%97-400px-1.png",
                         categories = listOf(
-                            CategoryEntity(CategoryType.InTheNews.type, "In the News"),
-                            CategoryEntity(CategoryType.SupportServices.type, "Support Services"),
-                            CategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer")
+                            BlogCategoryEntity(CategoryType.InTheNews.type, "In the News"),
+                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services"),
+                            BlogCategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer")
                         ),
                         tags = listOf("First Nations", "Equity", "Reconciliation")
                     ),
@@ -604,8 +604,8 @@ class SplashViewModel(
                         body = "Cate was diagnosed with breast cancer at 39 and later returned as a dedicated BCCWA volunteer—supporting Purple Bra Day, Corporate Golf Day, Wildcats Pink Game, and more. She describes counselling and support groups as ‘amazing,’ and shares memorable moments of community generosity while fundraising. If you’d like to help, BCCWA is always welcoming new volunteers.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/05/CateStevens-Volunteer-652x437.jpg",
                         categories = listOf(
-                            CategoryEntity(CategoryType.Volunteering.type, "Volunteering"),
-                            CategoryEntity(CategoryType.OurClients.type, "Our Clients")
+                            BlogCategoryEntity(CategoryType.Volunteering.type, "Volunteering"),
+                            BlogCategoryEntity(CategoryType.OurClients.type, "Our Clients")
                         ),
                         tags = listOf("Volunteering", "Community")
                     )

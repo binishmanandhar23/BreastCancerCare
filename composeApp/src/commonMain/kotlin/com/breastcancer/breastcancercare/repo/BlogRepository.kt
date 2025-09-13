@@ -2,16 +2,15 @@ package com.breastcancer.breastcancercare.repo
 
 import com.breastcancer.breastcancercare.database.local.dao.BlogDAO
 import com.breastcancer.breastcancercare.database.local.entity.BlogEntity
-import com.breastcancer.breastcancercare.database.local.entity.CategoryEntity
-import com.breastcancer.breastcancercare.models.CategoryDTO
+import com.breastcancer.breastcancercare.database.local.entity.BlogCategoryEntity
+import com.breastcancer.breastcancercare.models.BlogCategoryDTO
 import com.breastcancer.breastcancercare.models.toDTO
 import kotlinx.coroutines.flow.map
-import org.koin.core.qualifier._q
 
 open class BlogRepository(private val blogDAO: BlogDAO) {
     suspend fun insertAllBlogs(blogs: List<BlogEntity>) = blogDAO.insertAllBlogs(blogs)
 
-    suspend fun insertAllCategories(categories: List<CategoryEntity>) =
+    suspend fun insertAllCategories(categories: List<BlogCategoryEntity>) =
         blogDAO.insertAllCategories(categories)
 
     fun getAllBlogs() = blogDAO.getAllBlogs().map { flow -> flow.map { it.toDTO() } }
@@ -23,7 +22,7 @@ open class BlogRepository(private val blogDAO: BlogDAO) {
 
     suspend fun getBlogById(slug: String) = blogDAO.getBlogBySlug(slug).toDTO()
 
-    fun getBlogByCategories(categories: List<CategoryDTO>) =
+    fun getBlogByCategories(categories: List<BlogCategoryDTO>) =
         blogDAO.getAllBlogs()
             .map { flow ->
                 flow.filter { blog ->

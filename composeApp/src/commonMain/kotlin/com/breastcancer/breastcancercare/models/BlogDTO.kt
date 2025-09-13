@@ -7,7 +7,7 @@ data class BlogDTO(
     val title: String,
     val body: String,
     val image: String,
-    val categories: List<CategoryDTO>,
+    val categories: List<BlogCategoryDTO>,
     val tags: List<String>
 )
 

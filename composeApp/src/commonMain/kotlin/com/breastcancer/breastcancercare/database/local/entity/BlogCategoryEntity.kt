@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 
 @Entity
 @Serializable
-data class CategoryEntity(@PrimaryKey val key: String, val name: String)
+data class BlogCategoryEntity(@PrimaryKey val key: String, val name: String)

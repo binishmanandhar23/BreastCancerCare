@@ -54,6 +54,10 @@ fun MainScreen(
                     onSubScreenChange(Route.Main.BlogDetail(slug = it.slug))
                 }, onAllBlogs = {
                     onSubScreenChange(Route.Main.AllBlogs)
+                }, onActivityClick = {
+                    onSubScreenChange(Route.Main.ActivityDetail(id = it.id))
+                }, onAllActivities = {
+                    onSubScreenChange(Route.Main.AllActivities)
                 })
                 Tabs.Calendar.text -> CalendarScreen(onSubScreenChange = onSubScreenChange)
                 Tabs.FAQ.text -> FAQScreen(

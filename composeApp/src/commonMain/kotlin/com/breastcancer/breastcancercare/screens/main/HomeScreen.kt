@@ -56,7 +56,9 @@ import org.koin.compose.viewmodel.koinViewModel
 fun HomeScreen(
     homeViewModel: HomeViewModel = koinViewModel(),
     onBlogClick: (blog: BlogDTO) -> Unit,
-    onAllBlogs: () -> Unit
+    onActivityClick: (activity: ActivityDTO) -> Unit,
+    onAllBlogs: () -> Unit,
+    onAllActivities: () -> Unit
 ) {
     val greetingText by homeViewModel.homeGreeting.collectAsStateWithLifecycle()
     val recommendedBlogsUIState by homeViewModel.recommendedBlogsUIState.collectAsStateWithLifecycle()
@@ -97,6 +99,39 @@ fun HomeScreen(
         item {
             AnimatedContent(
                 modifier = Modifier.fillMaxWidth(),
+                targetState = upcomingEventsUIState
+            ) { state ->
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (state is HomeUIState.Success || state is HomeUIState.Loading)
+                        HeaderAndShowAll(headerText = "Activities for you", onShowAll = onAllActivities)
+                    when (state) {
+                        is HomeUIState.Loading, is HomeUIState.Initial -> BreastCancerCircularLoader()
+                        is HomeUIState.Success -> {
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(300.dp).overscroll(overscrollEffect = overscrollEffect),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                contentPadding = PaddingValues(horizontal = DefaultHorizontalPaddingLarge),
+                            ) {
+                                items(items = state.data ?: emptyList()) { activity ->
+                                    ActivityCard(event = activity, onClick = { onActivityClick(activity) })
+                                }
+                            }
+                        }
+
+                        else -> Unit
+                    }
+                }
+            }
+        }
+        item {
+            AnimatedContent(
+                modifier = Modifier.fillMaxWidth(),
                 targetState = recommendedBlogsUIState
             ) { state ->
                 Column(
@@ -105,7 +140,7 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (state is HomeUIState.Success || state is HomeUIState.Loading)
-                        HeaderAndShowAll(headerText = "Recommended Blogs", onShowAll = onAllBlogs)
+                        HeaderAndShowAll(headerText = "Recommended blogs", onShowAll = onAllBlogs)
                     when (state) {
                         is HomeUIState.Loading, is HomeUIState.Initial -> BreastCancerCircularLoader()
                         is HomeUIState.Success -> {
@@ -127,39 +162,7 @@ fun HomeScreen(
                 }
             }
         }
-        item {
-            AnimatedContent(
-                modifier = Modifier.fillMaxWidth(),
-                targetState = upcomingEventsUIState
-            ) { state ->
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (state is HomeUIState.Success || state is HomeUIState.Loading)
-                        HeaderAndShowAll(headerText = "Upcoming Events", onShowAll = {})
-                    when (state) {
-                        is HomeUIState.Loading, is HomeUIState.Initial -> BreastCancerCircularLoader()
-                        is HomeUIState.Success -> {
-                            LazyRow(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(300.dp).overscroll(overscrollEffect = overscrollEffect),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                contentPadding = PaddingValues(horizontal = DefaultHorizontalPaddingLarge),
-                            ) {
-                                items(items = state.data ?: emptyList()) { event ->
-                                    EventCard(event = event, onClick = {})
-                                }
-                            }
-                        }
 
-                        else -> Unit
-                    }
-                }
-            }
-        }
         item {
             DefaultSpacerSize()
         }
@@ -167,7 +170,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun EventCard(event: ActivityDTO, onClick: (event: ActivityDTO) -> Unit) =
+private fun ActivityCard(event: ActivityDTO, onClick: (event: ActivityDTO) -> Unit) =
     CoreHomeCardDesign(
         onClick = { onClick(event) },
         modifier = Modifier.fillMaxHeight().width(300.dp)

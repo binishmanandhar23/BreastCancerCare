@@ -3,7 +3,7 @@ package com.breastcancer.breastcancercare.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.breastcancer.breastcancercare.models.BlogDTO
-import com.breastcancer.breastcancercare.models.CategoryDTO
+import com.breastcancer.breastcancercare.models.BlogCategoryDTO
 import com.breastcancer.breastcancercare.models.StateTickWrapper
 import com.breastcancer.breastcancercare.models.getTick
 import com.breastcancer.breastcancercare.repo.BlogRepository
@@ -15,13 +15,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
 
 class BlogViewModel(val blogRepository: BlogRepository) : ViewModel() {
     private var _blogUIDetailState = MutableStateFlow<BlogUIState<BlogDTO>>(BlogUIState.Initial())
@@ -31,10 +27,10 @@ class BlogViewModel(val blogRepository: BlogRepository) : ViewModel() {
         MutableStateFlow<BlogUIState<List<BlogDTO>>>(BlogUIState.Initial())
     val blogUIListState = _blogUIListState.asStateFlow()
 
-    private var _allCategories = MutableStateFlow<List<CategoryDTO>>(emptyList())
+    private var _allCategories = MutableStateFlow<List<BlogCategoryDTO>>(emptyList())
     val allCategories = _allCategories.asStateFlow()
 
-    private var _selectedCategory = MutableStateFlow<StateTickWrapper<CategoryDTO?>>(
+    private var _selectedCategory = MutableStateFlow<StateTickWrapper<BlogCategoryDTO?>>(
         StateTickWrapper(data = null)
     )
     val selectedCategory = _selectedCategory.asStateFlow()
@@ -51,7 +47,7 @@ class BlogViewModel(val blogRepository: BlogRepository) : ViewModel() {
         }
     }
 
-    fun selectCategory(category: CategoryDTO?) =
+    fun selectCategory(category: BlogCategoryDTO?) =
         _selectedCategory.update { StateTickWrapper(data = category, tick = getTick()) }
 
     @OptIn(ExperimentalCoroutinesApi::class)

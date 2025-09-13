@@ -69,6 +69,8 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.TextFieldColors
@@ -88,11 +90,14 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.breastcancer.breastcancercare.database.local.types.Suitability
-import com.breastcancer.breastcancercare.models.CategoryDTO
+import com.breastcancer.breastcancercare.models.BlogCategoryDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultTopHeaderTextSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.utils.DefaultImage
+import com.breastcancer.breastcancercare.utils.DefaultSpacer
 import com.breastcancer.breastcancercare.utils.PentagonShape
 import com.breastcancer.breastcancercare.utils.TriangleShape
 
@@ -808,7 +813,7 @@ fun CoreHomeCardDesign(
 }
 
 @Composable
-fun CategoriesLabelSection(categories: List<CategoryDTO>) {
+fun CategoriesLabelSection(categories: List<BlogCategoryDTO>) {
     FlowRow(
         maxItemsInEachRow = 3,
         modifier = Modifier.fillMaxWidth().padding(vertical = DefaultVerticalPaddingSmall),
@@ -828,7 +833,7 @@ fun CategoryChip(
         contentColor = MaterialTheme.colorScheme.onSecondary
     ),
     border: BorderStroke? = null,
-    textStyle: TextStyle = MaterialTheme.typography.labelSmall,
+    textStyle: TextStyle = MaterialTheme.typography.labelLarge,
     onClick: (() -> Unit)? = null,
 ) = Card(
     modifier = modifier,
@@ -864,6 +869,87 @@ fun BreastCancerBackButton(
             imageVector = Icons.Default.ArrowBackIosNew,
             contentDescription = "Back button"
         )
+    }
+}
+
+@Composable
+fun <T> AllListContainer(
+    title: String,
+    listOfCategories: List<T>,
+    selectedCategory: T?,
+    categorySectionContent: LazyListScope.(borderStroke: BorderStroke) -> Unit,
+    onBack: () -> Unit,
+    onAllClicked: () -> Unit,
+    content: LazyListScope.() -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumnCollapsibleHeader(
+            modifier = Modifier.fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background),
+            collapseWithFade = true,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
+            header = {
+                Text(
+                    modifier = Modifier.align(Alignment.TopStart)
+                        .padding(start = DefaultHorizontalPaddingLarge + DefaultHorizontalPaddingMedium),
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = DefaultTopHeaderTextSize,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }) {
+            stickyHeader {
+                val borderStroke =
+                    BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.primary)
+                AnimatedVisibility(listOfCategories.isNotEmpty()) {
+                    Column {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(50.dp)
+                                .background(color = MaterialTheme.colorScheme.background)
+                        )
+                        LazyRow(
+                            modifier = Modifier.fillMaxWidth().background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.background,
+                                        MaterialTheme.colorScheme.background.copy(0.8f),
+                                    )
+                                )
+                            ).padding(vertical = DefaultVerticalPaddingMedium),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(
+                                DefaultHorizontalPaddingSmall
+                            )
+                        ) {
+                            item { DefaultSpacer() }
+                            item {
+                                val selectedContainerColor by animateColorAsState(if (selectedCategory == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
+                                val selectedContentColor by animateColorAsState(if (selectedCategory == null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground)
+                                CategoryChip(
+                                    categoryName = "All",
+                                    border = borderStroke,
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = selectedContainerColor,
+                                        contentColor = selectedContentColor
+                                    ),
+                                    onClick = onAllClicked
+                                )
+                            }
+                            categorySectionContent(borderStroke)
+                            item { DefaultSpacer() }
+                        }
+                    }
+                }
+            }
+            content()
+            item {
+                DefaultSpacerSize()
+            }
+        }
+        BreastCancerBackButton(onBackClick = onBack)
     }
 }
 

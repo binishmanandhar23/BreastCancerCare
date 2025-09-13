@@ -10,8 +10,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ActivityDAO {
-    @Query("SELECT * FROM activityentity")
-    fun getAllEvents(): Flow<List<ActivityEntity>>
+    @Query("SELECT * FROM activityentity WHERE category = :userCategory")
+    fun getAllActivities(userCategory: String): Flow<List<ActivityEntity>>
+
+    @Query("SELECT * FROM activityentity WHERE activityType = :activityType")
+    fun getAllActivitiesByType(activityType: String): Flow<List<ActivityEntity>>
 
     @Query("SELECT * FROM activityentity WHERE startDate = :date")
     fun getEventsFromSelectedDate(date: String): Flow<List<ActivityEntity>>

@@ -20,7 +20,9 @@ val DefaultVerticalPaddingSmall = (15 / 2).dp
 
 val DefaultSpacerSize = 50.dp
 
-val DefaultTopHeaderTextSize = 50.sp
+val DefaultTopHeaderTextSize = 45.sp
+
+val DefaultTopBarIconSize = 30.dp
 
 @Composable
 fun spToDp(sp: TextUnit): Dp = with(LocalDensity.current) {

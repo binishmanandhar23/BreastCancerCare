@@ -10,9 +10,15 @@ import kotlinx.datetime.LocalDate
 
 class ActivityRepository(val activityDAO: ActivityDAO) {
     fun getAllActivities(userCategory: UserCategory) =
-        activityDAO.getAllActivities(userCategory = userCategory.category).map { eventEntities -> eventEntities.map { it.toActivityDTO() } }
+        activityDAO.getAllActivities(userCategory = userCategory.category).map { activityEntities ->
+            activityEntities.map { it.toActivityDTO() }
+        }
 
-    fun getAllActivitiesByType(activityType: ActivityType) = activityDAO.getAllActivitiesByType(activityType = activityType.type).map { eventEntities -> eventEntities.map { it.toActivityDTO() } }
+    fun getAllActivitiesByType(activityType: ActivityType) =
+        activityDAO.getAllActivitiesByType(activityType = activityType.type)
+            .map { activityEntities ->
+                activityEntities.map { it.toActivityDTO() }
+            }
 
     fun getEventsFromSelectedDate(date: LocalDate) =
         activityDAO.getEventsFromSelectedDate(date = date.toString())

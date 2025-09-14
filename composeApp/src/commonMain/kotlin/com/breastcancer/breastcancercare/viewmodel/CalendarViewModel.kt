@@ -8,8 +8,6 @@ import com.breastcancer.breastcancercare.notifications.NotificationChannels
 import com.breastcancer.breastcancercare.notifications.createAlarmeePlatformConfiguration
 import com.breastcancer.breastcancercare.repo.ActivityRepository
 import com.breastcancer.breastcancercare.repo.HomeRepository
-import com.breastcancer.breastcancercare.repo.OnboardingRepository
-import com.breastcancer.breastcancercare.states.HomeUIState
 import com.kizitonwose.calendar.core.now
 import com.tweener.alarmee.createAlarmeeService
 import com.tweener.alarmee.model.Alarmee
@@ -21,15 +19,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -52,8 +49,8 @@ class CalendarViewModel(
     private var _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate = _selectedDate.asStateFlow()
 
-    private var _allEvents = MutableStateFlow<List<ActivityDTO>>(emptyList())
-    val allEvents = _allEvents.asStateFlow()
+    private var _allActivities = MutableStateFlow<List<ActivityDTO>>(emptyList())
+    val allActivities = _allActivities.asStateFlow()
 
     private var _selectedDayAvailableActivities = MutableStateFlow<List<ActivityDTO>>(emptyList())
     val selectedDayAvailableActivities = _selectedDayAvailableActivities.asStateFlow()
@@ -101,12 +98,9 @@ class CalendarViewModel(
                 else homeRepository.getAllActivities(userCategory = category) // Flow<List<Event>>
             }
             .mapLatest { events ->
-                events
-                    .filter { it.startDate >= LocalDate.now() }
-                    .sortedBy { it.startDate }          // ensure chronological
-                    .take(5)
+                events.sortedBy { it.startDate }          // ensure chronological
             }.collectLatest { activities ->
-                _allEvents.update { activities }
+                _allActivities.update { activities }
                 scheduleNotificationsForEvents(events = activities)
             }
     }
@@ -147,19 +141,27 @@ class CalendarViewModel(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun getAllEventsOnSelectedDate() = viewModelScope.launch(Dispatchers.IO) {
-        selectedDate.collectLatest { date ->
-            activityRepository.getEventsFromSelectedDate(date = date)
-                .collect { events ->
-                    _selectedDayAvailableActivities.update { events }
+        combine(selectedDate, allActivities) { selectedDate, allActivities ->
+            Pair(selectedDate, allActivities)
+        }.collectLatest { (selectedDate, activities) ->
+            _selectedDayAvailableActivities.update {
+                activities.filter {
+                    activities.any { activity ->
+                        activity.dates.contains(
+                            selectedDate
+                        )
+                    }
                 }
+            }
         }
     }
 
 
     private fun findAllDatesWithEventsAndPrograms() {
         viewModelScope.launch(Dispatchers.IO) {
-            allEvents.collect { events ->
+            allActivities.collect { events ->
                 _allDatesWithEvents.update { events.map { it.endDate.toString() }.distinct() }
             }
         }

@@ -81,7 +81,7 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
             }
             .mapLatest { events ->
                 events
-                    .filter { it.startDate >= LocalDate.now() }
+                    .filter { it.dates.any { date -> date >= LocalDate.now() } }
                     .sortedBy { it.startDate }          // ensure chronological
                     .take(5)
             }.debounce(1500L)

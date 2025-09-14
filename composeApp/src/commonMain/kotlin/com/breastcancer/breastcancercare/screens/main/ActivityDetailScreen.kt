@@ -2,6 +2,7 @@ package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,14 +18,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.BreastCancerButton
 import com.breastcancer.breastcancercare.components.CategoryChip
 import com.breastcancer.breastcancercare.components.UrlImage
+import com.breastcancer.breastcancercare.database.local.types.ActivityType
+import com.breastcancer.breastcancercare.database.local.types.LivingWellActivityType
+import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.states.ActivityUIState
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
@@ -41,8 +49,8 @@ fun ActivityDetailScreen(
     onBack: () -> Unit
 ) {
     val activityUIState by activityViewModel.activityUIDetailState.collectAsStateWithLifecycle()
-    LaunchedEffect(id){
-        withContext(Dispatchers.Main){
+    LaunchedEffect(id) {
+        withContext(Dispatchers.Main) {
             activityViewModel.getActivityById(id = id)
         }
     }
@@ -71,20 +79,62 @@ fun ActivityDetailScreen(
                                 horizontal = DefaultHorizontalPaddingMedium,
                                 vertical = DefaultVerticalPaddingLarge
                             ),
-                            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
-                        ) {
-                            activity?.category?.let {
-                                CategoryChip(categoryName = UserCategory.getLabel(it))
+                            verticalArrangement = object : Arrangement.Vertical {
+                                override fun Density.arrange(
+                                    totalSize: Int,
+                                    sizes: IntArray,
+                                    outPositions: IntArray
+                                ) {
+                                    var y = 0
+                                    for (i in sizes.indices) {
+                                        outPositions[i] = y
+                                        y += sizes[i]
+                                        if (i != sizes.lastIndex) y += DefaultVerticalPaddingSmall.roundToPx()
+                                    }
+                                    if (y < totalSize)
+                                        outPositions.lastIndex.let {
+                                            outPositions[it] = totalSize - sizes.last()
+                                        }
+                                }
                             }
+                        ) {
                             Text(
                                 text = activity?.title ?: "",
                                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                             )
+                            activity?.category?.let {
+                                CategoryChip(categoryName = UserCategory.getLabel(it))
+                            }
                             HorizontalDivider(modifier = Modifier.fillMaxWidth())
                             Text(
                                 text = activity?.description ?: "",
                                 style = MaterialTheme.typography.bodyMedium
                             )
+                            Box(modifier = Modifier.fillMaxWidth().padding(top = DefaultVerticalPaddingLarge)) {
+                                BreastCancerButton(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    text = when (activity?.activityType) {
+                                        is StartingStrongActivityType.SupportGroups,
+                                        is StartingStrongActivityType.Workshops,
+                                        is LivingWellActivityType.DiscussionGroups,
+                                        is LivingWellActivityType.Workshops,
+                                        is LivingWellActivityType.Webinars,
+                                        is LivingWellActivityType.WellnessActivities,
+                                        is LivingWellActivityType.MindfulRecoveryProgram -> "Register Interest"
+
+                                        is StartingStrongActivityType.Counselling,
+                                        is StartingStrongActivityType.Nursing,
+                                        is LivingWellActivityType.Counselling,
+                                        is LivingWellActivityType.Nursing -> "Book Appointment"
+
+                                        is StartingStrongActivityType.FinancialAndPracticalHardshipSupport,
+                                        is LivingWellActivityType.FinancialAndPracticalHardshipSupport -> "Enquire"
+
+                                        else -> ""
+                                    }, onClick = {
+
+                                    })
+                            }
                         }
                     }
                 }

@@ -13,6 +13,7 @@ import com.breastcancer.breastcancercare.database.local.types.StartingStrongActi
 import com.breastcancer.breastcancercare.database.local.types.Suitability
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.FAQDTO
+import com.breastcancer.breastcancercare.models.FrequencySeries
 import com.breastcancer.breastcancercare.models.toSuitabilityDTO
 import com.breastcancer.breastcancercare.repo.BlogRepository
 import com.breastcancer.breastcancercare.repo.ActivityRepository
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
@@ -65,7 +67,7 @@ class SplashViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             activityRepository.activityDAO.insertAllSuitabilities(allSuitabilities)
         }
-        viewModelScope.launch {
+        /*viewModelScope.launch {
             activityRepository.activityDAO.insertAllActivities(
                 listOf(
                     ActivityEntity(
@@ -341,7 +343,7 @@ class SplashViewModel(
                 )
 
             )
-        }
+        }*/
         viewModelScope.launch(Dispatchers.IO) {
             faqRepository.insertAll(
                 listOf(
@@ -391,6 +393,31 @@ class SplashViewModel(
                                 it
                             )
                         } ?: emptyList()
+                    ),
+                )
+            )
+        }
+
+        viewModelScope.launch {
+            activityRepository.activityDAO.insertAllActivities(
+                events = listOf(
+                    ActivityEntity(
+                        id = 13,
+                        title = "Living Well Discussion Group – Online",
+                        description = "Discussion group for women who have recently completed treatment for early breast cancer; topics include fear of recurrence, side effects, stress management, healthy lifestyle and goal setting.",
+                        startDate = LocalDate(2025, 3, 1).toString(),
+                        endDate = LocalDate(2026, 3, 1).toString(),
+                        startTime = LocalTime(19, 0, 0).toString(),
+                        endTime = LocalTime(20, 0, 0).toString(),
+                        isOnline = true,
+                        image = "https://www.breastcancer.org.au/wp-content/uploads/2024/03/IMG20211208091308.jpg",
+                        location = null, // ⬅️ online
+                        activityType = LivingWellActivityType.Companion.LivingWellActivityTypeEnum.DiscussionGroups.type,
+                        frequency = FrequencyType.Series.type,
+                        frequencySeries = FrequencySeries(occurrence = 1, dayOfWeek = DayOfWeek.THURSDAY.name),
+                        category = UserCategory.LivingWell.category,
+                        onlineLink = "https://link.com",
+                        audience = "LocalDate(2025, 3, 1).toString()",
                     ),
                 )
             )

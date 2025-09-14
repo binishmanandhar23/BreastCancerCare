@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.breastcancer.breastcancercare.database.local.converters.BlogConverter
 import com.breastcancer.breastcancercare.database.local.converters.FAQConverter
+import com.breastcancer.breastcancercare.database.local.converters.FrequencySeriesConverter
 import com.breastcancer.breastcancercare.database.local.converters.ListConverter
 import com.breastcancer.breastcancercare.database.local.dao.BlogDAO
 import com.breastcancer.breastcancercare.database.local.dao.ActivityDAO
@@ -25,9 +26,12 @@ import kotlinx.coroutines.IO
 
 @Database(
     entities = [FAQEntity::class, ActivityEntity::class, UserEntity::class, LoggedInUserEntity::class, SuitabilityEntity::class, BlogEntity::class, BlogCategoryEntity::class],
-    version = 17
+    version = 18
 )
-@TypeConverters(FAQConverter::class, BlogConverter::class, ListConverter::class)
+@TypeConverters(
+    FAQConverter::class, BlogConverter::class, ListConverter::class,
+    FrequencySeriesConverter::class
+)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getFAQDAO(): FAQDAO

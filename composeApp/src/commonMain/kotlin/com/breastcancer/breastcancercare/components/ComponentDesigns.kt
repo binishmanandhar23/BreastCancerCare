@@ -69,6 +69,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
@@ -512,7 +513,8 @@ fun BreastCancerButton(
     text: String,
     allCaps: Boolean = false,
     shape: CornerBasedShape = MaterialTheme.shapes.medium,
-    fontSize: TextUnit = MaterialTheme.typography.bodySmall.fontSize,
+    fontSize: TextUnit = MaterialTheme.typography.bodyMedium.fontSize,
+    fontWeight: FontWeight = FontWeight.Bold,
     contentPadding: PaddingValues = PaddingValues(horizontal = 22.dp, vertical = 12.dp),
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
@@ -543,9 +545,10 @@ fun BreastCancerButton(
                     else
                         it
                 },
-                style = MaterialTheme.typography.bodySmall.copy(
+                style = MaterialTheme.typography.bodyMedium.copy(
                     color = textColor,
-                    fontSize = fontSize
+                    fontSize = fontSize,
+                    fontWeight = fontWeight
                 )
             )
         }
@@ -880,7 +883,8 @@ fun <T> AllListContainer(
     categorySectionContent: LazyListScope.(borderStroke: BorderStroke) -> Unit,
     onBack: () -> Unit,
     onAllClicked: () -> Unit,
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
+    titleIconContent: @Composable RowScope.() -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumnCollapsibleHeader(
@@ -890,16 +894,23 @@ fun <T> AllListContainer(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
             header = {
-                Text(
-                    modifier = Modifier.align(Alignment.TopStart)
-                        .padding(start = DefaultHorizontalPaddingLarge + DefaultHorizontalPaddingMedium),
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = DefaultTopHeaderTextSize,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                Row(
+                    modifier = Modifier.fillMaxWidth().align(Alignment.TopStart)
+                        .padding(start = DefaultHorizontalPaddingLarge + DefaultHorizontalPaddingMedium, end = DefaultHorizontalPaddingMedium),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        modifier = Modifier.padding(end = DefaultHorizontalPaddingMedium),
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = DefaultTopHeaderTextSize,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     )
-                )
+                    titleIconContent()
+                }
             }) {
             stickyHeader {
                 val borderStroke =

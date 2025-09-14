@@ -83,7 +83,7 @@ class ActivityViewModel(
             }.flatMapLatest { activities -> activities }.mapLatest { activities ->
                 // compute "today" once (in the user’s local zone)
                 activities
-                    .filter { it.startDate >= LocalDate.now() }
+                    .filter { it.dates.any { date -> date >= LocalDate.now() } }
                     .sortedBy { it.startDate }          // ensure chronological
             }
             .onStart { _activityUIListState.value = ActivityUIState.Loading() }

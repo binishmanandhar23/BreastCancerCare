@@ -3,13 +3,16 @@ package com.breastcancer.breastcancercare.screens.main
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,8 +33,7 @@ import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.states.ActivityUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultTopBarIconSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 
@@ -63,6 +65,11 @@ fun AllActivitiesScreen(
             }
         },
         onBack = onBackPress,
+        titleIconContent = {
+            IconButton(onClick = {}){
+                Icon(modifier = Modifier.size(DefaultTopBarIconSize), imageVector = Icons.Outlined.History, contentDescription = "Previous Activities")
+            }
+        },
         onAllClicked = { activityViewModel.selectActivityType(null) },
         content = {
             when (activityUIListState) {

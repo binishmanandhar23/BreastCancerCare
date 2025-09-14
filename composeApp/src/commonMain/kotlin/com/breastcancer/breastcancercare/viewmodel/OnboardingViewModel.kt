@@ -37,6 +37,9 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     private var _code = MutableStateFlow("")
     val code = _code.asStateFlow()
 
+    private var _canRegister = MutableStateFlow(false)
+    val canRegister = _canRegister.asStateFlow()
+
     val phoneValid = userDTO
         .map { dto ->
             val digits = dto.phoneNumber.filter(Char::isDigit)
@@ -49,17 +52,6 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
     val passwordValidInstant = combine(password, confirmPassword) { pw, cpw ->
         pw.length >= 6 && pw == cpw
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-    val canRegister = combine(
-        userDTO,
-        emailValidInstant,
-        phoneValid,
-        passwordValidInstant,
-        agree
-    ) { dto, emailOK, phoneOK, pwOK, agreeOK ->
-        dto.firstName.isNotBlank() &&
-                dto.lastName.isNotBlank() &&
-                emailOK && phoneOK && pwOK && agreeOK
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     private var _passwordValid = MutableStateFlow(true)
@@ -89,6 +81,28 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
 
     fun updateCode(code: String) = _code.update { code }
 
+    init {
+        canRegister()
+    }
+
+    fun canRegister() {
+        viewModelScope.launch {
+            combine(
+                userDTO,
+                emailValidInstant,
+                phoneValid,
+                passwordValidInstant,
+                agree
+            ) { dto, emailOK, phoneOK, pwOK, agreeOK ->
+                dto.firstName.isNotBlank() &&
+                        dto.lastName.isNotBlank() &&
+                        emailOK && phoneOK && pwOK && agreeOK
+            }.collectLatest {
+                _canRegister.update { _ -> it }
+            }
+        }
+    }
+
     suspend fun onLogin() {
         _loginUIState.update { LoginUIState.Loading }
         onboardingRepository.getUser(userDTO.value.email).let { user ->
@@ -111,7 +125,6 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
             _loginUIState.update { LoginUIState.Error("Please check your inputs.") }
         else
             canRegister()
-
     }
 
     fun onCodeSubmitted() =

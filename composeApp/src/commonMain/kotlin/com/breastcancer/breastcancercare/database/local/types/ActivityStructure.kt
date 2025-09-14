@@ -1,5 +1,7 @@
 package com.breastcancer.breastcancercare.database.local.types
 
+import com.breastcancer.breastcancercare.models.FrequencySeries
+
 interface ActivityStructure {
     val id: Long
 
@@ -16,8 +18,10 @@ interface ActivityStructure {
     val endTime: String?
     val isOnline: Boolean
 
+    val location: String?
+
+    val onlineLink: String?
     val frequency: String
 
-    val location: String?
-    val onlineLink: String?
+    val frequencySeries: FrequencySeries?
 }

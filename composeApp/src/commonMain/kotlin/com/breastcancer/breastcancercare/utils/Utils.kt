@@ -101,66 +101,7 @@ fun DefaultImage(
 @Composable
 fun DefaultSpacer(size: Dp = DefaultHorizontalPaddingSmall) = Spacer(modifier = Modifier.size(size))
 
-fun checkIfDateHasProgram(
-    frequencyType: FrequencyType,
-    selectedDate: LocalDate,
-    startDate: LocalDate,
-    endDate: LocalDate
-): Boolean {
-    when (frequencyType) {
-        FrequencyType.Ongoing -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plusDays(i)
-                if (date == selectedDate)
-                    return true
-                else
-                    i++
-            }
-        }
 
-        FrequencyType.Weekly -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plus(i, DateTimeUnit.WEEK)
-                if (date == selectedDate)
-                    return true
-                else
-                    i++
-            }
-        }
-
-        FrequencyType.Monthly -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plus(i, DateTimeUnit.MONTH)
-                if (date == selectedDate)
-                    return true
-                else
-                    i++
-            }
-        }
-
-        FrequencyType.Series -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plus(i, DateTimeUnit.YEAR)
-                if (date == selectedDate)
-                    return true
-                else
-                    i++
-            }
-        }
-
-        FrequencyType.OnceOff -> return selectedDate == startDate
-        FrequencyType.Block -> return false
-    }
-    return false
-}
 
 /** Animate the indicator between [currentPage] and the next page using the drag fraction. */
 

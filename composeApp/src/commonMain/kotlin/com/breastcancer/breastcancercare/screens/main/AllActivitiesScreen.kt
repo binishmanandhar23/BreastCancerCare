@@ -35,6 +35,7 @@ import com.breastcancer.breastcancercare.states.ActivityUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultTopBarIconSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
+import com.breastcancer.breastcancercare.utils.getDateForNextSession
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 
 @Composable
@@ -108,7 +109,14 @@ private fun ActivityCard(
             )
         }, title = {
             Column(verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)) {
-                TimeAndDateFormat(activityDTO = activity, selectedDate = activity.startDate)
+                getDateForNextSession(
+                    frequencyType = activity.frequency,
+                    startDate = activity.startDate,
+                    endDate = activity.endDate,
+                    frequencySeries = activity.frequencySeries
+                )?.let {
+                    TimeAndDateFormat(activityDTO = activity, selectedDate = it)
+                }
                 Text(
                     text = activity.title,
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)

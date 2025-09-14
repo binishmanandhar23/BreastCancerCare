@@ -90,8 +90,7 @@ class ActivityViewModel(
             .catch { e -> _activityUIListState.value = ActivityUIState.Error(e.message) }
             .collectLatest { activities ->
                 _activityUIListState.update { _ ->
-                    ActivityUIState.Success(data = activities.filter { activity -> activity.startDate >= LocalDate.now() }
-                        .sortedBy { activity -> activity.startDate })
+                    ActivityUIState.Success(data = activities)
                 }
             }
     }

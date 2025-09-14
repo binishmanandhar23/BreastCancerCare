@@ -49,6 +49,7 @@ import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.theme.OffBackground
 import com.breastcancer.breastcancercare.theme.spToDp
 import com.breastcancer.breastcancercare.utils.emojiFor
+import com.breastcancer.breastcancercare.utils.getDateForNextSession
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -107,7 +108,10 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (state is HomeUIState.Success || state is HomeUIState.Loading)
-                        HeaderAndShowAll(headerText = "Activities for you", onShowAll = onAllActivities)
+                        HeaderAndShowAll(
+                            headerText = "Activities for you",
+                            onShowAll = onAllActivities
+                        )
                     when (state) {
                         is HomeUIState.Loading, is HomeUIState.Initial -> BreastCancerCircularLoader()
                         is HomeUIState.Success -> {
@@ -119,7 +123,9 @@ fun HomeScreen(
                                 contentPadding = PaddingValues(horizontal = DefaultHorizontalPaddingLarge),
                             ) {
                                 items(items = state.data ?: emptyList()) { activity ->
-                                    ActivityCard(event = activity, onClick = { onActivityClick(activity) })
+                                    ActivityCard(
+                                        event = activity,
+                                        onClick = { onActivityClick(activity) })
                                 }
                             }
                         }
@@ -181,7 +187,17 @@ private fun ActivityCard(event: ActivityDTO, onClick: (event: ActivityDTO) -> Un
             )
         }, title = {
             Column(verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)) {
-                TimeAndDateFormat(activityDTO = event, selectedDate = event.startDate)
+                getDateForNextSession(
+                    frequencyType = event.frequency,
+                    startDate = event.startDate,
+                    endDate = event.endDate,
+                    frequencySeries = event.frequencySeries
+                )?.let {
+                    TimeAndDateFormat(
+                        activityDTO = event,
+                        selectedDate = it
+                    )
+                }
                 Text(
                     text = event.title,
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)

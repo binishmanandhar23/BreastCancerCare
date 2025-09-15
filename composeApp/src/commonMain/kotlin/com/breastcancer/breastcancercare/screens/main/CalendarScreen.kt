@@ -92,6 +92,7 @@ import com.kizitonwose.calendar.core.plusMonths
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
@@ -100,11 +101,15 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 @Composable
-fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel(), onSubScreenChange:(Route) -> Unit) {
+fun CalendarScreen(
+    calendarViewModel: CalendarViewModel = koinViewModel(),
+    onSubScreenChange: (Route) -> Unit
+) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(12) } // Adjust as needed
     val endMonth = remember { currentMonth.plusMonths(50) } // Adjust as needed
-    val firstDayOfWeek = remember { firstDayOfWeekFromLocale() } // Available from the library
+    val firstDayOfWeek =
+        remember { DayOfWeek.SUNDAY /*firstDayOfWeekFromLocale()*/ } // Available from the library
 
     val state = rememberCalendarState(
         startMonth = startMonth,
@@ -119,8 +124,7 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel(), onSub
 
     val selectedDayAvailableActivities by calendarViewModel.selectedDayAvailableActivities.collectAsStateWithLifecycle()
 
-    val allDatesWithEvents by calendarViewModel.allDatesWithEvents.collectAsStateWithLifecycle()
-    val allDatesWithPrograms by calendarViewModel.allDatesWithPrograms.collectAsStateWithLifecycle()
+    val allDatesWithEvents by calendarViewModel.allDatesWithActivitiesAvailable.collectAsStateWithLifecycle()
 
     val allSuitabilities by calendarViewModel.allSuitabilities.collectAsStateWithLifecycle()
     val selectedSuitability by calendarViewModel.selectedSuitability.collectAsStateWithLifecycle()
@@ -136,12 +140,6 @@ fun CalendarScreen(calendarViewModel: CalendarViewModel = koinViewModel(), onSub
                     with(Dispatchers.IO) {
                         hasEvents =
                             allDatesWithEvents.contains(it.date.toString())
-                    }
-                }
-                LaunchedEffect(allDatesWithPrograms) {
-                    with(Dispatchers.IO) {
-                        hasPrograms =
-                            allDatesWithPrograms.contains(it.date.toString())
                     }
                 }
                 if (it.position == DayPosition.MonthDate)
@@ -320,7 +318,7 @@ fun BottomInfoCard(
     selectedDayAvailableActivities: List<ActivityDTO>,
     onTabSelected: (index: Int) -> Unit,
     onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit,
-    onActivityClick:(id: Long) -> Unit
+    onActivityClick: (id: Long) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     // Parent size needed to compute pixel offsets
@@ -429,7 +427,7 @@ private fun ActivitySection(
     selectedDate: LocalDate,
     selectedDayAvailableActivities: List<ActivityDTO>,
     bottomSpacer: Dp,
-    onActivityClick:(id: Long) -> Unit
+    onActivityClick: (id: Long) -> Unit
 ) {
     AnimatedContent(selectedDayAvailableActivities, label = "Activities") { activities ->
         LazyColumnWithStickyFooter(
@@ -447,13 +445,15 @@ private fun ActivitySection(
             else {
                 stickyHeader {
                     Text(
-                        modifier = Modifier.fillMaxWidth().background(brush = Brush.verticalGradient(
-                            colors = listOf(
-                                ColorSand,
-                                ColorSand.copy(0.9f),
-                                ColorSand.copy(alpha = 0f)
+                        modifier = Modifier.fillMaxWidth().background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    ColorSand,
+                                    ColorSand.copy(0.9f),
+                                    ColorSand.copy(alpha = 0f)
+                                )
                             )
-                        )).padding(vertical = DefaultVerticalPaddingSmall),
+                        ).padding(vertical = DefaultVerticalPaddingSmall),
                         text = "Activities available to you on this day",
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                     )
@@ -464,7 +464,7 @@ private fun ActivitySection(
                         selectedDate = selectedDate,
                         activityDTO = activity,
                         onClick = {
-                         onActivityClick(activity.id)
+                            onActivityClick(activity.id)
                         })
                 }
             }

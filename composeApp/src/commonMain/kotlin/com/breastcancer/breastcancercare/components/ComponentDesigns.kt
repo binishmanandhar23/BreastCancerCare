@@ -94,6 +94,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
@@ -159,7 +160,7 @@ fun ActivityDesign(
                 TimeAndDateFormat(activityDTO = activityDTO, selectedDate = selectedDate)
                 Text(
                     text = activityDTO.title,
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                 )
                 activityDTO.location?.let {
                     Text(
@@ -174,7 +175,9 @@ fun ActivityDesign(
                     )
                 Text(
                     text = activityDTO.description,
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

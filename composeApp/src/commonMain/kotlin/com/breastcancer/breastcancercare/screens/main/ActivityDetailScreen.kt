@@ -9,17 +9,26 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Tag
+import androidx.compose.material.icons.outlined.TagFaces
+import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,20 +49,30 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.BreastCancerButton
 import com.breastcancer.breastcancercare.components.CategoryChip
 import com.breastcancer.breastcancercare.components.SeeMoreComponent
+import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
+import com.breastcancer.breastcancercare.components.icons.Tags
+import com.breastcancer.breastcancercare.components.icons.User
 import com.breastcancer.breastcancercare.database.local.types.ActivityType
+import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
 import com.breastcancer.breastcancercare.database.local.types.LivingWellActivityType
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.states.ActivityUIState
+import com.breastcancer.breastcancercare.theme.ColorSand
+import com.breastcancer.breastcancercare.theme.ColorSunshine
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.theme.InfoAnim
+import com.breastcancer.breastcancercare.utils.DefaultSpacer
 import com.breastcancer.breastcancercare.utils.OverlappingZoomHeaderWithParallax
+import com.breastcancer.breastcancercare.utils.getDateForNextSession
+import com.breastcancer.breastcancercare.utils.text.LinkText
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -172,19 +191,95 @@ fun ActivityDetailScreen(
                     ) {
                         Column(
                             modifier = Modifier.fillMaxWidth().padding(
-                                horizontal = DefaultHorizontalPaddingMedium,
                                 vertical = DefaultVerticalPaddingLarge
                             ),
-                            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
+                            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
                         ) {
-                            Text(
-                                text = activity?.title ?: "",
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                            )
-                            activity?.category?.let {
-                                CategoryChip(categoryName = UserCategory.getLabel(it))
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(horizontal = DefaultHorizontalPaddingMedium),
+                                verticalArrangement = Arrangement.spacedBy(
+                                    DefaultVerticalPaddingSmall
+                                )
+                            ) {
+                                Text(
+                                    text = activity?.title ?: "",
+                                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(
+                                        DefaultHorizontalPaddingSmall
+                                    )
+                                ) {
+                                    activity?.category?.let {
+                                        UserCategoryTag(userCategory = it)
+                                    }
+                                    activity?.activityType?.let { activityType ->
+                                        ActivityTypeTag(activityType = activityType)
+                                    }
+                                }
                             }
                             DescriptionSection(activity = activity)
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(horizontal = DefaultHorizontalPaddingMedium).height(
+                                        IntrinsicSize.Min
+                                    )
+                            ) {
+                                activity?.let { activity ->
+                                    CardContainer(
+                                        modifier = Modifier.weight(0.5f).fillMaxHeight()
+                                    ) {
+                                        ColumnContainer(title = "Who it's for") {
+                                            Text(
+                                                text = activity.audience ?: "",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+                                    }
+                                    DefaultSpacer(size = DefaultHorizontalPaddingSmall)
+                                    getDateForNextSession(
+                                        frequencyType = activity.frequency,
+                                        frequencySeries = activity.frequencySeries,
+                                        startDate = activity.startDate,
+                                        endDate = activity.endDate
+                                    )?.let { nextSession ->
+                                        CardContainer(
+                                            modifier = Modifier.weight(0.5f).fillMaxHeight()
+                                        ) {
+                                            ColumnContainer(title = "When") {
+                                                Text(
+                                                    text = "Next Session",
+                                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                )
+                                                TimeAndDateFormat(
+                                                    activityDTO = activity,
+                                                    selectedDate = nextSession
+                                                )
+                                                Text(
+                                                    text = "Repeats",
+                                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                )
+                                                Text(
+                                                    text = activity.frequency.type,
+                                                    style = MaterialTheme.typography.bodyMedium
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            WhereSection(
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(horizontal = DefaultHorizontalPaddingMedium),
+                                activity = activity
+                            )
                         }
                     }
                 }
@@ -198,24 +293,123 @@ fun ActivityDetailScreen(
 @Composable
 private fun DescriptionSection(activity: ActivityDTO?) {
     var isExpanded by remember { mutableStateOf(false) }
+    var isTruncated by remember { mutableStateOf(false) }
     CardContainer(
         modifier = Modifier.fillMaxWidth().animateContentSize(
             animationSpec = tween(
                 durationMillis = InfoAnim.Expand,
                 easing = LinearEasing
             )
+        ).padding(
+            horizontal = DefaultHorizontalPaddingMedium,
+            vertical = DefaultVerticalPaddingSmall
         )
     ) {
-        ColumnContainer(modifier = Modifier.clickable{
-            isExpanded = !isExpanded
-        }, title = "Description") {
+        ColumnContainer(
+            modifier = Modifier.clickable {
+                isExpanded = !isExpanded
+            }, title = "Description"
+        ) {
             Text(
                 text = activity?.description ?: "",
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = if (isExpanded) Int.MAX_VALUE else 3,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                onTextLayout = { result ->
+                    // When collapsed (maxLines=3), this is the signal that the text needed > 3 lines
+                    val truncated = !isExpanded && result.hasVisualOverflow
+
+                    // (Optional) when expanded you can directly check lineCount > 3
+                    val moreThan3 = isExpanded && result.lineCount > 3
+
+                    val shouldShowSeeMore = truncated || moreThan3
+                    if (isTruncated != shouldShowSeeMore) isTruncated = shouldShowSeeMore
+                }
             )
-            SeeMoreComponent(isExpanded = isExpanded)
+            if (isTruncated)
+                SeeMoreComponent(isExpanded = isExpanded)
+        }
+    }
+}
+
+@Composable
+private fun UserCategoryTag(modifier: Modifier = Modifier, userCategory: UserCategory) {
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.onSecondary
+        ),
+    ) {
+        Row(
+            modifier = Modifier.padding(
+                horizontal = DefaultHorizontalPaddingSmall,
+                vertical = DefaultVerticalPaddingSmall
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                imageVector = User,
+                contentDescription = UserCategory.getLabel(userCategory)
+            )
+            Text(
+                text = UserCategory.getLabel(userCategory),
+                style = MaterialTheme.typography.labelMedium
+            )
+
+        }
+    }
+}
+
+@Composable
+private fun WhereSection(modifier: Modifier = Modifier, activity: ActivityDTO?) {
+    if (activity == null)
+        return
+    CardContainer(modifier = modifier) {
+        ColumnContainer(title = "Where") {
+            if (activity.isOnline) {
+                Text(
+                    text = "Online",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                )
+                LinkText(url = activity.onlineLink ?: "")
+            } else {
+                activity.location?.let { location ->
+                    Text(
+                        text = "${location.suburb} - ${location.state}, ${location.country}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActivityTypeTag(modifier: Modifier = Modifier, activityType: ActivityType) {
+    Card(
+        modifier = modifier,
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(containerColor = ColorSand, contentColor = ColorSunshine),
+    ) {
+        Row(
+            modifier = Modifier.padding(
+                horizontal = DefaultHorizontalPaddingSmall,
+                vertical = DefaultVerticalPaddingSmall
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                imageVector = Tags,
+                contentDescription = ActivityUtils.getActivityTypeLabel(activityType)
+            )
+            Text(
+                text = ActivityUtils.getActivityTypeLabel(activityType),
+                style = MaterialTheme.typography.labelMedium
+            )
         }
     }
 }
@@ -226,31 +420,20 @@ private fun CardContainer(
     containerColor: Color = MaterialTheme.colorScheme.background,
     colors: CardColors = CardDefaults.cardColors(containerColor = containerColor),
     elevation: CardElevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-    onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    if (onClick == null)
-        Card(
-            modifier = modifier,
-            colors = colors,
-            elevation = elevation
-        ) {
-            content()
-        }
-    else
-        Card(
-            modifier = modifier,
-            colors = colors,
-            elevation = elevation,
-            onClick = onClick
-        ) {
-            content()
-        }
+    Card(
+        modifier = modifier,
+        colors = colors,
+        elevation = elevation
+    ) {
+        content()
+    }
 }
 
 @Composable
 private fun ColumnContainer(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     title: String,
     content: @Composable ColumnScope.() -> Unit
 ) {

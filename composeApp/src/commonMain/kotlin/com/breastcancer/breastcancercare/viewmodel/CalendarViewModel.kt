@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -55,8 +54,8 @@ class CalendarViewModel(
     private var _selectedDayAvailableActivities = MutableStateFlow<List<ActivityDTO>>(emptyList())
     val selectedDayAvailableActivities = _selectedDayAvailableActivities.asStateFlow()
 
-    private var _allDatesWithEvents = MutableStateFlow<List<String>>(emptyList())
-    val allDatesWithEvents = _allDatesWithEvents.asStateFlow()
+    private var _allDatesWithActivitiesAvailable = MutableStateFlow<List<String>>(emptyList())
+    val allDatesWithActivitiesAvailable = _allDatesWithActivitiesAvailable.asStateFlow()
 
     private var _allDatesWithPrograms = MutableStateFlow<List<String>>(emptyList())
     val allDatesWithPrograms = _allDatesWithPrograms.asStateFlow()
@@ -72,7 +71,7 @@ class CalendarViewModel(
         getAllEventsAndPrograms()
         getAllEventsOnSelectedDate()
         getAllSuitabilities()
-        findAllDatesWithEventsAndPrograms()
+        findAllDatesWithActivitiesAvailable()
     }
 
     fun configureNotifications() {
@@ -157,10 +156,10 @@ class CalendarViewModel(
     }
 
 
-    private fun findAllDatesWithEventsAndPrograms() {
+    private fun findAllDatesWithActivitiesAvailable() {
         viewModelScope.launch(Dispatchers.IO) {
-            allActivities.collect { events ->
-                _allDatesWithEvents.update { events.map { it.endDate.toString() }.distinct() }
+            allActivities.collect { activities ->
+                _allDatesWithActivitiesAvailable.update { activities.flatMap { it.dates }.map { it.toString() }.distinct() }
             }
         }
     }

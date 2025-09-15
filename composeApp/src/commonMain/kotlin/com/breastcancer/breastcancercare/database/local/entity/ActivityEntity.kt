@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 import com.breastcancer.breastcancercare.database.local.types.ActivityStructure
 import com.breastcancer.breastcancercare.models.FrequencySeries
 import com.breastcancer.breastcancercare.models.Location
+import com.breastcancer.breastcancercare.survey.model.Surveys
 
 @Entity
 data class ActivityEntity(
@@ -23,5 +24,6 @@ data class ActivityEntity(
     override val audience: String,
     override val activityType: String,
     override val frequency: String,
-    override val frequencySeries: FrequencySeries? = null
+    override val frequencySeries: FrequencySeries? = null,
+    override val surveys: Surveys? = null
 ) : ActivityStructure

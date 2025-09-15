@@ -41,11 +41,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.ActivityTypeTag
 import com.breastcancer.breastcancercare.components.BreastCancerButton
 import com.breastcancer.breastcancercare.components.CategoryChip
 import com.breastcancer.breastcancercare.components.SeeMoreComponent
@@ -82,7 +84,8 @@ fun ActivityDetailScreen(
     modifier: Modifier = Modifier.fillMaxSize(),
     activityViewModel: ActivityViewModel,
     id: Long,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onRegister:(activity: ActivityDTO) -> Unit
 ) {
     val activityUIState by activityViewModel.activityUIDetailState.collectAsStateWithLifecycle()
     LaunchedEffect(id) {
@@ -154,7 +157,7 @@ fun ActivityDetailScreen(
                                 }
                                 Box(modifier = Modifier.weight(0.5f)) {
                                     BreastCancerButton(
-                                        modifier = Modifier.align(Alignment.Center)
+                                        modifier = Modifier.align(Alignment.CenterEnd)
                                             .padding(vertical = DefaultVerticalPaddingSmall),
                                         fontSize = MaterialTheme.typography.labelMedium.fontSize,
                                         text = when (activity?.activityType) {
@@ -176,7 +179,9 @@ fun ActivityDetailScreen(
 
                                             else -> ""
                                         }, onClick = {
-
+                                            activity?.let {
+                                                onRegister(it)
+                                            }
                                         })
                                 }
                             }
@@ -387,32 +392,6 @@ private fun WhereSection(modifier: Modifier = Modifier, activity: ActivityDTO?) 
     }
 }
 
-@Composable
-private fun ActivityTypeTag(modifier: Modifier = Modifier, activityType: ActivityType) {
-    Card(
-        modifier = modifier,
-        shape = CircleShape,
-        colors = CardDefaults.cardColors(containerColor = ColorSand, contentColor = ColorSunshine),
-    ) {
-        Row(
-            modifier = Modifier.padding(
-                horizontal = DefaultHorizontalPaddingSmall,
-                vertical = DefaultVerticalPaddingSmall
-            ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = Tags,
-                contentDescription = ActivityUtils.getActivityTypeLabel(activityType)
-            )
-            Text(
-                text = ActivityUtils.getActivityTypeLabel(activityType),
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-    }
-}
 
 @Composable
 private fun CardContainer(

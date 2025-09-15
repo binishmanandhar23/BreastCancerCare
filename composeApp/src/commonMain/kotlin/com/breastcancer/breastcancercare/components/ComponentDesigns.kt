@@ -93,15 +93,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import com.breastcancer.breastcancercare.components.icons.Tags
+import com.breastcancer.breastcancercare.database.local.types.ActivityType
+import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
 import com.breastcancer.breastcancercare.database.local.types.Suitability
 import com.breastcancer.breastcancercare.models.BlogCategoryDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.theme.ColorOnSunshine
+import com.breastcancer.breastcancercare.theme.ColorSand
 import com.breastcancer.breastcancercare.theme.ColorSunshine
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
@@ -171,7 +176,10 @@ fun ActivityDesign(
                 if (activityDTO.isOnline)
                     CategoryChip(
                         categoryName = "Online",
-                        colors = CardDefaults.cardColors(containerColor = ColorSunshine, contentColor = ColorOnSunshine)
+                        colors = CardDefaults.cardColors(
+                            containerColor = ColorSunshine,
+                            contentColor = ColorOnSunshine
+                        )
                     )
                 Text(
                     text = activityDTO.description,
@@ -185,18 +193,19 @@ fun ActivityDesign(
 }
 
 @Composable
-fun TimeAndDateFormat(activityDTO: ActivityDTO, selectedDate: LocalDate) = Row {
-    Text(
-        text = selectedDate.format(LocalDate.Format {
+fun TimeAndDateFormat(
+    modifier: Modifier = Modifier,
+    activityDTO: ActivityDTO,
+    selectedDate: LocalDate
+) = Row(modifier = modifier) {
+    Text(text = buildAnnotatedString {
+        append(selectedDate.format(LocalDate.Format {
             monthName(MonthNames.ENGLISH_FULL)
             char(' ')
             day()
-        }),
-        style = MaterialTheme.typography.labelSmall
-    )
-    activityDTO.startTime?.let {
-        Text(
-            text = it.format(LocalTime.Format {
+        }))
+        activityDTO.startTime?.let {
+            append(it.format(LocalTime.Format {
                 char(' ')
                 char('@')
                 char(' ')
@@ -204,24 +213,22 @@ fun TimeAndDateFormat(activityDTO: ActivityDTO, selectedDate: LocalDate) = Row {
                 char(':')
                 minute()
                 amPmMarker("am", "pm")
-            }),
-            style = MaterialTheme.typography.labelSmall
-        )
-    }
-    activityDTO.endTime?.let {
-        Text(
-            text = it.format(LocalTime.Format {
-                char(' ')
-                char('-')
-                char(' ')
-                amPmHour()
-                char(':')
-                minute()
-                amPmMarker("am", "pm")
-            }),
-            style = MaterialTheme.typography.labelSmall
-        )
-    }
+            }))
+        }
+        activityDTO.endTime?.let {
+            append(
+                it.format(LocalTime.Format {
+                    char(' ')
+                    char('-')
+                    char(' ')
+                    amPmHour()
+                    char(':')
+                    minute()
+                    amPmMarker("am", "pm")
+                })
+            )
+        }
+    }, style = MaterialTheme.typography.labelSmall)
 }
 
 
@@ -985,15 +992,59 @@ fun <T> AllListContainer(
         BreastCancerBackButton(onBackClick = onBack)
     }
 }
+
 @Composable
-fun SeeMoreComponent(modifier: Modifier = Modifier, isExpanded: Boolean){
+fun SeeMoreComponent(modifier: Modifier = Modifier, isExpanded: Boolean) {
     val angle: Float by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
         animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)
     )
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Text(text = if(isExpanded) "See Less" else "See More", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
-        Icon(modifier = Modifier.rotate(angle), imageVector = Icons.Default.ArrowDropDown, contentDescription = if (isExpanded) "Collapse" else "Expand")
+        Text(
+            text = if (isExpanded) "See Less" else "See More",
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+        )
+        Icon(
+            modifier = Modifier.rotate(angle),
+            imageVector = Icons.Default.ArrowDropDown,
+            contentDescription = if (isExpanded) "Collapse" else "Expand"
+        )
+    }
+}
+
+@Composable
+fun ActivityTypeTag(
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
+    activityType: ActivityType,
+    paddingValues: PaddingValues = PaddingValues(
+        horizontal = DefaultHorizontalPaddingSmall,
+        vertical = DefaultVerticalPaddingSmall
+    ),
+    textStyle: TextStyle = MaterialTheme.typography.labelMedium
+) {
+    Card(
+        modifier = modifier,
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(containerColor = ColorSand, contentColor = ColorSunshine),
+    ) {
+        Row(
+            modifier = Modifier.padding(
+                paddingValues = paddingValues
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                modifier = iconModifier,
+                imageVector = Tags,
+                contentDescription = ActivityUtils.getActivityTypeLabel(activityType)
+            )
+            Text(
+                text = ActivityUtils.getActivityTypeLabel(activityType),
+                style = textStyle
+            )
+        }
     }
 }
 

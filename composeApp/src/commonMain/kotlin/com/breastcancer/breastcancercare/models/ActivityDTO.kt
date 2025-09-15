@@ -5,6 +5,7 @@ import com.breastcancer.breastcancercare.database.local.types.ActivityType
 import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
 import com.breastcancer.breastcancercare.database.local.types.FrequencyType
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
+import com.breastcancer.breastcancercare.survey.model.Surveys
 import com.breastcancer.breastcancercare.utils.getDatesFromActivity
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -26,7 +27,8 @@ data class ActivityDTO(
     val frequency: FrequencyType,
     val frequencySeries: FrequencySeries? = null,
     val activityType: ActivityType,
-    val dates: List<LocalDate> = emptyList()
+    val dates: List<LocalDate> = emptyList(),
+    val surveys: Surveys? = null
 )
 
 
@@ -59,6 +61,7 @@ fun ActivityEntity.toActivityDTO(): ActivityDTO {
             startDate = startDate,
             endDate = endDate,
             frequencySeries = frequencySeries
-        )
+        ),
+        surveys = surveys
     )
 }

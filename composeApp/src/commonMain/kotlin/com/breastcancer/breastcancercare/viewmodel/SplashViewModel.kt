@@ -21,6 +21,14 @@ import com.breastcancer.breastcancercare.repo.ActivityRepository
 import com.breastcancer.breastcancercare.repo.FAQRepository
 import com.breastcancer.breastcancercare.repo.OnboardingRepository
 import com.breastcancer.breastcancercare.states.SplashUIState
+import com.breastcancer.breastcancercare.survey.model.IntScaleQuestion
+import com.breastcancer.breastcancercare.survey.model.KeyboardTypeSurvey
+import com.breastcancer.breastcancercare.survey.model.Option
+import com.breastcancer.breastcancercare.survey.model.Section
+import com.breastcancer.breastcancercare.survey.model.SingleChoiceQuestion
+import com.breastcancer.breastcancercare.survey.model.Survey
+import com.breastcancer.breastcancercare.survey.model.Surveys
+import com.breastcancer.breastcancercare.survey.model.TextQuestion
 import com.breastcancer.breastcancercare.utils.text.LoremIpsum
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -471,6 +479,95 @@ class SplashViewModel(
                         category = UserCategory.LivingWell.category,
                         onlineLink = "https://link.com",
                         audience = "For women who have completed active treatment for early breast cancer",
+                        surveys = Surveys(
+                            preSurvey = Survey(
+                                id = "pre_workshop_hot_flushes",
+                                title = "Pre-Workshop – Managing Hot Flushes in the Moment",
+                                sections = listOf(
+                                    Section(
+                                        id = "demographics",
+                                        title = "Demographics",
+                                        questions = listOf(
+                                            SingleChoiceQuestion(
+                                                id = "q1_age",
+                                                prompt = "1. What is your age?",
+                                                options = listOf(
+                                                    Option("u18", "Under 18"),
+                                                    Option("18_29", "18 - 29"),
+                                                    Option("30_44", "30 - 44"),
+                                                    Option("45_59", "45 - 59"),
+                                                    Option("60p", "60+")
+                                                )
+                                            ),
+                                            SingleChoiceQuestion(
+                                                id = "q2_gender",
+                                                prompt = "2. What is your gender?",
+                                                options = listOf(
+                                                    Option("female", "Female"),
+                                                    Option("male", "Male")
+                                                ),
+                                                allowOther = true
+                                            ),
+                                            TextQuestion(
+                                                id = "q3_postcode",
+                                                prompt = "3. What is your postcode?",
+                                                multiline = false,
+                                                keyboardType = KeyboardTypeSurvey.Number.type
+                                            ),
+                                            SingleChoiceQuestion(
+                                                id = "q4_dx",
+                                                prompt = "4. What is your breast cancer diagnosis?",
+                                                options = listOf(
+                                                    Option(
+                                                        "early_tx",
+                                                        "Early breast cancer undergoing treatment"
+                                                    ),
+                                                    Option(
+                                                        "early_done",
+                                                        "Early breast cancer completed active treatment"
+                                                    ),
+                                                    Option("metastatic", "Metastatic breast cancer")
+                                                ),
+                                                allowOther = true
+                                            )
+                                        )
+                                    ),
+                                    Section(
+                                        id = "rating_scale",
+                                        title = "Hot Flush Rating Scale",
+                                        questions = listOf(
+                                            IntScaleQuestion(
+                                                id = "q5_problem",
+                                                prompt = "5. On a scale of 1–10, to what extent do you rate your hot flushes as a problem?",
+                                                startRange = 1, endRange = 10,
+                                                leftHint = "no problem at all",
+                                                rightHint = "very much a problem"
+                                            ),
+                                            IntScaleQuestion(
+                                                id = "q6_distress",
+                                                prompt = "6. On a scale of 1–10, how distressed do you feel about your hot flushes?",
+                                                startRange = 1, endRange = 10,
+                                                leftHint = "not distressed at all",
+                                                rightHint = "very distressed"
+                                            ),
+                                            IntScaleQuestion(
+                                                id = "q7_interfere",
+                                                prompt = "7. On a scale of 1–10, how much do your hot flushes interfere with your daily routine?",
+                                                startRange = 1, endRange = 10,
+                                                leftHint = "not at all",
+                                                rightHint = "very much indeed"
+                                            ),
+                                            TextQuestion(
+                                                id = "q8_free",
+                                                prompt = "8. If you want to say more about how you are currently experiencing hot flushes, please comment here",
+                                                multiline = true,
+                                                required = false
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                     ),
                     ActivityEntity(
                         id = 14,

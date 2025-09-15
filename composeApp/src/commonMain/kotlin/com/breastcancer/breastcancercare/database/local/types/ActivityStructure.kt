@@ -2,6 +2,7 @@ package com.breastcancer.breastcancercare.database.local.types
 
 import com.breastcancer.breastcancercare.models.FrequencySeries
 import com.breastcancer.breastcancercare.models.Location
+import com.breastcancer.breastcancercare.survey.model.Surveys
 
 interface ActivityStructure {
     val id: Long
@@ -25,4 +26,6 @@ interface ActivityStructure {
     val frequency: String
 
     val frequencySeries: FrequencySeries?
+
+    val surveys: Surveys?
 }

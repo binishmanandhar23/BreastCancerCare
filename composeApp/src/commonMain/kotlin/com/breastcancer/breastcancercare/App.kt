@@ -2,8 +2,6 @@ package com.breastcancer.breastcancercare
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideIn
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,11 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.navigation.NavOptions
-import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -42,9 +36,11 @@ import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
 import com.breastcancer.breastcancercare.screens.main.MainScreen
 import com.breastcancer.breastcancercare.screens.main.ProfileRoute
+import com.breastcancer.breastcancercare.screens.main.SurveyScreen
 import com.breastcancer.breastcancercare.screens.onboarding.EnterCodeScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
+import com.breastcancer.breastcancercare.survey.controller.SurveyHost
 import com.breastcancer.breastcancercare.theme.BreastCareTypography
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
@@ -242,6 +238,12 @@ fun App() {
                                         viewModelStoreOwner = navigator.getBackStackEntry<Route.Main>()
                                     ), onBack = {
                                         navigator.popBackStack()
+                                    }, onRegister = { activity ->
+                                        activity.surveys?.preSurvey?.let { preSurvey ->
+                                            navigator.navigate(
+                                                route = Route.Main.SurveyRoute(id = activity.id)
+                                            )
+                                        }
                                     }
                                 )
                             }
@@ -310,6 +312,16 @@ fun App() {
                                     onSubScreenChange = {
                                         navigator.navigate(it)
                                     })
+                            }
+
+                            composable <Route.Main.SurveyRoute>{ backStackEntry ->
+                                val parentEntry =
+                                    remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                val activityViewModel = koinViewModel<ActivityViewModel>(
+                                    viewModelStoreOwner = parentEntry
+                                )
+                                val id = backStackEntry.toRoute<Route.Main.SurveyRoute>().id
+                                SurveyScreen(activityViewModel = activityViewModel, id = id)
                             }
                         }
                     }

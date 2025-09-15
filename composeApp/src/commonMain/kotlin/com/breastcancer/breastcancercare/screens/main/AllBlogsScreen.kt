@@ -90,7 +90,7 @@ fun AllBlogsScreen(
                     key = { blog -> blog.slug }
                 ) { blog ->
                     BlogCard(
-                        modifier = Modifier.height(350.dp).fillMaxWidth().animateItem()
+                        modifier = Modifier.height(380.dp).fillMaxWidth().animateItem()
                             .padding(horizontal = DefaultHorizontalPaddingMedium),
                         blog = blog,
                         onClick = {

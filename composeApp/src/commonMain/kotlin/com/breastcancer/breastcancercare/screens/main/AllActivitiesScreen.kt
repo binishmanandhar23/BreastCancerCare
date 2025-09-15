@@ -3,6 +3,7 @@ package com.breastcancer.breastcancercare.screens.main
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.ActivityTypeTag
 import com.breastcancer.breastcancercare.components.AllListContainer
 import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
 import com.breastcancer.breastcancercare.components.CategoryChip
@@ -33,6 +35,7 @@ import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.states.ActivityUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultTopBarIconSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.utils.getDateForNextSession
@@ -120,6 +123,13 @@ private fun ActivityCard(
                 Text(
                     text = activity.title.let { if (activity.location != null) "$it - ${activity.location.suburb}" else it },
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                ActivityTypeTag(
+                    modifier = Modifier.padding(bottom = DefaultVerticalPaddingSmall),
+                    iconModifier = Modifier.size(15.dp),
+                    activityType = activity.activityType,
+                    paddingValues = PaddingValues(horizontal = DefaultHorizontalPaddingSmall, vertical = 3.dp),
+                    textStyle = MaterialTheme.typography.labelSmall
                 )
             }
         }, subtitle = {

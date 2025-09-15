@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.ActivityTypeTag
 import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
 import com.breastcancer.breastcancercare.components.CategoriesLabelSection
 import com.breastcancer.breastcancercare.components.CoreHomeCardDesign
@@ -43,6 +45,7 @@ import com.breastcancer.breastcancercare.models.BlogDTO
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.states.HomeUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultTopHeaderTextSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
@@ -118,13 +121,13 @@ fun HomeScreen(
                             LazyRow(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(300.dp).overscroll(overscrollEffect = overscrollEffect),
+                                    .height(330.dp).overscroll(overscrollEffect = overscrollEffect),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 contentPadding = PaddingValues(horizontal = DefaultHorizontalPaddingLarge),
                             ) {
                                 items(items = state.data ?: emptyList()) { activity ->
                                     ActivityCard(
-                                        event = activity,
+                                        activity = activity,
                                         onClick = { onActivityClick(activity) })
                                 }
                             }
@@ -153,7 +156,7 @@ fun HomeScreen(
                             LazyRow(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(330.dp).overscroll(overscrollEffect = overscrollEffect),
+                                    .height(380.dp).overscroll(overscrollEffect = overscrollEffect),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 contentPadding = PaddingValues(horizontal = DefaultHorizontalPaddingLarge),
                             ) {
@@ -176,36 +179,44 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ActivityCard(event: ActivityDTO, onClick: (event: ActivityDTO) -> Unit) =
+private fun ActivityCard(activity: ActivityDTO, onClick: (event: ActivityDTO) -> Unit) =
     CoreHomeCardDesign(
-        onClick = { onClick(event) },
+        onClick = { onClick(activity) },
         modifier = Modifier.fillMaxHeight().width(300.dp)
             .padding(vertical = DefaultVerticalPaddingMedium), image = {
             UrlImage(
                 modifier = Modifier.fillMaxWidth().height(150.dp),
-                url = event.image ?: "",
+                url = activity.image ?: "",
             )
         }, title = {
             Column(verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)) {
                 getDateForNextSession(
-                    frequencyType = event.frequency,
-                    startDate = event.startDate,
-                    endDate = event.endDate,
-                    frequencySeries = event.frequencySeries
+                    frequencyType = activity.frequency,
+                    startDate = activity.startDate,
+                    endDate = activity.endDate,
+                    frequencySeries = activity.frequencySeries
                 )?.let {
                     TimeAndDateFormat(
-                        activityDTO = event,
+                        activityDTO = activity,
                         selectedDate = it
                     )
                 }
                 Text(
-                    text = event.title.let { if (event.location != null) "$it - ${event.location.suburb}" else it },
+                    text = activity.title.let { if (activity.location != null) "$it - ${activity.location.suburb}" else it },
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                ActivityTypeTag(
+                    modifier = Modifier.padding(bottom = DefaultVerticalPaddingSmall),
+                    iconModifier = Modifier.size(15.dp),
+                    activityType = activity.activityType,
+                    paddingValues = PaddingValues(horizontal = DefaultHorizontalPaddingSmall, vertical = 3.dp),
+                    textStyle = MaterialTheme.typography.labelSmall
                 )
             }
         }, subtitle = {
             Text(
-                text = event.description,
+                modifier = Modifier,
+                text = activity.description,
                 style = MaterialTheme.typography.labelMedium,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis

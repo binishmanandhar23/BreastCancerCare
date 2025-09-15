@@ -22,16 +22,17 @@ import com.breastcancer.breastcancercare.database.local.entity.FAQEntity
 import com.breastcancer.breastcancercare.database.local.entity.LoggedInUserEntity
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
 import com.breastcancer.breastcancercare.database.local.entity.UserEntity
+import com.breastcancer.breastcancercare.survey.converter.SurveyConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
     entities = [FAQEntity::class, ActivityEntity::class, UserEntity::class, LoggedInUserEntity::class, SuitabilityEntity::class, BlogEntity::class, BlogCategoryEntity::class],
-    version = 18
+    version = 19
 )
 @TypeConverters(
     FAQConverter::class, BlogConverter::class, ListConverter::class,
-    FrequencySeriesConverter::class, LocationConverter::class
+    FrequencySeriesConverter::class, LocationConverter::class, SurveyConverter::class
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {

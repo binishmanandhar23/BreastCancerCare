@@ -10,6 +10,7 @@ import com.breastcancer.breastcancercare.database.local.converters.BlogConverter
 import com.breastcancer.breastcancercare.database.local.converters.FAQConverter
 import com.breastcancer.breastcancercare.database.local.converters.FrequencySeriesConverter
 import com.breastcancer.breastcancercare.database.local.converters.ListConverter
+import com.breastcancer.breastcancercare.database.local.converters.LocationConverter
 import com.breastcancer.breastcancercare.database.local.dao.BlogDAO
 import com.breastcancer.breastcancercare.database.local.dao.ActivityDAO
 import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
@@ -30,7 +31,7 @@ import kotlinx.coroutines.IO
 )
 @TypeConverters(
     FAQConverter::class, BlogConverter::class, ListConverter::class,
-    FrequencySeriesConverter::class
+    FrequencySeriesConverter::class, LocationConverter::class
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {

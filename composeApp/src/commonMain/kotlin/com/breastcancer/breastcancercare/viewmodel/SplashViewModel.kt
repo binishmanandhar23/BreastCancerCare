@@ -14,12 +14,14 @@ import com.breastcancer.breastcancercare.database.local.types.Suitability
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.models.FrequencySeries
+import com.breastcancer.breastcancercare.models.Location
 import com.breastcancer.breastcancercare.models.toSuitabilityDTO
 import com.breastcancer.breastcancercare.repo.BlogRepository
 import com.breastcancer.breastcancercare.repo.ActivityRepository
 import com.breastcancer.breastcancercare.repo.FAQRepository
 import com.breastcancer.breastcancercare.repo.OnboardingRepository
 import com.breastcancer.breastcancercare.states.SplashUIState
+import com.breastcancer.breastcancercare.utils.text.LoremIpsum
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
@@ -71,38 +73,6 @@ class SplashViewModel(
             activityRepository.activityDAO.insertAllActivities(
                 listOf(
                     ActivityEntity(
-                        id = 1,
-                        title = "Early Breast Cancer Group – Mandurah",
-                        description = "This group is for all women undergoing or recently completed treatment for early breast cancer.",
-                        category = UserCategory.StartingStrong.category,
-                        activityType = StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum.SupportGroups.type,
-                        startDate = LocalDate(2025, 8, 19).toString(),
-                        endDate = null,
-                        startTime = null,
-                        endTime = null,
-                        isOnline = false,
-                        location = "Mandurah, Western Australia, Australia",
-                        onlineLink = null,
-                        audience = "People with breast cancer",
-                        frequency = FrequencyType.OnceOff.type
-                    ),
-                    ActivityEntity(
-                        id = 2,
-                        title = "Young Women’s Early Breast Cancer Group – Online",
-                        description = "This support group is for women with early breast cancer that are under 45 or with school aged children.",
-                        activityType = StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum.SupportGroups.type,
-                        startDate = LocalDate(2025, 8, 19).toString(),
-                        endDate = null,
-                        startTime = null,
-                        endTime = null,
-                        isOnline = true,
-                        location = null, // ⬅️ online
-                        onlineLink = null,
-                        audience = "People with breast cancer",
-                        frequency = FrequencyType.OnceOff.type,
-                        category = UserCategory.StartingStrong.category,
-                    ),
-                    ActivityEntity(
                         id = 3,
                         title = "Online Partners of Women with Metastatic Breast Cancer Support Group",
                         description = "This group is for partners of women living with metastatic breast cancer.",
@@ -118,23 +88,7 @@ class SplashViewModel(
                         onlineLink = null,
                         audience = "People adjusting after treatment"
                     ),
-                    ActivityEntity(
-                        id = 4,
-                        title = "Young Women’s Early Breast Cancer Group – Hamersley",
-                        description = "This support group is for women with early breast cancer that are under 45 or with school aged children.",
-                        startDate = LocalDate(2025, 8, 22).toString(),
-                        endDate = null,
-                        startTime = null,
-                        endTime = null,
-                        isOnline = false,
-                        location = "Hamersley, Western Australia, Australia",
-                        activityType = StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum.SupportGroups.type,
-                        frequency = FrequencyType.OnceOff.type,
-                        category = UserCategory.StartingStrong.category,
-                        onlineLink = null,
-                        audience = "People with breast cancer",
 
-                    ),
                     ActivityEntity(
                         id = 5,
                         title = "Young Women’s Metastatic Support Group – Online",
@@ -355,10 +309,10 @@ class SplashViewModel(
                                 "All breasts have areas of lumpiness that fluctuate with the menstrual cycle, however if lumps are irregular, unchanging or slowly enlarging or new you should contact your doctor.",
                         suitabilities = allSuitabilities.find { it.key == Suitability.Early.key }
                             ?.toSuitabilityDTO()?.let {
-                            listOf(
-                                it
-                            )
-                        } ?: emptyList()
+                                listOf(
+                                    it
+                                )
+                            } ?: emptyList()
                     ),
                     FAQDTO(
                         2,
@@ -366,10 +320,10 @@ class SplashViewModel(
                         answer = "Nearly 80% of breast lumps are benign (not cancerous). Lumpy breasts are very common and they can change with different times of the menstrual cycle. Any lump that is new or unusual should be checked by a doctor.",
                         suitabilities = allSuitabilities.find { it.key == Suitability.Early.key }
                             ?.toSuitabilityDTO()?.let {
-                            listOf(
-                                it
-                            )
-                        } ?: emptyList()
+                                listOf(
+                                    it
+                                )
+                            } ?: emptyList()
                     ),
                     FAQDTO(
                         3,
@@ -389,10 +343,10 @@ class SplashViewModel(
                                 "If you notice any of the above changes please consult your GP or health professional as soon as possible.",
                         suitabilities = allSuitabilities.find { it.key == Suitability.Early.key }
                             ?.toSuitabilityDTO()?.let {
-                            listOf(
-                                it
-                            )
-                        } ?: emptyList()
+                                listOf(
+                                    it
+                                )
+                            } ?: emptyList()
                     ),
                 )
             )
@@ -401,6 +355,102 @@ class SplashViewModel(
         viewModelScope.launch {
             activityRepository.activityDAO.insertAllActivities(
                 events = listOf(
+                    ActivityEntity(
+                        id = 1,
+                        title = "Early Breast Cancer Group",
+                        description = "This group is for all women undergoing or recently completed treatment for early breast cancer. $LoremIpsum",
+                        category = UserCategory.StartingStrong.category,
+                        activityType = StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum.SupportGroups.type,
+                        startDate = LocalDate(2025, 3, 1).toString(),
+                        endDate = LocalDate(2026, 3, 1).toString(),
+                        startTime = null,
+                        endTime = null,
+                        isOnline = false,
+                        image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/bcwa-230620-stock-36-WEB-ONLY.jpg",
+                        location = Location(
+                            suburb = "Mandurah",
+                            state = "Western Australia",
+                            country = "Australia"
+                        ),
+                        onlineLink = null,
+                        audience = "For all women undergoing or recently completed treatment for early breast cancer",
+                        frequency = FrequencyType.Series.type,
+                        frequencySeries = FrequencySeries(
+                            occurrence = 3,
+                            dayOfWeek = DayOfWeek.TUESDAY.name
+                        )
+                    ),
+                    ActivityEntity(
+                        id = 2,
+                        title = "Young Women’s Early Breast Cancer Group",
+                        description = "This support group is for women with early breast cancer that are under 45 or with school aged children.",
+                        activityType = StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum.SupportGroups.type,
+                        startDate = LocalDate(2025, 3, 1).toString(),
+                        endDate = LocalDate(2026, 3, 1).toString(),
+                        startTime = LocalTime(12, 30, 0).toString(),
+                        endTime = null,
+                        location = null, // ⬅️ online
+                        isOnline = true,
+                        image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/bccwa-231025-natasha-230-WEB-ONLY.jpg",
+                        onlineLink = "https://link.com",
+                        audience = "For women with early breast cancer that are under 45 or with school aged children",
+                        category = UserCategory.StartingStrong.category,
+                        frequency = FrequencyType.Series.type,
+                        frequencySeries = FrequencySeries(
+                            occurrence = 3,
+                            dayOfWeek = DayOfWeek.TUESDAY.name
+                        )
+                    ),
+                    ActivityEntity(
+                        id = 4,
+                        title = "Young Women’s Early Breast Cancer Group",
+                        description = "This support group is for women with early breast cancer that are under 45 or with school aged children.",
+                        startDate = LocalDate(2025, 3, 1).toString(),
+                        endDate = LocalDate(2026, 3, 1).toString(),
+                        startTime = null,
+                        endTime = null,
+                        isOnline = false,
+                        location = Location(
+                            suburb = "Hamersley",
+                            state = "Western Australia",
+                            country = "Australia"
+                        ),
+                        image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/IMG20211208090450-2048x1536.jpg",
+                        activityType = StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum.SupportGroups.type,
+                        category = UserCategory.StartingStrong.category,
+                        onlineLink = null,
+                        audience = "For women with early breast cancer that are under 45 or with school aged children",
+                        frequency = FrequencyType.Series.type,
+                        frequencySeries = FrequencySeries(
+                            occurrence = 4,
+                            dayOfWeek = DayOfWeek.FRIDAY.name
+                        )
+                    ),
+                    ActivityEntity(
+                        id = 6,
+                        title = "Early Breast Cancer Group",
+                        description = "This group is for all women undergoing or recently completed treatment for early breast cancer.",
+                        startDate = LocalDate(2025, 3, 1).toString(),
+                        endDate = LocalDate(2026, 3, 1).toString(),
+                        startTime = null,
+                        endTime = null,
+                        isOnline = false,
+                        location = Location(
+                            suburb = "Midland",
+                            state = "Western Australia",
+                            country = "Australia"
+                        ),
+                        image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/21035_0456-2048x1365.jpg",
+                        activityType = StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum.SupportGroups.type,
+                        category = UserCategory.StartingStrong.category,
+                        onlineLink = null,
+                        audience = "For all women undergoing or recently completed treatment for early breast cancer",
+                        frequency = FrequencyType.Series.type,
+                        frequencySeries = FrequencySeries(
+                            occurrence = 4,
+                            dayOfWeek = DayOfWeek.THURSDAY.name
+                        )
+                    ),
                     ActivityEntity(
                         id = 13,
                         title = "Living Well Discussion Group – Online",
@@ -414,10 +464,38 @@ class SplashViewModel(
                         location = null, // ⬅️ online
                         activityType = LivingWellActivityType.Companion.LivingWellActivityTypeEnum.DiscussionGroups.type,
                         frequency = FrequencyType.Series.type,
-                        frequencySeries = FrequencySeries(occurrence = 1, dayOfWeek = DayOfWeek.THURSDAY.name),
+                        frequencySeries = FrequencySeries(
+                            occurrence = 1,
+                            dayOfWeek = DayOfWeek.THURSDAY.name
+                        ),
                         category = UserCategory.LivingWell.category,
                         onlineLink = "https://link.com",
-                        audience = "LocalDate(2025, 3, 1).toString()",
+                        audience = "For women who have completed active treatment for early breast cancer",
+                    ),
+                    ActivityEntity(
+                        id = 14,
+                        title = "Early Breast Cancer Group",
+                        description = "This group is for all women undergoing or recently completed treatment for early breast cancer.",
+                        startDate = LocalDate(2025, 3, 1).toString(),
+                        endDate = LocalDate(2026, 3, 1).toString(),
+                        startTime = null,
+                        endTime = null,
+                        isOnline = false,
+                        image = "https://www.breastcancer.org.au/wp-content/uploads/2022/08/bcwa-230620-stock-32-WEB-ONLY.jpg",
+                        location = Location(
+                            suburb = "Hamersley",
+                            state = "Western Australia",
+                            country = "Australia"
+                        ),
+                        activityType = StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum.SupportGroups.type,
+                        category = UserCategory.StartingStrong.category,
+                        onlineLink = null,
+                        audience = "People with breast cancer",
+                        frequency = FrequencyType.Series.type,
+                        frequencySeries = FrequencySeries(
+                            occurrence = 4,
+                            dayOfWeek = DayOfWeek.THURSDAY.name
+                        )
                     ),
                 )
             )
@@ -482,7 +560,10 @@ class SplashViewModel(
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2024/09/bcwa-230614-stock-401-WEB-ONLY-652x437.jpg",
                         categories = listOf(
                             BlogCategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer"),
-                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services")
+                            BlogCategoryEntity(
+                                CategoryType.SupportServices.type,
+                                "Support Services"
+                            )
                         ),
                         tags = listOf("Metastatic", "support services")
                     ),
@@ -524,7 +605,10 @@ class SplashViewModel(
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2024/02/World-Cancer-Day-eDM-header-600-x-400-px.png",
                         categories = listOf(
                             BlogCategoryEntity(CategoryType.InTheNews.type, "In the News"),
-                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services")
+                            BlogCategoryEntity(
+                                CategoryType.SupportServices.type,
+                                "Support Services"
+                            )
                         ),
                         tags = listOf("World Cancer Day", "Equity", "First Nations")
                     ),
@@ -537,7 +621,10 @@ class SplashViewModel(
                                 "BCCWA will continue offering programs that nurture wellbeing alongside clinical care.",
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/10/Massage2-652x437.jpg",
                         categories = listOf(
-                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services"),
+                            BlogCategoryEntity(
+                                CategoryType.SupportServices.type,
+                                "Support Services"
+                            ),
                             BlogCategoryEntity(CategoryType.OurClients.type, "Our Clients")
                         ),
                         tags = listOf("Wellbeing", "Living well", "Metastatic")
@@ -576,7 +663,10 @@ class SplashViewModel(
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/08/bcwa-230614-stock-190-WEB-ONLY-652x437.jpg",
                         categories = listOf(
                             BlogCategoryEntity(CategoryType.InTheNews.type, "In the News"),
-                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services")
+                            BlogCategoryEntity(
+                                CategoryType.SupportServices.type,
+                                "Support Services"
+                            )
                         ),
                         tags = listOf("Donation", "Financial assistance", "Partnerships")
                     ),
@@ -590,7 +680,10 @@ class SplashViewModel(
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/08/iStock-936849736-652x437.jpg",
                         categories = listOf(
                             BlogCategoryEntity(CategoryType.OurClients.type, "Our Clients"),
-                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services")
+                            BlogCategoryEntity(
+                                CategoryType.SupportServices.type,
+                                "Support Services"
+                            )
                         ),
                         tags = listOf("NDIS", "Lymphoedema", "Survivorship")
                     ),
@@ -618,7 +711,10 @@ class SplashViewModel(
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2023/05/National-Reconciliation-Week-600-%C3%97-400px-1.png",
                         categories = listOf(
                             BlogCategoryEntity(CategoryType.InTheNews.type, "In the News"),
-                            BlogCategoryEntity(CategoryType.SupportServices.type, "Support Services"),
+                            BlogCategoryEntity(
+                                CategoryType.SupportServices.type,
+                                "Support Services"
+                            ),
                             BlogCategoryEntity(CategoryType.BreastCancer.type, "Breast Cancer")
                         ),
                         tags = listOf("First Nations", "Equity", "Reconciliation")

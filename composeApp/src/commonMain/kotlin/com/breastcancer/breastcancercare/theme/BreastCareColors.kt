@@ -10,6 +10,7 @@ val ColorOrchid = Color(0xFF87176E)
 val ColorBerry = Color(0xFFB5266E)
 val ColorCoral = Color(0xFFED4559)
 val ColorSunshine = Color(0xFFFF7A08)
+val ColorOnSunshine = ColorWhite
 val ColorSky = Color(0xFF82C2C4)
 val ColorSand = Color(0xFFF7E3DE)
 val PrimaryColor = ColorSignaturePurple

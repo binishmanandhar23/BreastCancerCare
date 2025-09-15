@@ -3,6 +3,9 @@ package com.breastcancer.breastcancercare.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -79,24 +82,31 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.breastcancer.breastcancercare.database.local.types.Suitability
 import com.breastcancer.breastcancercare.models.BlogCategoryDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
+import com.breastcancer.breastcancercare.theme.ColorOnSunshine
+import com.breastcancer.breastcancercare.theme.ColorSunshine
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultTopHeaderTextSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
+import com.breastcancer.breastcancercare.theme.InfoAnim
 import com.breastcancer.breastcancercare.utils.DefaultImage
 import com.breastcancer.breastcancercare.utils.DefaultSpacer
 import com.breastcancer.breastcancercare.utils.PentagonShape
@@ -153,10 +163,15 @@ fun ActivityDesign(
                 )
                 activityDTO.location?.let {
                     Text(
-                        text = it,
+                        text = "${it.suburb}, ${it.state}, ${it.country}",
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
+                if (activityDTO.isOnline)
+                    CategoryChip(
+                        categoryName = "Online",
+                        colors = CardDefaults.cardColors(containerColor = ColorSunshine, contentColor = ColorOnSunshine)
+                    )
                 Text(
                     text = activityDTO.description,
                     style = MaterialTheme.typography.labelMedium
@@ -548,7 +563,8 @@ fun BreastCancerButton(
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = textColor,
                     fontSize = fontSize,
-                    fontWeight = fontWeight
+                    fontWeight = fontWeight,
+                    textAlign = TextAlign.Center
                 )
             )
         }
@@ -896,7 +912,10 @@ fun <T> AllListContainer(
             header = {
                 Row(
                     modifier = Modifier.fillMaxWidth().align(Alignment.TopStart)
-                        .padding(start = DefaultHorizontalPaddingLarge + DefaultHorizontalPaddingMedium, end = DefaultHorizontalPaddingMedium),
+                        .padding(
+                            start = DefaultHorizontalPaddingLarge + DefaultHorizontalPaddingMedium,
+                            end = DefaultHorizontalPaddingMedium
+                        ),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Top
                 ) {
@@ -961,6 +980,17 @@ fun <T> AllListContainer(
             }
         }
         BreastCancerBackButton(onBackClick = onBack)
+    }
+}
+@Composable
+fun SeeMoreComponent(modifier: Modifier = Modifier, isExpanded: Boolean){
+    val angle: Float by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)
+    )
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(text = if(isExpanded) "See Less" else "See More", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
+        Icon(modifier = Modifier.rotate(angle), imageVector = Icons.Default.ArrowDropDown, contentDescription = if (isExpanded) "Collapse" else "Expand")
     }
 }
 

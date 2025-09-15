@@ -118,7 +118,7 @@ private fun ActivityCard(
                     TimeAndDateFormat(activityDTO = activity, selectedDate = it)
                 }
                 Text(
-                    text = activity.title,
+                    text = activity.title.let { if (activity.location != null) "$it - ${activity.location.suburb}" else it },
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }

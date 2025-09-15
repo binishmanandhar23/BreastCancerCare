@@ -29,8 +29,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.zIndex
 import com.breastcancer.breastcancercare.components.BreastCancerBackButton
+import com.breastcancer.breastcancercare.components.DefaultSpacerSize
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import kotlin.math.max
 import kotlin.math.min
 
@@ -38,6 +40,7 @@ import kotlin.math.min
 fun OverlappingZoomHeaderWithParallax(
     modifier: Modifier = Modifier,
     header: @Composable (modifier: Modifier) -> Unit,
+    stickyFooter: @Composable BoxScope.() -> Unit = {},
     baseHeaderHeight: Dp = 250.dp,
     defaultOverlap: Dp = 24.dp,          // <-- how much to overlap at rest
     maxExtraPullPx: Float = 600f,
@@ -144,9 +147,31 @@ fun OverlappingZoomHeaderWithParallax(
                         .fillMaxWidth()
                         .verticalScroll(scrollState)
                         .padding(top = headerHeight),             // layout below header; offset pulls it over
-                    content = content
+                    verticalArrangement = object : Arrangement.Vertical {
+                        override fun Density.arrange(
+                            totalSize: Int,
+                            sizes: IntArray,
+                            outPositions: IntArray
+                        ) {
+                            var y = 0
+                            for (i in sizes.indices) {
+                                outPositions[i] = y
+                                y += sizes[i]
+                                if (i != sizes.lastIndex) y += DefaultVerticalPaddingSmall.roundToPx()
+                            }
+                            if (y < totalSize)
+                                outPositions.lastIndex.let {
+                                    outPositions[it] = totalSize - sizes.last()
+                                }
+                        }
+                    },
+                    content = {
+                        content()
+                        DefaultSpacerSize()
+                    }
                 )
             }
+            Box(modifier = Modifier.align(Alignment.BottomCenter), content = stickyFooter)
         }
         if (backButton)
             BreastCancerBackButton(onBackClick = onBackClick)

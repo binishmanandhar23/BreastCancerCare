@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.breastcancer.breastcancercare.database.local.types.ActivityStructure
 import com.breastcancer.breastcancercare.models.FrequencySeries
+import com.breastcancer.breastcancercare.models.Location
 
 @Entity
 data class ActivityEntity(
@@ -15,7 +16,7 @@ data class ActivityEntity(
     override val endDate: String?,
     override val startTime: String? = null,
     override val endTime: String? = null,
-    override val location: String? = null,
+    override val location: Location? = null,
     override val category: String,
     override val isOnline: Boolean,
     override val onlineLink: String?,

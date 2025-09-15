@@ -199,7 +199,7 @@ private fun ActivityCard(event: ActivityDTO, onClick: (event: ActivityDTO) -> Un
                     )
                 }
                 Text(
-                    text = event.title,
+                    text = event.title.let { if (event.location != null) "$it - ${event.location.suburb}" else it },
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }

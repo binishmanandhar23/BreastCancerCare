@@ -15,7 +15,7 @@ data class ActivityDTO(
     val description: String,
     val startTime: LocalTime? = null,
     val endTime: LocalTime? = null,
-    val location: String? = null,
+    val location: Location? = null,
     val category: UserCategory,
     val isOnline: Boolean = (location == null),
     val image: String? = null,

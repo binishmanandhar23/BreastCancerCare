@@ -147,12 +147,10 @@ class CalendarViewModel(
             Pair(selectedDate, allActivities)
         }.collectLatest { (selectedDate, activities) ->
             _selectedDayAvailableActivities.update {
-                activities.filter {
-                    activities.any { activity ->
-                        activity.dates.contains(
-                            selectedDate
-                        )
-                    }
+                activities.filter { activity ->
+                    activity.dates.contains(
+                        selectedDate
+                    )
                 }
             }
         }

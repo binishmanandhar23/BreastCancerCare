@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +42,7 @@ import com.breastcancer.breastcancercare.components.DefaultSpacerSize
 import com.breastcancer.breastcancercare.components.LazyColumnCollapsibleHeader
 import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.BlogDTO
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.states.HomeUIState
@@ -54,20 +56,23 @@ import com.breastcancer.breastcancercare.theme.spToDp
 import com.breastcancer.breastcancercare.utils.emojiFor
 import com.breastcancer.breastcancercare.utils.getDateForNextSession
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = koinViewModel(),
+    homeViewModel: HomeViewModel,
     onBlogClick: (blog: BlogDTO) -> Unit,
     onActivityClick: (activity: ActivityDTO) -> Unit,
     onAllBlogs: () -> Unit,
     onAllActivities: () -> Unit
 ) {
+    val loggedInUser by homeViewModel.loggedInUser.collectAsStateWithLifecycle()
     val greetingText by homeViewModel.homeGreeting.collectAsStateWithLifecycle()
     val recommendedBlogsUIState by homeViewModel.recommendedBlogsUIState.collectAsStateWithLifecycle()
     val upcomingEventsUIState by homeViewModel.upcomingEventsUIState.collectAsStateWithLifecycle()
     val overscrollEffect = rememberOverscrollEffect()
+    val coroutineScope = rememberCoroutineScope()
     LazyColumnCollapsibleHeader(
         modifier = Modifier
             .fillMaxSize()
@@ -94,7 +99,16 @@ fun HomeScreen(
             Text(
                 modifier = Modifier.padding(
                     vertical = DefaultVerticalPaddingMedium
-                ),
+                ).clickable{
+                    loggedInUser?.let {
+                        coroutineScope.launch {
+                            homeViewModel.updateUserCategoryById(
+                                userId = it.id,
+                                userCategory = if(it.userCategory == UserCategory.StartingStrong) UserCategory.LivingWell else UserCategory.StartingStrong
+                            )
+                        }
+                    }
+                },
                 text = builtText,
                 lineHeight = DefaultTopHeaderTextSize * 1.0f
             )

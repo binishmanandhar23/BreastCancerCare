@@ -12,6 +12,7 @@ import com.breastcancer.breastcancercare.database.local.types.StartingStrongActi
 interface ActivityType {
     val type: String
 }
+
 sealed class StartingStrongActivityType(override val type: String) : ActivityType {
     class SupportGroups(type: String = StartingStrongActivityTypeEnum.SupportGroups.type) :
         StartingStrongActivityType(type)
@@ -36,12 +37,13 @@ sealed class StartingStrongActivityType(override val type: String) : ActivityTyp
             Nursing(),
             FinancialAndPracticalHardshipSupport()
         )
+
         enum class StartingStrongActivityTypeEnum(val type: String) {
             SupportGroups("support_groups"),
             Workshops("starting_strong_workshops"),
-            Counselling("counselling"),
-            Nursing("nursing"),
-            FinancialAndPracticalHardshipSupport("financial_and_practical_hardship_support")
+            Counselling("counselling"), //Must be same as Living Well
+            Nursing("nursing"), //Must be same as Living Well
+            FinancialAndPracticalHardshipSupport("financial_and_practical_hardship_support") //Must be same as Living Well
         }
     }
 }
@@ -82,15 +84,16 @@ sealed class LivingWellActivityType(override val type: String) : ActivityType {
             Nursing(),
             FinancialAndPracticalHardshipSupport()
         )
+
         enum class LivingWellActivityTypeEnum(val type: String) {
             DiscussionGroups("discussion_groups"),
             Workshops("living_well_workshops"),
             Webinars("webinars"),
             WellnessActivities("wellness_activities"),
             MindfulRecoveryProgram("mindful_recovery_program"),
-            Counselling("counselling"),
-            Nursing("nursing"),
-            FinancialAndPracticalHardshipSupport("financial_and_practical_hardship_support")
+            Counselling("counselling"), //Must be same as Starting Strong
+            Nursing("nursing"), //Must be same as Starting Strong
+            FinancialAndPracticalHardshipSupport("financial_and_practical_hardship_support") //Must be same as Starting Strong
         }
     }
 }
@@ -110,7 +113,7 @@ object ActivityUtils {
                 StartingStrongActivityTypeEnum.FinancialAndPracticalHardshipSupport.type -> StartingStrongActivityType.FinancialAndPracticalHardshipSupport()
                 else -> throw IllegalArgumentException("Unknown type: $type")
             }
-        } else {
+        } else if(category == UserCategory.LivingWell) {
             when (norm(type)) {
                 LivingWellActivityTypeEnum.DiscussionGroups.type -> DiscussionGroups()
                 LivingWellActivityTypeEnum.Workshops.type -> LivingWellActivityType.Workshops()
@@ -122,22 +125,20 @@ object ActivityUtils {
                 LivingWellActivityTypeEnum.FinancialAndPracticalHardshipSupport.type -> LivingWellActivityType.FinancialAndPracticalHardshipSupport()
                 else -> throw IllegalArgumentException("Unknown type: $type")
             }
-        }
+        } else
+            SupportGroups() /*TODO: Dummy for the else case, needs to be handled later*/
 
     fun getActivityTypeLabel(type: ActivityType): String = when (type) {
         is SupportGroups -> "Support Groups"
         is StartingStrongActivityType.Workshops -> "Workshops"
-        is StartingStrongActivityType.Counselling -> "Counselling"
-        is StartingStrongActivityType.Nursing -> "Nursing"
-        is StartingStrongActivityType.FinancialAndPracticalHardshipSupport -> "Financial and Practical Hardship Support"
+        is StartingStrongActivityType.Counselling, is LivingWellActivityType.Counselling -> "Counselling"
+        is StartingStrongActivityType.Nursing, is LivingWellActivityType.Nursing -> "Nursing"
+        is StartingStrongActivityType.FinancialAndPracticalHardshipSupport, is LivingWellActivityType.FinancialAndPracticalHardshipSupport -> "Financial and Practical Hardship Support"
         is DiscussionGroups -> "Discussion Groups"
         is LivingWellActivityType.Workshops -> "Workshops"
         is Webinars -> "Webinars"
         is WellnessActivities -> "Wellness Activities"
         is MindfulRecoveryProgram -> "Mindful Recovery Program"
-        is LivingWellActivityType.Counselling -> "Counselling"
-        is LivingWellActivityType.Nursing -> "Nursing"
-        is LivingWellActivityType.FinancialAndPracticalHardshipSupport -> "Financial and Practical Hardship Support"
         else -> ""
     }
 }

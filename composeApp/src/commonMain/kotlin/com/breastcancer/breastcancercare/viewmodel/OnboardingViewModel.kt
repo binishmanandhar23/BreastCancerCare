@@ -34,9 +34,6 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     private var _emailValid = MutableStateFlow(true)
     val emailValid = _emailValid.asStateFlow()
 
-    private var _code = MutableStateFlow("")
-    val code = _code.asStateFlow()
-
     private var _canRegister = MutableStateFlow(false)
     val canRegister = _canRegister.asStateFlow()
 
@@ -79,7 +76,6 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
             updateEmailValid(true)
         }
 
-    fun updateCode(code: String) = _code.update { code }
 
     init {
         canRegister()
@@ -120,30 +116,25 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
 
     }
 
-    fun onRegister(canRegister: () -> Unit) {
+    fun onRegister() {
         if (!this.canRegister.value)
             _loginUIState.update { LoginUIState.Error("Please check your inputs.") }
         else
-            canRegister()
-    }
-
-    fun onCodeSubmitted() =
-        viewModelScope.launch {
-            try {
-                if (code.value == "000000" || code.value == "111111") {
+            viewModelScope.launch {
+                try {
                     val toSave = userDTO.value.copy(
                         password = password.value,
-                        userCategory = if (code.value == "000000") UserCategory.StartingStrong else UserCategory.LivingWell
+                        userCategory = UserCategory.Undefined
                     )
                     onboardingRepository.insertUser(toSave)
                     _loginUIState.update { LoginUIState.RegistrationSuccessful(successMessage = "Registration Successful!") }
                     reset()
-                } else
-                    throw Exception("Invalid Code")
-            } catch (e: Exception) {
-                _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }
+                } catch (e: Exception) {
+                    _loginUIState.update { LoginUIState.Error(e.message ?: "Unknown Error") }
+                }
             }
-        }
+    }
+
 
     fun onLogOut() = viewModelScope.launch {
         onboardingRepository.logOut()
@@ -158,7 +149,6 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         _password.update { "" }
         _confirmPassword.update { "" }
         _agree.update { false }
-        _code.update { "" }
     }
 
     fun clearTransientLoginState() {

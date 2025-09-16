@@ -13,7 +13,7 @@ data class UserDTO(
     val password: String = "",
     val phoneNumber: String = "",
     val address: String? = "",
-    val userCategory: UserCategory = UserCategory.StartingStrong
+    val userCategory: UserCategory = UserCategory.Undefined
 )
 
 fun UserDTO.toEntity() = UserEntity(

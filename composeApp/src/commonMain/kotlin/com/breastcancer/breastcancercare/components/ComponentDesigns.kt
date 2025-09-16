@@ -640,14 +640,14 @@ fun BreastCancerAlertDialog(
 
 @Composable
 fun BreastCancerToolbar(
-    modifier: Modifier = Modifier.fillMaxWidth().padding(
-        horizontal = DefaultHorizontalPaddingSmall,
-        vertical = DefaultVerticalPaddingMedium
-    ),
+    modifier: Modifier = Modifier.fillMaxWidth(),
     title: String,
     onBack: () -> Unit
 ) = Row(
-    modifier = modifier,
+    modifier = modifier.padding(
+        horizontal = DefaultHorizontalPaddingSmall,
+        vertical = DefaultVerticalPaddingMedium
+    ),
     horizontalArrangement = Arrangement.spacedBy(12.dp),
     verticalAlignment = Alignment.CenterVertically
 ) {
@@ -659,7 +659,8 @@ fun BreastCancerToolbar(
         ), imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back Button"
     )
     Text(
-        title,
+        text = title,
+        color = MaterialTheme.colorScheme.primary,
         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
     )
 }

@@ -2,6 +2,7 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.notifications.NotificationChannels

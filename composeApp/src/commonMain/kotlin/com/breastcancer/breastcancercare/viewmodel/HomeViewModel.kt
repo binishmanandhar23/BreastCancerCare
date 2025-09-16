@@ -2,8 +2,12 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.breastcancer.breastcancercare.database.local.entity.LoggedInUserEntity
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.BlogDTO
 import com.breastcancer.breastcancercare.models.ActivityDTO
+import com.breastcancer.breastcancercare.models.UserDTO
+import com.breastcancer.breastcancercare.models.toDTO
 import com.breastcancer.breastcancercare.repo.HomeRepository
 import com.breastcancer.breastcancercare.states.HomeUIState
 import com.breastcancer.breastcancercare.utils.getHomeGreetingText
@@ -14,6 +18,8 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -21,15 +27,21 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlin.time.ExperimentalTime
 
 class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
+
+    private var _loggedInUser = MutableStateFlow<UserDTO?>(null)
+    val loggedInUser = _loggedInUser.asStateFlow()
     private val _homeGreeting = MutableStateFlow("")
     val homeGreeting = _homeGreeting.asStateFlow()
 
@@ -47,13 +59,14 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
         getAllUpcomingActivities()
     }
 
-    fun getHomeGreeting() = viewModelScope.launch(Dispatchers.IO) {
-        homeRepository.getLoggedInUser().collect { user ->
+
+    fun getHomeGreeting() =
+        homeRepository.getLoggedInUser().onEach { user ->
+            _loggedInUser.update { user }
             _homeGreeting.update {
                 getHomeGreetingText(userName = "${user?.firstName}")
             }
-        }
-    }
+        }.launchIn(viewModelScope)
 
     private fun getRecommendedBlogs() = viewModelScope.launch(Dispatchers.IO) {
         delay(2000L)
@@ -92,4 +105,6 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
             }
     }
 
+    suspend fun updateUserCategoryById(userId: Long, userCategory: UserCategory) =
+        homeRepository.updateUserCategoryById(userId, userCategory)
 }

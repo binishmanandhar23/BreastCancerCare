@@ -1,11 +1,15 @@
 package com.breastcancer.breastcancercare.repo
 
 import com.breastcancer.breastcancercare.database.local.dao.UserDao
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.models.toDTO
 import com.breastcancer.breastcancercare.models.toEntity
 import com.breastcancer.breastcancercare.models.toLoggedInEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
 
 class OnboardingRepository(val userDao: UserDao) {
     suspend fun insertUser(userDTO: UserDTO) {
@@ -26,6 +30,7 @@ class OnboardingRepository(val userDao: UserDao) {
             throw Exception("Email already exists")
         }
         userDao.insertUser(userDTO.toEntity())
+        setLoggedInUser(userDTO = userDTO)
     }
 
 
@@ -36,7 +41,8 @@ class OnboardingRepository(val userDao: UserDao) {
 
     suspend fun isLoggedIn() = userDao.isLoggedIn()
 
-    fun getLoggedInUser() = userDao.getLoggedInUser().map { it?.toDTO() }
+    fun getLoggedInUser(): Flow<UserDTO?> = userDao.getLoggedInUser().distinctUntilChanged()
+        .map { userEntity -> userEntity?.toDTO() }
 
     suspend fun setLoggedInUser(userDTO: UserDTO) {
         userDao.deleteLoggedInUser()

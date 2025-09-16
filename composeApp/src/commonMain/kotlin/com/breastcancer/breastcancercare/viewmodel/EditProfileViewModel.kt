@@ -90,7 +90,6 @@ class EditProfileViewModel(
             )
             try {
                 repo.updateUser(dto)
-                repo.setLoggedInUser(dto)
                 _saved.tryEmit("Profile updated")
                 _state.update { it.copy(loading = false) }
             } catch (e: Exception) {

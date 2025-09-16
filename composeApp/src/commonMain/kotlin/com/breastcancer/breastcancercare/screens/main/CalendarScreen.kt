@@ -103,7 +103,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = koinViewModel(),
-    onSubScreenChange: (Route) -> Unit
+    onSubScreenChange: (Route, clearStack: Boolean) -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(12) } // Adjust as needed
@@ -198,7 +198,7 @@ fun CalendarScreen(
             onTabSelected = calendarViewModel::changeTab,
             onSuitabilitySelected = calendarViewModel::updateSelectedSuitability,
             onActivityClick = {
-                onSubScreenChange(Route.Main.ActivityDetail(id = it))
+                onSubScreenChange(Route.Main.ActivityDetail(id = it), false)
             }
         )
     }

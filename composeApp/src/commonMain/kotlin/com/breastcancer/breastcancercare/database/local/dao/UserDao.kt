@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.breastcancer.breastcancercare.database.local.entity.LoggedInUserEntity
 import com.breastcancer.breastcancercare.database.local.entity.UserEntity
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -49,4 +50,10 @@ SELECT EXISTS(
 
     @Query("SELECT COUNT(1) > 0 FROM loggedinuserentity")
     suspend fun isLoggedIn(): Boolean
+
+    @Query("UPDATE userentity SET userCategory = :userCategory WHERE id = :id")
+    suspend fun updateUserCategoryById(id: Long, userCategory: String): Int
+
+    @Query("UPDATE loggedinuserentity SET userCategory = :userCategory WHERE id = :id")
+    suspend fun updateLoggedInUserCategoryById(id: Long, userCategory: String): Int
 }

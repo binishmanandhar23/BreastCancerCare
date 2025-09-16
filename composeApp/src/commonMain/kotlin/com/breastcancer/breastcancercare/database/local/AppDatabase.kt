@@ -28,7 +28,7 @@ import kotlinx.coroutines.IO
 
 @Database(
     entities = [FAQEntity::class, ActivityEntity::class, UserEntity::class, LoggedInUserEntity::class, SuitabilityEntity::class, BlogEntity::class, BlogCategoryEntity::class],
-    version = 19
+    version = 20
 )
 @TypeConverters(
     FAQConverter::class, BlogConverter::class, ListConverter::class,

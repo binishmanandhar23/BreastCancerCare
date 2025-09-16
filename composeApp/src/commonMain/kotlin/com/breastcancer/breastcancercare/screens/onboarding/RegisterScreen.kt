@@ -40,7 +40,7 @@ fun RegisterScreen(
     customSnackBarState: SnackBarState,
     loaderState: LoaderState,
     onBack: () -> Unit,
-    goToEnterCodeScreen: () -> Unit
+    onRegister: () -> Unit
 ) {
     val (screenW, _) = rememberWindowSizeDp()
 
@@ -65,6 +65,23 @@ fun RegisterScreen(
     val borderFocused = MaterialTheme.colorScheme.primary
 
     val formWidth = (screenW * 0.88f).coerceAtMost(520.dp)
+
+    LaunchedEffect(loginUIState) {
+        when (loginUIState) {
+            is LoginUIState.RegistrationSuccessful -> {
+                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
+                loaderState.hide()
+                onboardingViewModel.clearTransientLoginState()
+                onRegister()
+            }
+            is LoginUIState.Error -> {
+                customSnackBarState.show(overridingText = loginUIState.message, overridingDelay = SnackBarLengthMedium)
+                loaderState.hide()
+            }
+            is LoginUIState.Loading -> loaderState.show()
+            else -> loaderState.hide()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -199,7 +216,7 @@ fun RegisterScreen(
             BreastCancerButton(
                 text = "Create account",
                 enabled = canRegister && loginUIState !is LoginUIState.Loading,
-                onClick = { onboardingViewModel.onRegister(canRegister = goToEnterCodeScreen) },
+                onClick = { onboardingViewModel.onRegister() },
                 onDisabledClick = {
                     customSnackBarState.show(
                         overridingText = "Please check email, phone, password and agree to the Terms.",

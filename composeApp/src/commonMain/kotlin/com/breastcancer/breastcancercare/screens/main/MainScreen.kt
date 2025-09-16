@@ -11,20 +11,25 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.BottomBar
 import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.Tabs
 import com.breastcancer.breastcancercare.theme.DefaultElevation
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
+import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import dev.icerock.moko.permissions.PermissionState
 import kotlinx.coroutines.launch
@@ -33,14 +38,24 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun MainScreen(
     onboardingViewModel: OnboardingViewModel = koinViewModel(),
+    homeViewModel: HomeViewModel = koinViewModel(),
     permissionState: PermissionState,
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
-    onSubScreenChange: (route: Route) -> Unit,
+    onSubScreenChange: (route: Route, clearStack: Boolean) -> Unit,
     onLogOut: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { Tabs.entries.size })
+
+    val loggedInUser by homeViewModel.loggedInUser.collectAsStateWithLifecycle()
+
+    LaunchedEffect(loggedInUser){
+        loggedInUser?.let { user ->
+            if(user.userCategory == UserCategory.Undefined)
+                onSubScreenChange(Route.Journey(userId = user.id, hideBackButton = true), true)
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
@@ -50,14 +65,14 @@ fun MainScreen(
             beyondViewportPageCount = 1
         ) { page ->
             when (Tabs.entries[page].text) {
-                Tabs.Home.text -> HomeScreen(onBlogClick = {
-                    onSubScreenChange(Route.Main.BlogDetail(slug = it.slug))
+                Tabs.Home.text -> HomeScreen(homeViewModel = homeViewModel, onBlogClick = {
+                    onSubScreenChange(Route.Main.BlogDetail(slug = it.slug), false)
                 }, onAllBlogs = {
-                    onSubScreenChange(Route.Main.AllBlogs)
+                    onSubScreenChange(Route.Main.AllBlogs, false)
                 }, onActivityClick = {
-                    onSubScreenChange(Route.Main.ActivityDetail(id = it.id))
+                    onSubScreenChange(Route.Main.ActivityDetail(id = it.id), false)
                 }, onAllActivities = {
-                    onSubScreenChange(Route.Main.AllActivities)
+                    onSubScreenChange(Route.Main.AllActivities, false)
                 })
                 Tabs.Calendar.text -> CalendarScreen(onSubScreenChange = onSubScreenChange)
                 Tabs.FAQ.text -> FAQScreen(
@@ -68,9 +83,9 @@ fun MainScreen(
                 Tabs.Settings.text -> SettingsScreen(
                     permissionState = permissionState,
                     customSnackBarState = customSnackBarState,
-                    onOpenProfile = { onSubScreenChange(Route.Main.Profile) },
-                    onOpenAbout = { onSubScreenChange(Route.Main.About) },
-                    onContactSupport = { onSubScreenChange(Route.Main.Contact) },
+                    onOpenProfile = { onSubScreenChange(Route.Main.Profile, false) },
+                    onOpenAbout = { onSubScreenChange(Route.Main.About, false) },
+                    onContactSupport = { onSubScreenChange(Route.Main.Contact, false) },
                     onLogOut = {
                         onboardingViewModel.onLogOut()
                         onLogOut()

@@ -35,6 +35,9 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
@@ -53,7 +56,6 @@ class SplashViewModel(
     init {
         populateData()
         insertBlogData()
-        checkLoginStatus()
     }
 
     private fun populateData() {
@@ -599,11 +601,10 @@ class SplashViewModel(
         }
     }
 
-    private fun checkLoginStatus() {
-        viewModelScope.launch {
+    suspend fun checkLoginStatus() {
             delay(500L)
             if (onboardingRepository.isLoggedIn())
-                onboardingRepository.getLoggedInUser().collect { user ->
+                onboardingRepository.getLoggedInUser().collectLatest { user ->
                     _splashUIState.update {
                         if (user != null)
                             SplashUIState.LoggedIn
@@ -615,9 +616,9 @@ class SplashViewModel(
                 _splashUIState.update {
                     SplashUIState.NotLoggedIn
                 }
-
-        }
     }
+
+    fun finish() = _splashUIState.update { SplashUIState.Finish }
 
     private fun insertBlogData() {
         //Categories

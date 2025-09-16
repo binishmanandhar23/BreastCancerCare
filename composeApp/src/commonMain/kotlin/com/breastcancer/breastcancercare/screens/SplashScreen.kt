@@ -21,21 +21,25 @@ import com.breastcancer.breastcancercare.viewmodel.SplashViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SplashScreen(
-    splashViewModel: SplashViewModel = koinInject(),
+    splashViewModel: SplashViewModel,
     onAlreadyLoggedIn: () -> Unit,
     onNotLoggedIn: () -> Unit
 ) {
     val splashUIState by splashViewModel.splashUIState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit){
+        splashViewModel.checkLoginStatus()
+    }
+
     LaunchedEffect(splashUIState) {
         when (splashUIState) {
-            is SplashUIState.Initial -> Unit /*Wait for the next state
-            */
+            is SplashUIState.Initial, is SplashUIState.Finish -> Unit /*Wait for the result*/
             is SplashUIState.LoggedIn -> onAlreadyLoggedIn()
-            else -> onNotLoggedIn()
+            else -> onNotLoggedIn().also { splashViewModel.finish() }
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {

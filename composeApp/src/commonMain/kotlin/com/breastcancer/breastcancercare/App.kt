@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.breastcancer.breastcancercare.components.BreastCancerAlertDialog
@@ -25,8 +26,10 @@ import com.breastcancer.breastcancercare.components.loader.CustomLoader
 import com.breastcancer.breastcancercare.components.loader.rememberLoaderState
 import com.breastcancer.breastcancercare.components.snackbar.CustomSnackBar
 import com.breastcancer.breastcancercare.components.snackbar.rememberSnackBarState
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.SplashScreen
+import com.breastcancer.breastcancercare.screens.journey.JourneyDetailScreen
 import com.breastcancer.breastcancercare.screens.main.AboutScreen
 import com.breastcancer.breastcancercare.screens.main.ActivityDetailScreen
 import com.breastcancer.breastcancercare.screens.main.AllActivitiesScreen
@@ -37,16 +40,17 @@ import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
 import com.breastcancer.breastcancercare.screens.main.MainScreen
 import com.breastcancer.breastcancercare.screens.main.ProfileRoute
 import com.breastcancer.breastcancercare.screens.main.SurveyScreen
-import com.breastcancer.breastcancercare.screens.onboarding.EnterCodeScreen
+import com.breastcancer.breastcancercare.screens.journey.JourneyScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
-import com.breastcancer.breastcancercare.survey.controller.SurveyHost
 import com.breastcancer.breastcancercare.theme.BreastCareTypography
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
+import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
+import com.breastcancer.breastcancercare.viewmodel.SplashViewModel
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
 import kotlinx.coroutines.launch
@@ -96,7 +100,7 @@ fun App() {
                         val navigator = rememberNavController()
                         NavHost(
                             navController = navigator,
-                            startDestination = Route.Splash,
+                            startDestination = Route.BaseGraph,
                             enterTransition = {
                                 slideIntoContainer(
                                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
@@ -121,207 +125,253 @@ fun App() {
                                     animationSpec = tween(300)
                                 )
                             }) {
-                            composable<Route.Splash> {
-                                SplashScreen(onAlreadyLoggedIn = {
-                                    navigator.navigate(route = Route.Main) {
-                                        popUpTo(route = Route.Splash) {
-                                            inclusive = true
-                                        }
-                                        launchSingleTop = true
-                                    }
-                                }, onNotLoggedIn = {
-                                    navigator.navigate(route = Route.Onboarding) {
-                                        popUpTo(route = Route.Splash) {
-                                            inclusive = true
-                                        }
-                                        launchSingleTop = true
-                                    }
-                                })
-                            }
-                            composable<Route.Onboarding> { backStackEntry ->
-                                OnboardingScreen(
-                                    loaderState = loaderState,
-                                    customSnackBarState = customSnackBarState,
-                                    onLogin = {
-                                        navigator.navigate(Route.Main) {
-                                            popUpTo(route = Route.Onboarding) {
-                                                inclusive = true
-                                            }
-                                            launchSingleTop = true
-                                        }
-                                    },
-                                    onRegister = {
-                                        navigator.navigate(
-                                            route = Route.Onboarding.Register
-                                        )
-                                    }
-                                )
-                            }
-                            composable<Route.Onboarding.Register> {
-                                RegisterScreen(
-                                    onboardingViewModel = koinViewModel<OnboardingViewModel>(
-                                        viewModelStoreOwner = navigator.getBackStackEntry(Route.Onboarding)
-                                    ),
-                                    customSnackBarState = customSnackBarState,
-                                    loaderState = loaderState,
-                                    onBack = { navigator.popBackStack() }, goToEnterCodeScreen = {
-                                        navigator.navigate(
-                                            route = Route.Onboarding.EnterCode
-                                        )
-                                    }
-                                )
-                            }
 
-                            composable<Route.Onboarding.EnterCode> { backStackEntry ->
-                                EnterCodeScreen(
-                                    onboardingViewModel = koinViewModel<OnboardingViewModel>(
-                                        viewModelStoreOwner = navigator.getBackStackEntry(Route.Onboarding)
-                                    ),
-                                    customSnackBarState = customSnackBarState,
-                                    loaderState = loaderState,
-                                    registrationSuccessful = {
-                                        navigator.navigate(Route.Onboarding) {
-                                            popUpTo(route = Route.Onboarding) {
-                                                inclusive = true
+                            navigation<Route.BaseGraph>(startDestination = Route.Splash) {
+                                composable<Route.Splash> { backStackEntry ->
+                                    val vm = koinViewModel<SplashViewModel>()
+                                    SplashScreen(
+                                        splashViewModel = vm,
+                                        onAlreadyLoggedIn = {
+                                            navigator.navigate(route = Route.Main) {
+                                                popUpTo(route = Route.Splash) {
+                                                    inclusive = true
+                                                }
+                                                launchSingleTop = true
                                             }
-                                            launchSingleTop = true
-                                        }
-                                    }, onBack = {
-                                        navigator.popBackStack()
-                                    }
-                                )
-                            }
-
-                            composable<Route.Main> {
-                                MainScreen(
-                                    permissionState = permissionState,
-                                    loaderState = loaderState,
-                                    customSnackBarState = customSnackBarState,
-                                    onSubScreenChange = {
-                                        navigator.navigate(
-                                            route = it
-                                        )
-                                    },
-                                    onLogOut = {
-                                        navigator.navigate(Route.Onboarding) {
-                                            popUpTo(route = Route.Main) {
-                                                inclusive = true
+                                        }, onNotLoggedIn = {
+                                            navigator.navigate(route = Route.Onboarding) {
+                                                popUpTo(route = Route.Splash) {
+                                                    inclusive = true
+                                                }
+                                                launchSingleTop = true
                                             }
-                                            launchSingleTop = true
-                                        }
-                                    }
-                                )
-
-                                if (permissionImportantDialog)
-                                    BreastCancerAlertDialog(
-                                        title = "Important!",
-                                        text = {
-                                            Text("It is very important that you grant the notifications permission to receive notifications regarding events and programs from us.\nPlease grant the permission to receive updates.")
+                                        })
+                                }
+                                composable<Route.Onboarding> { backStackEntry ->
+                                    OnboardingScreen(
+                                        loaderState = loaderState,
+                                        customSnackBarState = customSnackBarState,
+                                        onLogin = {
+                                            navigator.navigate(Route.Main) {
+                                                popUpTo(route = Route.Onboarding) {
+                                                    inclusive = true
+                                                }
+                                                launchSingleTop = true
+                                            }
                                         },
-                                        confirmText = "Grant",
-                                        dismissText = "Cancel",
-                                        onDismissRequest = { permissionViewModel.dismissDialog() },
-                                        onConfirm = {
-                                            coroutineScope.launch {
-                                                permissionViewModel.onRequestPermissionButtonPressed()
-                                            }
-                                            permissionViewModel.dismissDialog()
-                                        }
-                                    )
-                            }
-
-                            composable<Route.Main.ActivityDetail> { backStackEntry ->
-                                val id = backStackEntry.toRoute<Route.Main.ActivityDetail>().id
-                                ActivityDetailScreen(
-                                    id = id,
-                                    activityViewModel = koinViewModel<ActivityViewModel>(
-                                        viewModelStoreOwner = navigator.getBackStackEntry<Route.Main>()
-                                    ), onBack = {
-                                        navigator.popBackStack()
-                                    }, onRegister = { activity ->
-                                        activity.surveys?.preSurvey?.let { preSurvey ->
+                                        onRegister = {
                                             navigator.navigate(
-                                                route = Route.Main.SurveyRoute(id = activity.id)
+                                                route = Route.Onboarding.Register
                                             )
                                         }
-                                    }
-                                )
-                            }
+                                    )
+                                }
+                                composable<Route.Onboarding.Register> {
+                                    RegisterScreen(
+                                        onboardingViewModel = koinViewModel<OnboardingViewModel>(
+                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.Onboarding)
+                                        ),
+                                        customSnackBarState = customSnackBarState,
+                                        loaderState = loaderState,
+                                        onBack = { navigator.popBackStack() }, onRegister = {
+                                            navigator.navigate(Route.Onboarding) {
+                                                popUpTo(route = Route.Onboarding) {
+                                                    inclusive = true
+                                                }
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                    )
+                                }
 
-                            composable<Route.Main.Contact> { ContactSupportScreen { navigator.popBackStack() } }
+                                composable<Route.Journey> { backStackEntry ->
+                                    val userId = backStackEntry.toRoute<Route.Journey>().userId
+                                    val hideBackButton =
+                                        backStackEntry.toRoute<Route.Journey>().hideBackButton
+                                    JourneyScreen(
+                                        userId = userId,
+                                        customSnackBarState = customSnackBarState,
+                                        hideBackButton = hideBackButton,
+                                        onNext = { userId, userCategory ->
+                                            navigator.navigate(
+                                                Route.Journey.JourneyDetail(
+                                                    userId = userId,
+                                                    userCategory = userCategory.category
+                                                )
+                                            )
+                                        }, onBack = {
+                                            navigator.popBackStack()
+                                        }
+                                    )
+                                }
 
-                            composable<Route.Main.Profile> {
-                                ProfileRoute(
-                                    onBack = { navigator.popBackStack() },
-                                    onEditProfile = {
-                                        navigator.navigate(
-                                            route = Route.Main.EditProfile
+                                composable<Route.Journey.JourneyDetail> { backStackEntry ->
+                                    val userId =
+                                        backStackEntry.toRoute<Route.Journey.JourneyDetail>().userId
+                                    val userCategory =
+                                        backStackEntry.toRoute<Route.Journey.JourneyDetail>().userCategory
+                                    JourneyDetailScreen(
+                                        homeViewModel = koinViewModel<HomeViewModel>(
+                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.BaseGraph)
+                                        ),
+                                        userId = userId,
+                                        userCategory = UserCategory.fromCategory(
+                                            category = userCategory
+                                        ),
+                                        customSnackBarState = customSnackBarState,
+                                        onBack = {
+                                            navigator.popBackStack()
+                                        },
+                                        onJourneyComplete = {
+                                            navigator.navigate(Route.Main) {
+                                                popUpTo(route = Route.Journey(userId = userId)) {
+                                                    inclusive = true
+                                                }
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                    )
+                                }
+
+                                composable<Route.Main> {
+                                    MainScreen(
+                                        homeViewModel = koinViewModel<HomeViewModel>(
+                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.BaseGraph)
+                                        ),
+                                        permissionState = permissionState,
+                                        loaderState = loaderState,
+                                        customSnackBarState = customSnackBarState,
+                                        onSubScreenChange = { route, clearStack ->
+                                            navigator.navigate(route = route) {
+                                                if (clearStack)
+                                                    popUpTo(route = Route.Main) {
+                                                        inclusive = true
+                                                    }.also {
+                                                        launchSingleTop = true
+                                                    }
+                                            }
+                                        },
+                                        onLogOut = {
+                                            navigator.navigate(Route.Onboarding) {
+                                                popUpTo(route = Route.Main) {
+                                                    inclusive = true
+                                                }
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                    )
+
+                                    if (permissionImportantDialog)
+                                        BreastCancerAlertDialog(
+                                            title = "Important!",
+                                            text = {
+                                                Text("It is very important that you grant the notifications permission to receive notifications regarding events and programs from us.\nPlease grant the permission to receive updates.")
+                                            },
+                                            confirmText = "Grant",
+                                            dismissText = "Cancel",
+                                            onDismissRequest = { permissionViewModel.dismissDialog() },
+                                            onConfirm = {
+                                                coroutineScope.launch {
+                                                    permissionViewModel.onRequestPermissionButtonPressed()
+                                                }
+                                                permissionViewModel.dismissDialog()
+                                            }
                                         )
-                                    }
-                                )
-                            }
+                                }
 
-                            composable<Route.Main.EditProfile> {
-                                EditProfileRoute(
-                                    onBack = { navigator.popBackStack() }
-                                )
-                            }
+                                composable<Route.Main.ActivityDetail> { backStackEntry ->
+                                    val id = backStackEntry.toRoute<Route.Main.ActivityDetail>().id
+                                    ActivityDetailScreen(
+                                        id = id,
+                                        activityViewModel = koinViewModel<ActivityViewModel>(
+                                            viewModelStoreOwner = navigator.getBackStackEntry<Route.Main>()
+                                        ), onBack = {
+                                            navigator.popBackStack()
+                                        }, onRegister = { activity ->
+                                            activity.surveys?.preSurvey?.let { preSurvey ->
+                                                navigator.navigate(
+                                                    route = Route.Main.SurveyRoute(id = activity.id)
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
 
-                            composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
+                                composable<Route.Main.Contact> { ContactSupportScreen { navigator.popBackStack() } }
 
-                            composable<Route.Main.BlogDetail> { backStackEntry ->
-                                val parentEntry =
-                                    remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
-                                val blogViewModel = koinViewModel<BlogViewModel>(
-                                    viewModelStoreOwner = parentEntry
-                                )
-                                val slug = backStackEntry.toRoute<Route.Main.BlogDetail>().slug
-                                BlogDetailScreen(
-                                    loaderState = loaderState,
-                                    slug = slug,
-                                    blogViewModel = blogViewModel,
-                                    onBack = {
-                                        navigator.popBackStack()
-                                    })
-                            }
+                                composable<Route.Main.Profile> {
+                                    ProfileRoute(
+                                        onBack = { navigator.popBackStack() },
+                                        onEditProfile = {
+                                            navigator.navigate(
+                                                route = Route.Main.EditProfile
+                                            )
+                                        }
+                                    )
+                                }
 
-                            composable<Route.Main.AllBlogs> { backStackEntry ->
-                                val parentEntry =
-                                    remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
-                                val blogViewModel = koinViewModel<BlogViewModel>(
-                                    viewModelStoreOwner = parentEntry
-                                )
-                                AllBlogsScreen(
-                                    blogViewModel = blogViewModel,
-                                    loaderState = loaderState,
-                                    onBackPress = { navigator.popBackStack() },
-                                    onSubScreenChange = {
-                                        navigator.navigate(it)
-                                    })
-                            }
+                                composable<Route.Main.EditProfile> {
+                                    EditProfileRoute(
+                                        onBack = { navigator.popBackStack() }
+                                    )
+                                }
 
-                            composable<Route.Main.AllActivities> { backStackEntry ->
-                                val parentEntry =
-                                    remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
-                                val activityViewModel = koinViewModel<ActivityViewModel>(
-                                    viewModelStoreOwner = parentEntry
-                                )
-                                AllActivitiesScreen(
-                                    activityViewModel = activityViewModel,
-                                    onBackPress = { navigator.popBackStack() },
-                                    onSubScreenChange = {
-                                        navigator.navigate(it)
-                                    })
-                            }
+                                composable<Route.Main.About> { AboutScreen { navigator.popBackStack() } }
 
-                            composable <Route.Main.SurveyRoute>{ backStackEntry ->
-                                val parentEntry =
-                                    remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
-                                val activityViewModel = koinViewModel<ActivityViewModel>(
-                                    viewModelStoreOwner = parentEntry
-                                )
-                                val id = backStackEntry.toRoute<Route.Main.SurveyRoute>().id
-                                SurveyScreen(activityViewModel = activityViewModel, id = id)
+                                composable<Route.Main.BlogDetail> { backStackEntry ->
+                                    val parentEntry =
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                    val blogViewModel = koinViewModel<BlogViewModel>(
+                                        viewModelStoreOwner = parentEntry
+                                    )
+                                    val slug = backStackEntry.toRoute<Route.Main.BlogDetail>().slug
+                                    BlogDetailScreen(
+                                        loaderState = loaderState,
+                                        slug = slug,
+                                        blogViewModel = blogViewModel,
+                                        onBack = {
+                                            navigator.popBackStack()
+                                        })
+                                }
+
+                                composable<Route.Main.AllBlogs> { backStackEntry ->
+                                    val parentEntry =
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                    val blogViewModel = koinViewModel<BlogViewModel>(
+                                        viewModelStoreOwner = parentEntry
+                                    )
+                                    AllBlogsScreen(
+                                        blogViewModel = blogViewModel,
+                                        loaderState = loaderState,
+                                        onBackPress = { navigator.popBackStack() },
+                                        onSubScreenChange = {
+                                            navigator.navigate(it)
+                                        })
+                                }
+
+                                composable<Route.Main.AllActivities> { backStackEntry ->
+                                    val parentEntry =
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                    val activityViewModel = koinViewModel<ActivityViewModel>(
+                                        viewModelStoreOwner = parentEntry
+                                    )
+                                    AllActivitiesScreen(
+                                        activityViewModel = activityViewModel,
+                                        onBackPress = { navigator.popBackStack() },
+                                        onSubScreenChange = {
+                                            navigator.navigate(it)
+                                        })
+                                }
+
+                                composable<Route.Main.SurveyRoute> { backStackEntry ->
+                                    val parentEntry =
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                    val activityViewModel = koinViewModel<ActivityViewModel>(
+                                        viewModelStoreOwner = parentEntry
+                                    )
+                                    val id = backStackEntry.toRoute<Route.Main.SurveyRoute>().id
+                                    SurveyScreen(activityViewModel = activityViewModel, id = id)
+                                }
                             }
                         }
                     }

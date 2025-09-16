@@ -263,3 +263,12 @@ fun emojiFor(): String {
         else -> "🌙"  // night
     }
 }
+
+@Composable
+fun rememberIsLandscape(): Boolean {
+    val win = LocalWindowInfo.current
+    // guard against zero during first composition
+    val w = win.containerSize.width
+    val h = win.containerSize.height
+    return w > 0 && h > 0 && w >= h
+}

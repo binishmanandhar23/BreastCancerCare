@@ -1,16 +1,20 @@
 package com.breastcancer.breastcancercare.screens
 
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface Route {
+
+    @Serializable
+    data object BaseGraph: Route
+
     @Serializable
     data object Splash: Route
     @Serializable
     data object Onboarding: Route {
         @Serializable
         data object Register: Route
-        @Serializable
-        data object EnterCode: Route
     }
     @Serializable
     data object Main: Route {
@@ -35,5 +39,11 @@ sealed interface Route {
 
         @Serializable
         data class SurveyRoute(val id: Long): Route
+    }
+
+    @Serializable
+    data class Journey(val userId: Long, val hideBackButton: Boolean = true): Route {
+        @Serializable
+        data class JourneyDetail(val userId: Long, val userCategory: String): Route
     }
 }

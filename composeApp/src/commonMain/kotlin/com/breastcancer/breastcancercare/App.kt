@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
@@ -39,8 +40,9 @@ import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
 import com.breastcancer.breastcancercare.screens.main.EditProfileRoute
 import com.breastcancer.breastcancercare.screens.main.MainScreen
 import com.breastcancer.breastcancercare.screens.main.ProfileRoute
-import com.breastcancer.breastcancercare.screens.main.SurveyScreen
+import com.breastcancer.breastcancercare.screens.main.survey.SurveyScreen
 import com.breastcancer.breastcancercare.screens.journey.JourneyScreen
+import com.breastcancer.breastcancercare.screens.main.survey.SurveyMandatoryDialogScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 import com.breastcancer.breastcancercare.theme.BreastCareTypography
@@ -290,8 +292,13 @@ fun App() {
                                         }, onRegister = { activity ->
                                             activity.surveys?.preSurvey?.let { preSurvey ->
                                                 navigator.navigate(
-                                                    route = Route.Main.SurveyRoute(id = activity.id)
+                                                    route = if (preSurvey.mandatory) Route.Main.SurveyMandatoryDialog(
+                                                        id = activity.id
+                                                    ) else Route.Main.SurveyRoute(
+                                                        id = activity.id
+                                                    )
                                                 )
+                                                return@ActivityDetailScreen
                                             }
                                         }
                                     )
@@ -370,7 +377,23 @@ fun App() {
                                         viewModelStoreOwner = parentEntry
                                     )
                                     val id = backStackEntry.toRoute<Route.Main.SurveyRoute>().id
-                                    SurveyScreen(activityViewModel = activityViewModel, id = id)
+                                    SurveyScreen(
+                                        activityViewModel = activityViewModel,
+                                        id = id,
+                                        onBack = {
+                                            navigator.popBackStack()
+                                        }, onSurveySubmit = {
+                                            navigator.popBackStack()
+                                        }, onSkipped = {
+                                            navigator.popBackStack()
+                                        })
+                                }
+
+                                dialog<Route.Main.SurveyMandatoryDialog> { backStackEntry ->
+                                    val id = backStackEntry.toRoute<Route.Main.SurveyRoute>().id
+                                    SurveyMandatoryDialogScreen {
+                                        navigator.navigate(Route.Main.SurveyRoute(id = id))
+                                    }
                                 }
                             }
                         }

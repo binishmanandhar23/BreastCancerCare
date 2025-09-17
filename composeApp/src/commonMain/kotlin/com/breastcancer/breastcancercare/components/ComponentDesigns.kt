@@ -642,27 +642,40 @@ fun BreastCancerAlertDialog(
 fun BreastCancerToolbar(
     modifier: Modifier = Modifier.fillMaxWidth(),
     title: String,
+    onEndContent: (@Composable BoxScope.() -> Unit)? = null,
     onBack: () -> Unit
 ) = Row(
     modifier = modifier.padding(
         horizontal = DefaultHorizontalPaddingSmall,
         vertical = DefaultVerticalPaddingMedium
     ),
-    horizontalArrangement = Arrangement.spacedBy(12.dp),
     verticalAlignment = Alignment.CenterVertically
 ) {
-    Icon(
-        modifier = Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = onBack
-        ), imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back Button"
-    )
-    Text(
-        text = title,
-        color = MaterialTheme.colorScheme.primary,
-        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-    )
+    Row(
+        modifier = Modifier.weight(if (onEndContent == null) 1f else 0.5f),
+        horizontalArrangement = Arrangement.spacedBy(DefaultHorizontalPaddingSmall),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onBack
+            ), imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back Button"
+        )
+        Text(
+            text = title,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
+    }
+    onEndContent?.let { content ->
+        Box(
+            modifier = Modifier.weight(0.5f)
+        ) {
+            content(this)
+        }
+    }
 }
 
 @Composable

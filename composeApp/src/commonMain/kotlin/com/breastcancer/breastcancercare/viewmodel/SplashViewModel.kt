@@ -24,6 +24,7 @@ import com.breastcancer.breastcancercare.states.SplashUIState
 import com.breastcancer.breastcancercare.survey.model.IntScaleQuestion
 import com.breastcancer.breastcancercare.survey.model.KeyboardTypeSurvey
 import com.breastcancer.breastcancercare.survey.model.Option
+import com.breastcancer.breastcancercare.survey.model.PreSurvey
 import com.breastcancer.breastcancercare.survey.model.Section
 import com.breastcancer.breastcancercare.survey.model.SingleChoiceQuestion
 import com.breastcancer.breastcancercare.survey.model.Survey
@@ -482,9 +483,10 @@ class SplashViewModel(
                         onlineLink = "https://link.com",
                         audience = "For women who have completed active treatment for early breast cancer",
                         surveys = Surveys(
-                            preSurvey = Survey(
+                            preSurvey = PreSurvey(
                                 id = "pre_workshop_hot_flushes",
                                 title = "Pre-Workshop – Managing Hot Flushes in the Moment",
+                                mandatory = true,
                                 sections = listOf(
                                     Section(
                                         id = "demographics",
@@ -602,20 +604,20 @@ class SplashViewModel(
     }
 
     suspend fun checkLoginStatus() {
-            delay(500L)
-            if (onboardingRepository.isLoggedIn())
-                onboardingRepository.getLoggedInUser().collectLatest { user ->
-                    _splashUIState.update {
-                        if (user != null)
-                            SplashUIState.LoggedIn
-                        else
-                            SplashUIState.NotLoggedIn
-                    }
-                }
-            else
+        delay(500L)
+        if (onboardingRepository.isLoggedIn())
+            onboardingRepository.getLoggedInUser().collectLatest { user ->
                 _splashUIState.update {
-                    SplashUIState.NotLoggedIn
+                    if (user != null)
+                        SplashUIState.LoggedIn
+                    else
+                        SplashUIState.NotLoggedIn
                 }
+            }
+        else
+            _splashUIState.update {
+                SplashUIState.NotLoggedIn
+            }
     }
 
     fun finish() = _splashUIState.update { SplashUIState.Finish }

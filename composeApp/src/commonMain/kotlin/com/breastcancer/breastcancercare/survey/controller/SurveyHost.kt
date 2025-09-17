@@ -1,5 +1,16 @@
 package com.breastcancer.breastcancercare.survey.controller// commonMain
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +31,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.breastcancer.breastcancercare.survey.model.Answer
 import com.breastcancer.breastcancercare.survey.model.IntAnswer
@@ -39,6 +52,8 @@ import com.breastcancer.breastcancercare.survey.model.Survey
 import com.breastcancer.breastcancercare.survey.model.TextAnswer
 import com.breastcancer.breastcancercare.survey.model.TextQuestion
 import com.breastcancer.breastcancercare.survey.model.getSurveyKeyboardType
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import kotlin.math.roundToInt
 
 @Composable
@@ -63,7 +78,7 @@ fun SurveyHost(
             }
         }
 
-    val section = survey.sections[sectionIndex]
+    val section by remember(sectionIndex) { derivedStateOf { survey.sections[sectionIndex] } }
 
     LazyColumn(modifier.padding(16.dp).fillMaxSize()) {
         // Header / progress
@@ -83,30 +98,38 @@ fun SurveyHost(
             )
         }
         item {
-            section.title?.let {
-                Spacer(Modifier.height(12.dp))
-                Text(it, style = MaterialTheme.typography.titleMedium)
+            AnimatedContent(section, transitionSpec = {
+                (slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                    animationSpec = tween(300)
+                ) + fadeIn(tween(180)))
+                    .togetherWith(
+                        slideOutHorizontally(
+                            animationSpec = tween(300)
+                        ) + fadeOut(tween(180))
+                    )
+                    .using(SizeTransform(clip = true)) // avoid edge bleed
+            }) { section ->
+                Column(verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)) {
+                    section.title?.let {
+                        Spacer(Modifier.height(12.dp))
+                        Text(it, style = MaterialTheme.typography.titleMedium)
+                    }
+                    // Questions
+                    section.questions.forEach { q ->
+                        QuestionRenderer(
+                            question = q,
+                            answer = answers[q.id],
+                            onAnswer = { answers[q.id] = it }
+                        )
+                        Spacer(Modifier.height(16.dp))
+                    }
+                }
             }
-        }
-        item {
-            Spacer(Modifier.height(12.dp))
-        }
-        // Questions
-        item {
-            section.questions.forEach { q ->
-                QuestionRenderer(
-                    question = q,
-                    answer = answers[q.id],
-                    onAnswer = { answers[q.id] = it }
-                )
-                Spacer(Modifier.height(16.dp))
-            }
-        }
-        item {
-            Spacer(Modifier.height(12.dp))
         }
         // Nav buttons
         item {
+            val enabled by remember(section) { derivedStateOf { validateSection(section) } }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 OutlinedButton(
                     enabled = sectionIndex > 0,
@@ -115,8 +138,8 @@ fun SurveyHost(
 
                 val last = sectionIndex == survey.sections.lastIndex
                 Button(
+                    enabled = enabled,
                     onClick = {
-                        if (!validateSection(section)) return@Button
                         if (last) onSubmit(answers.toMap()) else sectionIndex++
                     }
                 ) { Text(if (last) "Submit" else "Next") }

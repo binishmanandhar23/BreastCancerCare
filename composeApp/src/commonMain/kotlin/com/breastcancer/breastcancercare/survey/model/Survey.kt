@@ -8,16 +8,32 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class Surveys(val preSurvey: Survey? = null, val postSurvey: Survey? = null)
+data class Surveys(val preSurvey: PreSurvey? = null, val postSurvey: PostSurvey? = null)
+
+@Serializable
+data class PreSurvey(
+    override val id: String,
+    override val mandatory: Boolean = false,
+    override val title: String,
+    override val sections: List<Section>
+): Survey
+
+@Serializable
+data class PostSurvey(
+    override val id: String,
+    override val mandatory: Boolean = false,
+    override val title: String,
+    override val sections: List<Section>
+): Survey
 
 @Stable
 @Serializable
-data class Survey(
-    val id: String,
-    val mandatory: Boolean = false,
-    val title: String,
+sealed interface Survey {
+    val id: String
+    val mandatory: Boolean
+    val title: String
     val sections: List<Section>
-)
+}
 
 @Stable
 @Serializable

@@ -39,6 +39,9 @@ sealed interface Route {
 
         @Serializable
         data class SurveyRoute(val id: Long): Route
+
+        @Serializable
+        data class SurveyMandatoryDialog(val id: Long): Route
     }
 
     @Serializable

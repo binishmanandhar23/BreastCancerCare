@@ -67,12 +67,10 @@ fun HomeScreen(
     onAllBlogs: () -> Unit,
     onAllActivities: () -> Unit
 ) {
-    val loggedInUser by homeViewModel.loggedInUser.collectAsStateWithLifecycle()
     val greetingText by homeViewModel.homeGreeting.collectAsStateWithLifecycle()
     val recommendedBlogsUIState by homeViewModel.recommendedBlogsUIState.collectAsStateWithLifecycle()
     val upcomingEventsUIState by homeViewModel.upcomingEventsUIState.collectAsStateWithLifecycle()
     val overscrollEffect = rememberOverscrollEffect()
-    val coroutineScope = rememberCoroutineScope()
     LazyColumnCollapsibleHeader(
         modifier = Modifier
             .fillMaxSize()
@@ -99,16 +97,7 @@ fun HomeScreen(
             Text(
                 modifier = Modifier.padding(
                     vertical = DefaultVerticalPaddingMedium
-                ).clickable{
-                    loggedInUser?.let {
-                        coroutineScope.launch {
-                            homeViewModel.updateUserCategoryById(
-                                userId = it.id,
-                                userCategory = if(it.userCategory == UserCategory.StartingStrong) UserCategory.LivingWell else UserCategory.StartingStrong
-                            )
-                        }
-                    }
-                },
+                ),
                 text = builtText,
                 lineHeight = DefaultTopHeaderTextSize * 1.0f
             )

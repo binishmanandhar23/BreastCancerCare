@@ -5,8 +5,10 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.breastcancer.breastcancercare.database.local.entity.ActivityEntity
+import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryEntity
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.LocalDate
 
 @Dao
 interface ActivityDAO {
@@ -31,4 +33,9 @@ interface ActivityDAO {
     @Query("SELECT * FROM activityentity WHERE id = :id")
     suspend fun getActivityById(id: Long): ActivityEntity
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertActivityHistoryEntity(activityHistoryEntity: ActivityHistoryEntity)
+
+    @Query("SELECT * FROM activityhistoryentity WHERE activityId = :activityId AND registeredForDate = :registeredDate")
+    fun getActivityHistoryByActivityIdAndRegisteredDate(activityId: Long, registeredDate: String): Flow<ActivityHistoryEntity?>
 }

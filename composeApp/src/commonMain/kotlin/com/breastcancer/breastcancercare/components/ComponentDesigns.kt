@@ -96,6 +96,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
@@ -787,10 +788,10 @@ fun SuitabilityShape(suitability: SuitabilityDTO) {
 }
 
 @Composable
-fun BreastCancerCircularLoader(modifier: Modifier = Modifier.size(40.dp)) =
+fun BreastCancerCircularLoader(modifier: Modifier = Modifier, size: Dp = 40.dp) =
     Box(modifier = modifier) {
         CircularProgressIndicator(
-            modifier = modifier,
+            modifier = Modifier.size(size).align(Alignment.Center),
             color = MaterialTheme.colorScheme.primary
         )
     }

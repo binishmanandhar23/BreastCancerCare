@@ -28,7 +28,8 @@ data class ActivityDTO(
     val frequencySeries: FrequencySeries? = null,
     val activityType: ActivityType,
     val dates: List<LocalDate> = emptyList(),
-    val surveys: Surveys? = null
+    val surveys: Surveys? = null,
+    val registered: Boolean = false
 )
 
 

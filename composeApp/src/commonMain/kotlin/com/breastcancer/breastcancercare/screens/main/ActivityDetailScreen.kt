@@ -43,12 +43,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.ActivityTypeTag
 import com.breastcancer.breastcancercare.components.BreastCancerButton
+import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
 import com.breastcancer.breastcancercare.components.CategoryChip
 import com.breastcancer.breastcancercare.components.SeeMoreComponent
 import com.breastcancer.breastcancercare.components.TimeAndDateFormat
@@ -85,7 +87,7 @@ fun ActivityDetailScreen(
     activityViewModel: ActivityViewModel,
     id: Long,
     onBack: () -> Unit,
-    onRegister:(activity: ActivityDTO) -> Unit
+    onRegister: (activity: ActivityDTO) -> Unit
 ) {
     val activityUIState by activityViewModel.activityUIDetailState.collectAsStateWithLifecycle()
     LaunchedEffect(id) {
@@ -95,7 +97,12 @@ fun ActivityDetailScreen(
     }
     AnimatedContent(modifier = Modifier.fillMaxSize(), targetState = activityUIState) { state ->
         when (state) {
-            is ActivityUIState.Success -> {
+            is ActivityUIState.Loading -> BreastCancerCircularLoader(
+                modifier = Modifier.fillMaxSize(),
+                size = 40.dp
+            )
+
+            is ActivityUIState.Success, is ActivityUIState.Final -> {
                 val activity by remember { derivedStateOf { state.data } }
                 OverlappingZoomHeaderWithParallax(
                     modifier = modifier,
@@ -156,33 +163,41 @@ fun ActivityDetailScreen(
                                     )
                                 }
                                 Box(modifier = Modifier.weight(0.5f)) {
-                                    BreastCancerButton(
-                                        modifier = Modifier.align(Alignment.CenterEnd)
-                                            .padding(vertical = DefaultVerticalPaddingSmall),
-                                        fontSize = MaterialTheme.typography.labelMedium.fontSize,
-                                        text = when (activity?.activityType) {
-                                            is StartingStrongActivityType.SupportGroups,
-                                            is StartingStrongActivityType.Workshops,
-                                            is LivingWellActivityType.DiscussionGroups,
-                                            is LivingWellActivityType.Workshops,
-                                            is LivingWellActivityType.Webinars,
-                                            is LivingWellActivityType.WellnessActivities,
-                                            is LivingWellActivityType.MindfulRecoveryProgram -> "Register Interest"
+                                    if (activityUIState is ActivityUIState.Success)
+                                        BreastCancerButton(
+                                            modifier = Modifier.align(Alignment.CenterEnd)
+                                                .padding(vertical = DefaultVerticalPaddingSmall),
+                                            fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                                            text = when (activity?.activityType) {
+                                                is StartingStrongActivityType.SupportGroups,
+                                                is StartingStrongActivityType.Workshops,
+                                                is LivingWellActivityType.DiscussionGroups,
+                                                is LivingWellActivityType.Workshops,
+                                                is LivingWellActivityType.Webinars,
+                                                is LivingWellActivityType.WellnessActivities,
+                                                is LivingWellActivityType.MindfulRecoveryProgram -> "Register Interest"
 
-                                            is StartingStrongActivityType.Counselling,
-                                            is StartingStrongActivityType.Nursing,
-                                            is LivingWellActivityType.Counselling,
-                                            is LivingWellActivityType.Nursing -> "Book Appointment"
+                                                is StartingStrongActivityType.Counselling,
+                                                is StartingStrongActivityType.Nursing,
+                                                is LivingWellActivityType.Counselling,
+                                                is LivingWellActivityType.Nursing -> "Book Appointment"
 
-                                            is StartingStrongActivityType.FinancialAndPracticalHardshipSupport,
-                                            is LivingWellActivityType.FinancialAndPracticalHardshipSupport -> "Enquire"
+                                                is StartingStrongActivityType.FinancialAndPracticalHardshipSupport,
+                                                is LivingWellActivityType.FinancialAndPracticalHardshipSupport -> "Enquire"
 
-                                            else -> ""
-                                        }, onClick = {
-                                            activity?.let {
-                                                onRegister(it)
-                                            }
-                                        })
+                                                else -> ""
+                                            }, onClick = {
+                                                activity?.let {
+                                                    onRegister(it)
+                                                }
+                                            })
+                                    else if (activityUIState is ActivityUIState.Final)
+                                        Text(
+                                            modifier = Modifier.align(Alignment.CenterEnd).padding(vertical = DefaultVerticalPaddingSmall),
+                                            text = "Registered ✔",
+                                            fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
                                 }
                             }
                         }

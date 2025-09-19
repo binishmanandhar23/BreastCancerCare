@@ -281,28 +281,7 @@ fun App() {
                                         )
                                 }
 
-                                composable<Route.Main.ActivityDetail> { backStackEntry ->
-                                    val id = backStackEntry.toRoute<Route.Main.ActivityDetail>().id
-                                    ActivityDetailScreen(
-                                        id = id,
-                                        activityViewModel = koinViewModel<ActivityViewModel>(
-                                            viewModelStoreOwner = navigator.getBackStackEntry<Route.Main>()
-                                        ), onBack = {
-                                            navigator.popBackStack()
-                                        }, onRegister = { activity ->
-                                            activity.surveys?.preSurvey?.let { preSurvey ->
-                                                navigator.navigate(
-                                                    route = if (preSurvey.mandatory) Route.Main.SurveyMandatoryDialog(
-                                                        id = activity.id
-                                                    ) else Route.Main.SurveyRoute(
-                                                        id = activity.id
-                                                    )
-                                                )
-                                                return@ActivityDetailScreen
-                                            }
-                                        }
-                                    )
-                                }
+
 
                                 composable<Route.Main.Contact> { ContactSupportScreen { navigator.popBackStack() } }
 
@@ -370,22 +349,54 @@ fun App() {
                                         })
                                 }
 
+                                composable<Route.Main.ActivityDetail> { backStackEntry ->
+                                    val id = backStackEntry.toRoute<Route.Main.ActivityDetail>().id
+                                    val activityViewModel = koinViewModel<ActivityViewModel>(
+                                        viewModelStoreOwner = navigator.getBackStackEntry<Route.Main>()
+                                    )
+                                    ActivityDetailScreen(
+                                        id = id,
+                                        activityViewModel = activityViewModel, onBack = {
+                                            navigator.popBackStack()
+                                        }, onRegister = { activity ->
+                                            activity.surveys?.preSurvey?.let { preSurvey ->
+                                                navigator.navigate(
+                                                    route = if (preSurvey.mandatory) Route.Main.SurveyMandatoryDialog(
+                                                        id = activity.id
+                                                    ) else Route.Main.SurveyRoute(
+                                                        id = activity.id
+                                                    )
+                                                )
+                                                return@ActivityDetailScreen
+                                            }
+                                            activityViewModel.insertActivityHistory(activity = activity)
+                                        }
+                                    )
+                                }
+
                                 composable<Route.Main.SurveyRoute> { backStackEntry ->
                                     val parentEntry =
                                         remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
                                     val activityViewModel = koinViewModel<ActivityViewModel>(
                                         viewModelStoreOwner = parentEntry
                                     )
-                                    val id = backStackEntry.toRoute<Route.Main.SurveyRoute>().id
+                                    val activityId =
+                                        backStackEntry.toRoute<Route.Main.SurveyRoute>().id
                                     SurveyScreen(
                                         activityViewModel = activityViewModel,
-                                        id = id,
+                                        id = activityId,
+                                        loaderState = loaderState,
                                         onBack = {
                                             navigator.popBackStack()
-                                        }, onSurveySubmit = {
-                                            navigator.popBackStack()
-                                        }, onSkipped = {
-                                            navigator.popBackStack()
+                                        }, onSurveySubmit = { activity, answers ->
+                                            activityViewModel.insertActivityHistory(
+                                                activity = activity,
+                                                preSurveyAnswer = answers
+                                            )
+                                        }, onSkipped = { activity ->
+                                            activityViewModel.insertActivityHistory(
+                                                activity = activity
+                                            )
                                         })
                                 }
 

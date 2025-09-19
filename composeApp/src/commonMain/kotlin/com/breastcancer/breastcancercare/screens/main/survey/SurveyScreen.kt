@@ -19,21 +19,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.BreastCancerToolbar
+import com.breastcancer.breastcancercare.components.loader.LoaderState
+import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.states.ActivityUIState
 import com.breastcancer.breastcancercare.survey.controller.SurveyHost
 import com.breastcancer.breastcancercare.survey.model.Answer
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun SurveyScreen(activityViewModel: ActivityViewModel, id: Long, onSurveySubmit:(Map<String, Answer>) -> Unit,onSkipped:() -> Unit, onBack: () -> Unit) {
+fun SurveyScreen(
+    activityViewModel: ActivityViewModel,
+    id: Long,
+    loaderState: LoaderState,
+    onSurveySubmit: (activity: ActivityDTO, Map<String, Answer>) -> Unit,
+    onSkipped: (activity: ActivityDTO) -> Unit,
+    onBack: () -> Unit
+) {
     val activityUIState by activityViewModel.activityUIDetailState.collectAsStateWithLifecycle()
     LaunchedEffect(id) {
         withContext(Dispatchers.Main) {
             activityViewModel.getActivityById(id = id)
+        }
+    }
+    LaunchedEffect(activityUIState){
+        when(activityUIState){
+            is ActivityUIState.Loading -> loaderState.show()
+            is ActivityUIState.Final -> loaderState.hide().also {
+                onBack()
+            }
+            else -> loaderState.hide()
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -45,7 +62,9 @@ fun SurveyScreen(activityViewModel: ActivityViewModel, id: Long, onSurveySubmit:
                         SurveyHost(
                             modifier = Modifier.padding(top = DefaultVerticalPaddingLarge + DefaultVerticalPaddingLarge),
                             survey = it,
-                            onSubmit = onSurveySubmit
+                            onSubmit = { answers ->
+                                onSurveySubmit(activity!!, answers)
+                            }
                         )
                     }
                 }
@@ -60,9 +79,9 @@ fun SurveyScreen(activityViewModel: ActivityViewModel, id: Long, onSurveySubmit:
                 if (activityUIState is ActivityUIState.Success) {
                     val activity = activityUIState.data
                     activity?.surveys?.let { surveys ->
-                        if (surveys.preSurvey?.mandatory == true || surveys.postSurvey?.mandatory == true)
+                        if (surveys.preSurvey?.mandatory == false || surveys.postSurvey?.mandatory == false)
                             TextButton(modifier = Modifier.align(Alignment.CenterEnd), onClick = {
-                                onSkipped()
+                                onSkipped(activity)
                             }) {
                                 Text(
                                     text = "Skip",

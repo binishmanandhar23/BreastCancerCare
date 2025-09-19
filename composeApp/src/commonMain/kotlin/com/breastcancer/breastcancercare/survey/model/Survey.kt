@@ -6,9 +6,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import kotlinx.serialization.Serializable
 
 
-
 @Serializable
 data class Surveys(val preSurvey: PreSurvey? = null, val postSurvey: PostSurvey? = null)
+
 
 @Serializable
 data class PreSurvey(
@@ -16,7 +16,19 @@ data class PreSurvey(
     override val mandatory: Boolean = false,
     override val title: String,
     override val sections: List<Section>
-): Survey
+) : Survey
+
+@Serializable
+data class PreSurveyAnswer(
+    override val questionId: String,
+    override val answer: Answer, override val answerType: String
+) : SurveyAnswer
+
+@Serializable
+data class PostSurveyAnswer(
+    override val questionId: String,
+    override val answer: Answer, override val answerType: String
+) : SurveyAnswer
 
 @Serializable
 data class PostSurvey(
@@ -24,7 +36,7 @@ data class PostSurvey(
     override val mandatory: Boolean = false,
     override val title: String,
     override val sections: List<Section>
-): Survey
+) : Survey
 
 @Stable
 @Serializable
@@ -33,6 +45,13 @@ sealed interface Survey {
     val mandatory: Boolean
     val title: String
     val sections: List<Section>
+}
+
+@Serializable
+sealed interface SurveyAnswer {
+    val questionId: String
+    val answer: Answer
+    val answerType: String //AnswerType
 }
 
 @Stable
@@ -85,15 +104,31 @@ data class IntScaleQuestion(
 /* ---------- Answers ---------- */
 
 @Serializable
-sealed interface Answer
-@Serializable
-data class SingleChoiceAnswer(val optionId: String, val otherText: String? = null) : Answer
-@Serializable
-data class TextAnswer(val text: String) : Answer
-@Serializable
-data class IntAnswer(val value: Int) : Answer
+sealed interface Answer {
+    val answerType: String //AnswerType
+}
 
-enum class KeyboardTypeSurvey(val type: String){
+@Serializable
+data class SingleChoiceAnswer(
+    val optionId: String, val otherText: String? = null,
+    override val answerType: String = AnswerType.SingleChoice.type
+) : Answer
+
+@Serializable
+data class TextAnswer(val text: String, override val answerType: String = AnswerType.Text.type) :
+    Answer
+
+@Serializable
+data class IntAnswer(val value: Int, override val answerType: String = AnswerType.IntScale.type) :
+    Answer
+
+enum class AnswerType(val type: String) {
+    SingleChoice("single_choice"),
+    Text("text"),
+    IntScale("int_scale")
+}
+
+enum class KeyboardTypeSurvey(val type: String) {
     Number(type = "number"),
     Default(type = "default")
 }
@@ -104,3 +139,19 @@ fun getSurveyKeyboardType(type: String): KeyboardOptions {
         else -> KeyboardOptions.Default
     }
 }
+
+fun Map<String, Answer>?.toPreSurveyAnswers(): List<PreSurveyAnswer> = this?.map { (k, v) ->
+    PreSurveyAnswer(
+        questionId = k,
+        answer = v,
+        answerType = v.answerType
+    )
+}?: emptyList()
+
+fun Map<String, Answer>.toPostSurveyAnswers(): List<PostSurveyAnswer> = this?.map { (k, v) ->
+    PostSurveyAnswer(
+        questionId = k,
+        answer = v,
+        answerType = v.answerType
+    )
+}?: emptyList()

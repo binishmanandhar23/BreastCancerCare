@@ -7,4 +7,6 @@ sealed class ActivityUIState<T>(val data: T? = null, val message: String? = null
     class Success<T>(data: T? = null) : ActivityUIState<T>(data = data)
 
     class Error<T>(errorMessage: String? = null) : ActivityUIState<T>(message = errorMessage)
+
+    class Final<T>(data: T? = null): ActivityUIState<T>(data = data)
 }

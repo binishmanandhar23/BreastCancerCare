@@ -7,9 +7,14 @@ import com.breastcancer.breastcancercare.database.local.types.LivingWellActivity
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.ActivityDTO
+import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
 import com.breastcancer.breastcancercare.repo.ActivityRepository
 import com.breastcancer.breastcancercare.repo.OnboardingRepository
 import com.breastcancer.breastcancercare.states.ActivityUIState
+import com.breastcancer.breastcancercare.survey.model.Answer
+import com.breastcancer.breastcancercare.survey.model.PreSurveyAnswer
+import com.breastcancer.breastcancercare.survey.model.toPreSurveyAnswers
+import com.breastcancer.breastcancercare.utils.getDateForNextSession
 import com.kizitonwose.calendar.core.now
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,10 +26,13 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -43,6 +51,7 @@ class ActivityViewModel(
         MutableStateFlow<ActivityUIState<List<ActivityDTO>>>(ActivityUIState.Initial())
     val activityUIListState = _activityUIListState.asStateFlow()
 
+
     private var _selectedActivityType = MutableStateFlow<ActivityType?>(null)
     val selectedActivityType = _selectedActivityType.asStateFlow()
 
@@ -50,6 +59,7 @@ class ActivityViewModel(
     val allActivityTypes = _allActivityTypes.asStateFlow()
 
     init {
+        listenForRegisterChanges()
         getAllActivitiesAndFilterByActivityType()
     }
 
@@ -91,6 +101,49 @@ class ActivityViewModel(
             .collectLatest { activities ->
                 _activityUIListState.update { _ ->
                     ActivityUIState.Success(data = activities)
+                }
+            }
+    }
+
+    @OptIn(ExperimentalTime::class)
+    fun insertActivityHistory(activity: ActivityDTO, preSurveyAnswer: Map<String, Answer>? = null) =
+        viewModelScope.launch {
+            _activityUIDetailState.update { ActivityUIState.Loading() }
+            delay(1000)
+            activityRepository.insertActivityHistory(
+                activityHistoryDTO = ActivityHistoryDTO(
+                    activityId = activity.id,
+                    registeredForDate = getDateForNextSession(
+                        frequencyType = activity.frequency,
+                        startDate = activity.startDate,
+                        endDate = activity.endDate,
+                        frequencySeries = activity.frequencySeries
+                    ) ?: LocalDate.now(),
+                    preSurveyAnswers = preSurveyAnswer.toPreSurveyAnswers()
+                )
+            )
+            _activityUIDetailState.update { ActivityUIState.Final(data = activity) }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun listenForRegisterChanges() = viewModelScope.launch(Dispatchers.IO) {
+        activityUIDetailState.map { activityUIState ->
+            (activityUIState as? ActivityUIState.Success)?.data
+        }.filterNotNull()
+            .distinctUntilChanged().flatMapLatest { activity ->
+                val nextSession = getDateForNextSession(
+                    frequencyType = activity.frequency,
+                    startDate = activity.startDate,
+                    endDate = activity.endDate,
+                    frequencySeries = activity.frequencySeries
+                )
+                activityRepository.getActivityHistoryByActivityIdAndRegisteredDate(
+                    activityId = activity.id,
+                    registeredDate = nextSession
+                ).map { activityHistory -> activity to activityHistory }
+            }.collectLatest { (activity, activityHistory) ->
+                activityHistory?.let {
+                    _activityUIDetailState.update { ActivityUIState.Final(data = activity) }
                 }
             }
     }

@@ -101,9 +101,11 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.breastcancer.breastcancercare.components.icons.Tags
+import com.breastcancer.breastcancercare.components.icons.User
 import com.breastcancer.breastcancercare.database.local.types.ActivityType
 import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
 import com.breastcancer.breastcancercare.database.local.types.Suitability
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.BlogCategoryDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.theme.ColorOnSunshine
@@ -797,13 +799,13 @@ fun BreastCancerCircularLoader(modifier: Modifier = Modifier, size: Dp = 40.dp) 
     }
 
 @Composable
-fun UrlImage(url: String, contentDescription: String? = null, modifier: Modifier = Modifier) {
+fun UrlImage(url: String, contentDescription: String? = null, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Crop) {
     var painterState by remember { mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty) }
     SubcomposeAsyncImage(
         model = url,
         contentDescription = contentDescription,
         modifier = modifier,
-        contentScale = ContentScale.Crop,
+        contentScale = contentScale,
         onState = {
             painterState = it
         }
@@ -1059,6 +1061,37 @@ fun ActivityTypeTag(
                 text = ActivityUtils.getActivityTypeLabel(activityType),
                 style = textStyle
             )
+        }
+    }
+}
+
+@Composable
+fun UserCategoryTag(modifier: Modifier = Modifier, userCategory: UserCategory) {
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.onSecondary
+        ),
+    ) {
+        Row(
+            modifier = Modifier.padding(
+                horizontal = DefaultHorizontalPaddingSmall,
+                vertical = DefaultVerticalPaddingSmall
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                imageVector = User,
+                contentDescription = UserCategory.getLabel(userCategory)
+            )
+            Text(
+                text = UserCategory.getLabel(userCategory),
+                style = MaterialTheme.typography.labelMedium
+            )
+
         }
     }
 }

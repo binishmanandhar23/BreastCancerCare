@@ -1,4 +1,4 @@
-package com.breastcancer.breastcancercare.screens.main
+package com.breastcancer.breastcancercare.screens.main.activity
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
@@ -16,18 +16,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Tag
-import androidx.compose.material.icons.outlined.TagFaces
-import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,32 +34,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.ActivityTypeTag
 import com.breastcancer.breastcancercare.components.BreastCancerButton
 import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
-import com.breastcancer.breastcancercare.components.CategoryChip
 import com.breastcancer.breastcancercare.components.SeeMoreComponent
 import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
-import com.breastcancer.breastcancercare.components.icons.Tags
+import com.breastcancer.breastcancercare.components.UserCategoryTag
 import com.breastcancer.breastcancercare.components.icons.User
-import com.breastcancer.breastcancercare.database.local.types.ActivityType
-import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
 import com.breastcancer.breastcancercare.database.local.types.LivingWellActivityType
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.states.ActivityUIState
-import com.breastcancer.breastcancercare.theme.ColorSand
-import com.breastcancer.breastcancercare.theme.ColorSunshine
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
@@ -348,37 +332,6 @@ private fun DescriptionSection(activity: ActivityDTO?) {
             )
             if (isTruncated)
                 SeeMoreComponent(isExpanded = isExpanded)
-        }
-    }
-}
-
-@Composable
-private fun UserCategoryTag(modifier: Modifier = Modifier, userCategory: UserCategory) {
-    Card(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.onSecondary
-        ),
-    ) {
-        Row(
-            modifier = Modifier.padding(
-                horizontal = DefaultHorizontalPaddingSmall,
-                vertical = DefaultVerticalPaddingSmall
-            ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = User,
-                contentDescription = UserCategory.getLabel(userCategory)
-            )
-            Text(
-                text = UserCategory.getLabel(userCategory),
-                style = MaterialTheme.typography.labelMedium
-            )
-
         }
     }
 }

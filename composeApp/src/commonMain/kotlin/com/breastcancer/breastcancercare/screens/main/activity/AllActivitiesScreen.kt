@@ -1,4 +1,4 @@
-package com.breastcancer.breastcancercare.screens.main
+package com.breastcancer.breastcancercare.screens.main.activity
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -70,7 +70,9 @@ fun AllActivitiesScreen(
         },
         onBack = onBackPress,
         titleIconContent = {
-            IconButton(onClick = {}){
+            IconButton(onClick = {
+                onSubScreenChange(Route.Main.AllActivityHistory)
+            }){
                 Icon(modifier = Modifier.size(DefaultTopBarIconSize), imageVector = Icons.Outlined.History, contentDescription = "Previous Activities")
             }
         },

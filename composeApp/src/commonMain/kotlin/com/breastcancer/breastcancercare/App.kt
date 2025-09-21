@@ -32,8 +32,8 @@ import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.SplashScreen
 import com.breastcancer.breastcancercare.screens.journey.JourneyDetailScreen
 import com.breastcancer.breastcancercare.screens.main.AboutScreen
-import com.breastcancer.breastcancercare.screens.main.ActivityDetailScreen
-import com.breastcancer.breastcancercare.screens.main.AllActivitiesScreen
+import com.breastcancer.breastcancercare.screens.main.activity.ActivityDetailScreen
+import com.breastcancer.breastcancercare.screens.main.activity.AllActivitiesScreen
 import com.breastcancer.breastcancercare.screens.main.AllBlogsScreen
 import com.breastcancer.breastcancercare.screens.main.BlogDetailScreen
 import com.breastcancer.breastcancercare.screens.main.ContactSupportScreen
@@ -42,6 +42,7 @@ import com.breastcancer.breastcancercare.screens.main.MainScreen
 import com.breastcancer.breastcancercare.screens.main.ProfileRoute
 import com.breastcancer.breastcancercare.screens.main.survey.SurveyScreen
 import com.breastcancer.breastcancercare.screens.journey.JourneyScreen
+import com.breastcancer.breastcancercare.screens.main.activity.ActivityHistoryScreen
 import com.breastcancer.breastcancercare.screens.main.survey.SurveyMandatoryDialogScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
@@ -404,6 +405,21 @@ fun App() {
                                                 activity = activity
                                             )
                                         })
+                                }
+
+                                composable<Route.Main.AllActivityHistory> { backStackEntry ->
+                                    val parentEntry =
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                    val activityViewModel = koinViewModel<ActivityViewModel>(
+                                        viewModelStoreOwner = parentEntry
+                                    )
+                                    ActivityHistoryScreen(
+                                        activityViewModel = activityViewModel,
+                                        onBackPress = { navigator.popBackStack() },
+                                        onSubScreenChange = {
+                                            navigator.navigate(it)
+                                        }
+                                    )
                                 }
 
                                 dialog<Route.Main.SurveyMandatoryDialog> { backStackEntry ->

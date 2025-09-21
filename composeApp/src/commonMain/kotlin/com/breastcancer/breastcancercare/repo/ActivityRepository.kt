@@ -49,15 +49,21 @@ class ActivityRepository(val activityDAO: ActivityDAO) {
 
     suspend fun getActivityById(id: Long) = activityDAO.getActivityById(id = id).toActivityDTO()
 
+
     suspend fun insertActivityHistory(activityHistoryDTO: ActivityHistoryDTO) =
         activityDAO.insertActivityHistoryEntity(activityHistoryEntity = activityHistoryDTO.toEntity())
 
     fun getActivityHistoryByActivityIdAndRegisteredDate(
         activityId: Long,
+        userId: Long?,
         registeredDate: LocalDate?
     ): Flow<ActivityHistoryDTO?> =
         activityDAO.getActivityHistoryByActivityIdAndRegisteredDate(
             activityId = activityId,
+            userId = userId,
             registeredDate = registeredDate.toString()
         ).map { it?.toDTO() }
+
+    fun getAllActivityHistoryWithActivity(userId: Long?) = activityDAO.getAllActivityHistoryWithActivity(userId = userId)
+        .map { activityHistoryWithActivityEntities -> activityHistoryWithActivityEntities.map { it.toDTO() } }
 }

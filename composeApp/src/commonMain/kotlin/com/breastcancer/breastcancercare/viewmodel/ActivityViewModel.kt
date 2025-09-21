@@ -8,6 +8,7 @@ import com.breastcancer.breastcancercare.database.local.types.StartingStrongActi
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
+import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.repo.ActivityRepository
 import com.breastcancer.breastcancercare.repo.OnboardingRepository
 import com.breastcancer.breastcancercare.states.ActivityUIState
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -51,6 +53,10 @@ class ActivityViewModel(
         MutableStateFlow<ActivityUIState<List<ActivityDTO>>>(ActivityUIState.Initial())
     val activityUIListState = _activityUIListState.asStateFlow()
 
+    private var _activityUIHistoryState =
+        MutableStateFlow<ActivityUIState<List<ActivityHistoryDTO>>>(ActivityUIState.Initial())
+    val activityUIHistoryState = _activityUIHistoryState.asStateFlow()
+
 
     private var _selectedActivityType = MutableStateFlow<ActivityType?>(null)
     val selectedActivityType = _selectedActivityType.asStateFlow()
@@ -58,9 +64,14 @@ class ActivityViewModel(
     private var _allActivityTypes = MutableStateFlow<List<ActivityType>>(emptyList())
     val allActivityTypes = _allActivityTypes.asStateFlow()
 
+    private var _user = MutableStateFlow<UserDTO?>(null)
+    val user = _user.asStateFlow()
+
     init {
+        getLoggedInUser()
         listenForRegisterChanges()
         getAllActivitiesAndFilterByActivityType()
+        getAllActivityHistoryAndFilterByActivityType()
     }
 
     suspend fun getActivityById(id: Long) {
@@ -73,16 +84,21 @@ class ActivityViewModel(
     fun selectActivityType(activityType: ActivityType?) =
         _selectedActivityType.update { activityType }
 
+    private fun getLoggedInUser() = viewModelScope.launch {
+        onboardingRepository.getLoggedInUser().collectLatest { user ->
+            _user.update { user }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
     private fun getAllActivitiesAndFilterByActivityType() = viewModelScope.launch(Dispatchers.IO) {
-        onboardingRepository.getLoggedInUser()                 // Flow<User?>
-            .map { user ->
-                if (user?.userCategory == UserCategory.StartingStrong)
-                    _allActivityTypes.update { StartingStrongActivityType.all }
-                else if (user?.userCategory == UserCategory.LivingWell)
-                    _allActivityTypes.update { LivingWellActivityType.all }
-                user?.userCategory
-            }
+        user.map { user ->
+            if (user?.userCategory == UserCategory.StartingStrong)
+                _allActivityTypes.update { StartingStrongActivityType.all }
+            else if (user?.userCategory == UserCategory.LivingWell)
+                _allActivityTypes.update { LivingWellActivityType.all }
+            user?.userCategory
+        }
             .distinctUntilChanged()
             .combine(selectedActivityType) { category, type ->
                 if (category == null) flowOf(emptyList())    // or emit an Idle/Empty state
@@ -113,6 +129,7 @@ class ActivityViewModel(
             activityRepository.insertActivityHistory(
                 activityHistoryDTO = ActivityHistoryDTO(
                     activityId = activity.id,
+                    userId = user.value?.id ?: 0,
                     registeredForDate = getDateForNextSession(
                         frequencyType = activity.frequency,
                         startDate = activity.startDate,
@@ -130,7 +147,8 @@ class ActivityViewModel(
         activityUIDetailState.map { activityUIState ->
             (activityUIState as? ActivityUIState.Success)?.data
         }.filterNotNull()
-            .distinctUntilChanged().flatMapLatest { activity ->
+            .distinctUntilChanged()
+            .flatMapLatest { activity ->
                 val nextSession = getDateForNextSession(
                     frequencyType = activity.frequency,
                     startDate = activity.startDate,
@@ -139,6 +157,7 @@ class ActivityViewModel(
                 )
                 activityRepository.getActivityHistoryByActivityIdAndRegisteredDate(
                     activityId = activity.id,
+                    userId = user.value?.id,
                     registeredDate = nextSession
                 ).map { activityHistory -> activity to activityHistory }
             }.collectLatest { (activity, activityHistory) ->
@@ -147,4 +166,29 @@ class ActivityViewModel(
                 }
             }
     }
+
+    @OptIn(ExperimentalTime::class, ExperimentalCoroutinesApi::class)
+    private fun getAllActivityHistoryAndFilterByActivityType() =
+        viewModelScope.launch(Dispatchers.IO) {
+            user.map { user ->
+                user?.id
+            }
+                .distinctUntilChanged()
+                .combine(selectedActivityType) { userId, type ->
+                    activityRepository.getAllActivityHistoryWithActivity(userId = userId)
+                        .filter { activityHistory ->
+                            if (type != null)
+                                activityHistory.any { it.activity?.activityType == type }
+                            else
+                                true
+                        }
+                }.flatMapLatest { activityHistory -> activityHistory }
+                .onStart { _activityUIHistoryState.value = ActivityUIState.Loading() }
+                .catch { e -> _activityUIHistoryState.value = ActivityUIState.Error(e.message) }
+                .collectLatest { activityHistory ->
+                    _activityUIHistoryState.update { _ ->
+                        ActivityUIState.Success(data = activityHistory)
+                    }
+                }
+        }
 }

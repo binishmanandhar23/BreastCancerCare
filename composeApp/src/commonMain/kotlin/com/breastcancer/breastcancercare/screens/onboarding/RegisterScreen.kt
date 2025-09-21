@@ -50,8 +50,8 @@ fun RegisterScreen(
     val userDTO by onboardingViewModel.userDTO.collectAsStateWithLifecycle()
     val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
     val phoneValid by onboardingViewModel.phoneValid.collectAsStateWithLifecycle()
-    val emailValidInstant by onboardingViewModel.emailValidInstant.collectAsStateWithLifecycle()
-    val passwordValidInstant by onboardingViewModel.passwordValidInstant.collectAsStateWithLifecycle()
+    val emailValidInstant by onboardingViewModel.emailValid.collectAsStateWithLifecycle()
+    val passwordValidInstant by onboardingViewModel.passwordValid.collectAsStateWithLifecycle()
     val canRegister by onboardingViewModel.canRegister.collectAsStateWithLifecycle()
 
     val tfColors = TextFieldDefaults.colors(

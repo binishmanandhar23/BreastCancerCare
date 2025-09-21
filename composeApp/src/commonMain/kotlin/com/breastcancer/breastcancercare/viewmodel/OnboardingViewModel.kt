@@ -34,22 +34,11 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
     private var _emailValid = MutableStateFlow(true)
     val emailValid = _emailValid.asStateFlow()
 
+    private var _phoneValid = MutableStateFlow(true)
+    val phoneValid = _phoneValid.asStateFlow()
+
     private var _canRegister = MutableStateFlow(false)
     val canRegister = _canRegister.asStateFlow()
-
-    val phoneValid = userDTO
-        .map { dto ->
-            val digits = dto.phoneNumber.filter(Char::isDigit)
-            digits.length in 8..15
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-
-    val emailValidInstant = userDTO
-        .map { dto -> dto.email.isBlank() || (dto.email.contains("@") && dto.email.contains(".")) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
-    val passwordValidInstant = combine(password, confirmPassword) { pw, cpw ->
-        pw.length >= 6 && pw == cpw
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     private var _passwordValid = MutableStateFlow(true)
     val passwordValid = _passwordValid.asStateFlow()
@@ -59,23 +48,17 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
 
 
     fun updatePassword(password: String) =
-        _password.update { password }.also { updatePasswordValid(true) }
+        _password.update { password }
 
     fun updateConfirmPassword(password: String) =
-        _confirmPassword.update { password }.also { updatePasswordValid(true) }
+        _confirmPassword.update { password }
 
     fun toggleAgree(checked: Boolean) = _agree.update { checked }
-
-    fun updateEmailValid(valid: Boolean) = _emailValid.update { valid }
-    fun updatePasswordValid(valid: Boolean) = _passwordValid.update { valid }
 
     fun updateUserDTO(userDTO: UserDTO) =
         _userDTO.update {
             userDTO
-        }.also {
-            updateEmailValid(true)
         }
-
 
     init {
         canRegister()
@@ -83,13 +66,30 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
 
     fun canRegister() {
         viewModelScope.launch {
+            userDTO.collectLatest { dto ->
+                val emailOK =
+                    dto.email.isBlank() || (dto.email.contains("@") && dto.email.contains("."))
+                val phoneOK = dto.phoneNumber.filter(Char::isDigit).length in 8..15
+                _emailValid.update { _ -> emailOK }
+                _phoneValid.update { _ -> phoneOK }
+            }
+        }
+        viewModelScope.launch {
+            combine(password, confirmPassword) { pw, cpw ->
+                pw.length >= 6 && pw == cpw
+            }.collectLatest {
+                _passwordValid.update { _ -> it }
+            }
+        }
+        viewModelScope.launch {
             combine(
                 userDTO,
-                emailValidInstant,
-                phoneValid,
-                passwordValidInstant,
+                passwordValid,
                 agree
-            ) { dto, emailOK, phoneOK, pwOK, agreeOK ->
+            ) { dto, pwOK, agreeOK ->
+                val emailOK =
+                    dto.email.isBlank() || (dto.email.contains("@") && dto.email.contains("."))
+                val phoneOK = dto.phoneNumber.filter(Char::isDigit).length in 8..15
                 dto.firstName.isNotBlank() &&
                         dto.lastName.isNotBlank() &&
                         emailOK && phoneOK && pwOK && agreeOK
@@ -140,9 +140,6 @@ class OnboardingViewModel(val onboardingRepository: OnboardingRepository) : View
         onboardingRepository.logOut()
         _loginUIState.update { LoginUIState.LoggedOut }
     }
-
-    fun checkEmailValidity(): Boolean =
-        userDTO.value.email.let { email -> email.contains("@") && email.contains(".") }
 
     fun reset() {
         _userDTO.update { UserDTO() }

@@ -151,6 +151,9 @@ fun App() {
                                 }
                                 composable<Route.Onboarding> { backStackEntry ->
                                     OnboardingScreen(
+                                        onboardingViewModel = koinViewModel<OnboardingViewModel>(
+                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.BaseGraph)
+                                        ),
                                         loaderState = loaderState,
                                         customSnackBarState = customSnackBarState,
                                         onLogin = {
@@ -171,7 +174,7 @@ fun App() {
                                 composable<Route.Onboarding.Register> {
                                     RegisterScreen(
                                         onboardingViewModel = koinViewModel<OnboardingViewModel>(
-                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.Onboarding)
+                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.BaseGraph)
                                         ),
                                         customSnackBarState = customSnackBarState,
                                         loaderState = loaderState,
@@ -238,6 +241,9 @@ fun App() {
                                 composable<Route.Main> {
                                     MainScreen(
                                         homeViewModel = koinViewModel<HomeViewModel>(
+                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.BaseGraph)
+                                        ),
+                                        onboardingViewModel = koinViewModel<OnboardingViewModel>(
                                             viewModelStoreOwner = navigator.getBackStackEntry(Route.BaseGraph)
                                         ),
                                         permissionState = permissionState,

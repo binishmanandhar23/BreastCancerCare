@@ -20,6 +20,9 @@ import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import dev.icerock.moko.permissions.PermissionState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.Dp
+import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
+import com.breastcancer.breastcancercare.utils.DefaultSpacer
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +30,7 @@ import androidx.compose.ui.Alignment
 fun SettingsScreen(
     permissionState: PermissionState,
     customSnackBarState: SnackBarState,
+    bottomSpacer: Dp = DefaultSpacerSize,
     onOpenProfile: () -> Unit,
     onOpenAbout: () -> Unit,
     onContactSupport: () -> Unit,
@@ -98,6 +102,9 @@ fun SettingsScreen(
         }
         items(listOfItems) { pair ->
             SettingsSection(title = pair.first, content = pair.second)
+        }
+        item {
+            DefaultSpacer(bottomSpacer)
         }
     }
 

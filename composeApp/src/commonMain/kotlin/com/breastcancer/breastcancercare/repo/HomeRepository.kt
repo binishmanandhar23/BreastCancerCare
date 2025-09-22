@@ -15,8 +15,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 
-class HomeRepository(val userDao: UserDao, val blogDAO: BlogDAO, val activityDAO: ActivityDAO) :
-    BlogRepository(blogDAO) {
+class HomeRepository(val userDao: UserDao, val activityDAO: ActivityDAO) {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getLoggedInUser(): Flow<UserDTO?> = userDao.getLoggedInUser().distinctUntilChanged().map { it?.toDTO() }
 

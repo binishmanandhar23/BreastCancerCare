@@ -3,6 +3,7 @@ package com.breastcancer.breastcancercare.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.breastcancer.breastcancercare.screens.Tabs
 import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
+import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 
 @Composable
 fun BottomBar(
@@ -39,46 +41,60 @@ fun BottomBar(
     var buttonSize by remember { mutableStateOf(DpSize(0.dp, 0.dp)) }
     val selectedPage by remember(page) { mutableStateOf(Tabs.entries[page].text) }
 
+    val isLandscape = rememberIsLandscape()
+
     val homeColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.Home.text))
     val activitiesColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.Calendar.text))
     val infoColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.FAQ.text))
     val settingsColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.Settings.text))
+    val content: @Composable () -> Unit = {
+        BottomBarIcon(
+            modifier = Modifier,
+            imageVector = Icons.Default.Home,
+            text = "Home",
+            tint = homeColor,
+            onClick = onHome
+        )
+        BottomBarIcon(
+            modifier = Modifier,
+            imageVector = Icons.Default.Event,
+            text = "Activities",
+            tint = activitiesColor,
+            onClick = onCalendar
+        )
+        Spacer(Modifier.size(buttonSize))
+        BottomBarIcon(
+            modifier = Modifier,
+            imageVector = Icons.Default.Info,
+            text = "Info",
+            tint = infoColor,
+            onClick = onFAQ
+        )
+        BottomBarIcon(
+            modifier = Modifier,
+            imageVector = Icons.Default.Settings,
+            text = "Settings",
+            tint = settingsColor,
+            onClick = onSettings
+        )
+    }
     Box(modifier = outerModifier) {
-        Row(
-            modifier = innerModifier.align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BottomBarIcon(
-                modifier = Modifier,
-                imageVector = Icons.Default.Home,
-                text = "Home",
-                tint = homeColor,
-                onClick = onHome
-            )
-            BottomBarIcon(
-                modifier = Modifier,
-                imageVector = Icons.Default.Event,
-                text = "Activities",
-                tint = activitiesColor,
-                onClick = onCalendar
-            )
-            Spacer(Modifier.size(buttonSize))
-            BottomBarIcon(
-                modifier = Modifier,
-                imageVector = Icons.Default.Info,
-                text = "Info",
-                tint = infoColor,
-                onClick = onFAQ
-            )
-            BottomBarIcon(
-                modifier = Modifier,
-                imageVector = Icons.Default.Settings,
-                text = "Settings",
-                tint = settingsColor,
-                onClick = onSettings
-            )
-        }
+        if (isLandscape)
+            Column(
+                modifier = innerModifier.align(Alignment.CenterStart),
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                content()
+            }
+        else
+            Row(
+                modifier = innerModifier.align(Alignment.BottomCenter),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                content()
+            }
 
         /*CenterButton(modifier = Modifier.padding(bottom = 50.dp).align(Alignment.TopCenter), onSizeChange = { size ->
             density.convertIntSizeToDpSize(size){
@@ -91,7 +107,8 @@ fun BottomBar(
 }
 
 @Composable
-fun getColor(selected: Boolean) = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+fun getColor(selected: Boolean) =
+    if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 
 @Composable
 fun DefaultSpacerSize() = Spacer(modifier = Modifier.padding(DefaultSpacerSize))

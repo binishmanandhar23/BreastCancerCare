@@ -54,7 +54,7 @@ class ActivityViewModel(
     val activityUIListState = _activityUIListState.asStateFlow()
 
     private var _activityUIHistoryState =
-        MutableStateFlow<ActivityUIState<Map< LocalDate, List<ActivityHistoryDTO>>>>(ActivityUIState.Initial())
+        MutableStateFlow<ActivityUIState<Map<LocalDate, List<ActivityHistoryDTO>>>>(ActivityUIState.Initial())
     val activityUIHistoryState = _activityUIHistoryState.asStateFlow()
 
 
@@ -144,20 +144,19 @@ class ActivityViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun listenForRegisterChanges() = viewModelScope.launch(Dispatchers.IO) {
-        activityUIDetailState.map { activityUIState ->
-            (activityUIState as? ActivityUIState.Success)?.data
-        }.filterNotNull()
-            .distinctUntilChanged()
-            .flatMapLatest { activity ->
+        combine(activityUIDetailState, user) { state, user ->
+            Pair((state as? ActivityUIState.Success)?.data, user)
+        }.distinctUntilChanged().filter { (activity, _) -> activity != null }
+            .flatMapLatest { (activity, user) ->
                 val nextSession = getDateForNextSession(
-                    frequencyType = activity.frequency,
+                    frequencyType = activity!!.frequency,
                     startDate = activity.startDate,
                     endDate = activity.endDate,
                     frequencySeries = activity.frequencySeries
                 )
                 activityRepository.getActivityHistoryByActivityIdAndRegisteredDate(
                     activityId = activity.id,
-                    userId = user.value?.id,
+                    userId = user?.id,
                     registeredDate = nextSession
                 ).map { activityHistory -> activity to activityHistory }
             }.collectLatest { (activity, activityHistory) ->
@@ -170,17 +169,18 @@ class ActivityViewModel(
     @OptIn(ExperimentalTime::class, ExperimentalCoroutinesApi::class)
     private fun getAllActivityHistoryAndFilterByActivityType() =
         viewModelScope.launch(Dispatchers.IO) {
-            user.map { user ->
+            user.mapLatest { user ->
                 user?.id
             }
                 .distinctUntilChanged()
-                .map { userId ->
+                .mapLatest { userId ->
                     activityRepository.getAllActivityHistoryWithActivity(userId = userId)
                 }.flatMapLatest { activityHistory -> activityHistory }
                 .combine(selectedActivityType) { activityHistory, type ->
                     if (type == null) activityHistory.groupBy { it.registeredForDate }
                     else
-                        activityHistory.filter { it.activity?.activityType?.type == type.type }.groupBy { it.registeredForDate }
+                        activityHistory.filter { it.activity?.activityType?.type == type.type }
+                            .groupBy { it.registeredForDate }
                 }
                 .onStart { _activityUIHistoryState.value = ActivityUIState.Loading() }
                 .catch { e -> _activityUIHistoryState.value = ActivityUIState.Error(e.message) }

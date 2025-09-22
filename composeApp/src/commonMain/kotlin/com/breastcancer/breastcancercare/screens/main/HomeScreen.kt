@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.ActivityTypeTag
@@ -48,11 +49,13 @@ import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.states.HomeUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
+import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
 import com.breastcancer.breastcancercare.theme.DefaultTopHeaderTextSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.theme.OffBackground
 import com.breastcancer.breastcancercare.theme.spToDp
+import com.breastcancer.breastcancercare.utils.DefaultSpacer
 import com.breastcancer.breastcancercare.utils.emojiFor
 import com.breastcancer.breastcancercare.utils.getDateForNextSession
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
@@ -63,6 +66,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun HomeScreen(
     homeViewModel: HomeViewModel,
     onBlogClick: (blog: BlogDTO) -> Unit,
+    bottomSpacer: Dp = DefaultSpacerSize,
     onActivityClick: (activity: ActivityDTO) -> Unit,
     onAllBlogs: () -> Unit,
     onAllActivities: () -> Unit
@@ -176,7 +180,7 @@ fun HomeScreen(
         }
 
         item {
-            DefaultSpacerSize()
+            DefaultSpacer(size = bottomSpacer)
         }
     }
 }

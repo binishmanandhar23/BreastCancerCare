@@ -8,6 +8,7 @@ import com.breastcancer.breastcancercare.models.BlogDTO
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.models.toDTO
+import com.breastcancer.breastcancercare.repo.BlogRepository
 import com.breastcancer.breastcancercare.repo.HomeRepository
 import com.breastcancer.breastcancercare.states.HomeUIState
 import com.breastcancer.breastcancercare.utils.getHomeGreetingText
@@ -38,7 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlin.time.ExperimentalTime
 
-class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
+class HomeViewModel(val homeRepository: HomeRepository, val blogRepository: BlogRepository) : ViewModel() {
 
     private var _loggedInUser = MutableStateFlow<UserDTO?>(null)
     val loggedInUser = _loggedInUser.asStateFlow()
@@ -72,7 +73,7 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
         delay(2000L)
         _recommendedBlogsUIState.update { HomeUIState.Loading() }
         delay(2500L)
-        homeRepository.getRecommendedBlogs().collect { recommendedBlogs ->
+        blogRepository.getRecommendedBlogs().collect { recommendedBlogs ->
             _recommendedBlogsUIState.update { _ ->
                 if (recommendedBlogs.isEmpty()) HomeUIState.Empty() else HomeUIState.Success(
                     data = recommendedBlogs
@@ -86,7 +87,7 @@ class HomeViewModel(val homeRepository: HomeRepository) : ViewModel() {
         delay(1000L)
         _upcomingEventsUIState.update { HomeUIState.Loading() }
         homeRepository.getLoggedInUser()                 // Flow<User?>
-            .map { it?.userCategory }                    // Flow<UserCategory?>
+            .mapLatest { it?.userCategory }                    // Flow<UserCategory?>
             .distinctUntilChanged()                      // don’t reload if same category
             .flatMapLatest { category ->
                 if (category == null) flowOf(emptyList())    // or emit an Idle/Empty state

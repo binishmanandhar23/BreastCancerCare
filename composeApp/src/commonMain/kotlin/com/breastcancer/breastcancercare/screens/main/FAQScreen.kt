@@ -57,6 +57,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -67,9 +68,11 @@ import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.models.GuideDTO
 import com.breastcancer.breastcancercare.states.FAQUIState
 import com.breastcancer.breastcancercare.theme.DefaultElevation
+import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
 import com.breastcancer.breastcancercare.theme.InfoAnim
 import com.breastcancer.breastcancercare.theme.InfoColors
 import com.breastcancer.breastcancercare.theme.InfoDimens
+import com.breastcancer.breastcancercare.utils.DefaultSpacer
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -95,7 +98,12 @@ private fun highlightQuery(text: String, query: String): androidx.compose.ui.tex
                 break
             }
             append(text.substring(start, idx))
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)) {
+            withStyle(
+                SpanStyle(
+                    fontWeight = FontWeight.Bold,
+                    textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
+                )
+            ) {
                 append(text.substring(idx, idx + q.length))
             }
             start = idx + q.length
@@ -108,6 +116,7 @@ private fun highlightQuery(text: String, query: String): androidx.compose.ui.tex
 @Composable
 fun FAQScreen(
     loaderState: LoaderState,
+    bottomSpacer: Dp = DefaultSpacerSize,
     snackBarState: SnackBarState,
     viewModel: FAQViewModel = koinViewModel()
 ) {
@@ -139,6 +148,7 @@ fun FAQScreen(
                     overridingDelay = SnackBarLengthMedium
                 )
             }
+
             else -> Unit
         }
     }
@@ -152,7 +162,12 @@ fun FAQScreen(
         state = listState,
         modifier = Modifier
             .fillMaxSize()
-            .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = InfoAnim.Expand,
+                    easing = LinearEasing
+                )
+            ),
         verticalArrangement = Arrangement.spacedBy(InfoDimens.CardSpacing),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             bottom = InfoDimens.ScreenVPadding
@@ -265,103 +280,114 @@ fun FAQScreen(
                 }
             }
         }
-            when (currentTab) {
-                InfoTab.FAQs -> {
-                    if (displayedFaqs.isEmpty()) {
-                        item {
-                            Text(
+        when (currentTab) {
+            InfoTab.FAQs -> {
+                if (displayedFaqs.isEmpty()) {
+                    item {
+                        Text(
+                            modifier = Modifier.padding(
+                                horizontal = InfoDimens.ScreenHPadding,
+                                vertical = InfoDimens.ScreenVPadding
+                            ),
+                            text = "No FAQs for the current filter.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    itemsIndexed(items = displayedFaqs) { key, item ->
+                        val color = InfoColors.faqCard(key)
+                        val onColor = InfoColors.onFaqCard()
+                        var isExpanded by rememberSaveable(item.question) { mutableStateOf(false) }
+                        val angle: Float by animateFloatAsState(
+                            targetValue = if (isExpanded) 180f else 0f,
+                            animationSpec = tween(
+                                durationMillis = InfoAnim.Expand,
+                                easing = LinearEasing
+                            )
+                        )
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = InfoDimens.ScreenHPadding)
+                                .animateContentSize(
+                                    animationSpec = tween(
+                                        durationMillis = InfoAnim.Expand,
+                                        easing = LinearEasing
+                                    )
+                                ),
+                            shape = MaterialTheme.shapes.large,
+                            colors = CardDefaults.cardColors(
+                                containerColor = color,
+                                contentColor = onColor
+                            ),
+                            elevation = CardDefaults.cardElevation(DefaultElevation),
+                            onClick = { isExpanded = !isExpanded }
+                        ) {
+                            Column(
                                 modifier = Modifier.padding(
                                     horizontal = InfoDimens.ScreenHPadding,
                                     vertical = InfoDimens.ScreenVPadding
-                                ),
-                                text = "No FAQs for the current filter.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    } else {
-                        itemsIndexed(items = displayedFaqs) { key, item ->
-                            val color = InfoColors.faqCard(key)
-                            val onColor = InfoColors.onFaqCard()
-                            var isExpanded by rememberSaveable(item.question) { mutableStateOf(false) }
-                            val angle: Float by animateFloatAsState(
-                                targetValue = if (isExpanded) 180f else 0f,
-                                animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)
-                            )
-
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = InfoDimens.ScreenHPadding)
-                                    .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
-                                shape = MaterialTheme.shapes.large,
-                                colors = CardDefaults.cardColors(
-                                    containerColor = color,
-                                    contentColor = onColor
-                                ),
-                                elevation = CardDefaults.cardElevation(DefaultElevation),
-                                onClick = { isExpanded = !isExpanded }
+                                )
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(
-                                        horizontal = InfoDimens.ScreenHPadding,
-                                        vertical = InfoDimens.ScreenVPadding
-                                    )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.Top,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                                 ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.Top,
-                                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                    ) {
-                                        Icon(
-                                            modifier = Modifier.rotate(angle),
-                                            imageVector = Icons.Default.ArrowDropDown,
-                                            contentDescription = if (isExpanded) "Collapse" else "Expand"
+                                    Icon(
+                                        modifier = Modifier.rotate(angle),
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = if (isExpanded) "Collapse" else "Expand"
+                                    )
+                                    Text(
+                                        text = highlightQuery(item.question, searchQuery),
+                                        color = onColor,
+                                        style = LocalTextStyle.current.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 20.sp
                                         )
-                                        Text(
-                                            text = highlightQuery(item.question, searchQuery),
-                                            color = onColor,
-                                            style = LocalTextStyle.current.copy(
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 20.sp
-                                            )
-                                        )
-                                    }
-                                    AnimatedVisibility(visible = isExpanded) {
-                                        Text(
-                                            modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
-                                            text = item.answer,
-                                            color = onColor
-                                        )
-                                    }
+                                    )
+                                }
+                                AnimatedVisibility(visible = isExpanded) {
+                                    Text(
+                                        modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
+                                        text = item.answer,
+                                        color = onColor
+                                    )
                                 }
                             }
                         }
                     }
                 }
+            }
 
-                InfoTab.Guides -> {
-                    if (displayedGuides.isEmpty()) {
-                        item {
-                            Text(
-                                modifier = Modifier.padding(
-                                    horizontal = InfoDimens.ScreenHPadding,
-                                    vertical = InfoDimens.ScreenVPadding
-                                ),
-                                text = "No guides for the current search.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    } else {
-                        itemsIndexed(displayedGuides) { _, g ->
-                            GuideCard(item = g)
-                        }
+            InfoTab.Guides -> {
+                if (displayedGuides.isEmpty()) {
+                    item {
+                        Text(
+                            modifier = Modifier.padding(
+                                horizontal = InfoDimens.ScreenHPadding,
+                                vertical = InfoDimens.ScreenVPadding
+                            ),
+                            text = "No guides for the current search.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    itemsIndexed(displayedGuides) { _, g ->
+                        GuideCard(item = g)
                     }
                 }
             }
         }
+        item {
+            DefaultSpacer(bottomSpacer)
+        }
     }
+}
 
 @Composable
 private fun GuideCard(item: GuideDTO) {
@@ -369,7 +395,12 @@ private fun GuideCard(item: GuideDTO) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = InfoDimens.ScreenHPadding)
-            .animateContentSize(animationSpec = tween(durationMillis = InfoAnim.Expand, easing = LinearEasing)),
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = InfoAnim.Expand,
+                    easing = LinearEasing
+                )
+            ),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,

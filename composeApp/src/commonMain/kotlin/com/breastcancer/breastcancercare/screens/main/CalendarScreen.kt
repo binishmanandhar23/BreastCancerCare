@@ -79,6 +79,7 @@ import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.theme.ColorSand
 import com.breastcancer.breastcancercare.theme.ColorSunshine
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
+import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.theme.OffBackground
@@ -105,6 +106,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = koinViewModel(),
+    bottomSpacer: Dp = DefaultSpacerSize,
     onSubScreenChange: (Route, clearStack: Boolean) -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
@@ -197,6 +199,7 @@ fun CalendarScreen(
             selectedTab = selectedTab,
             selectedDayAvailableActivities = selectedDayAvailableActivities,
             allSuitabilities = allSuitabilities,
+            bottomSpacer = bottomSpacer,
             selectedSuitability = selectedSuitability,
             selectedDate = selectedDate,
             onTabSelected = calendarViewModel::changeTab,
@@ -306,6 +309,7 @@ fun BottomInfoCard(
     openHeightFraction: Float = 0.8f,     // sheet height
     closedVisibleFraction: Float = 0.4f,  // visible part when closed
     selectedDate: LocalDate,
+    bottomSpacer: Dp,
     allSuitabilities: List<SuitabilityDTO>,
     selectedSuitability: SuitabilityDTO?,
     selectedDayAvailableActivities: Map<CalendarActivityType, List<ActivityDTO>>,
@@ -406,7 +410,7 @@ fun BottomInfoCard(
                     modifier = Modifier.fillMaxSize(),
                     selectedDate = selectedDate,
                     selectedDayAvailableActivities = selectedDayAvailableActivities,
-                    bottomSpacer = with(LocalDensity.current) { offsetAnim.value.toDp() },
+                    bottomSpacer = with(LocalDensity.current) { offsetAnim.value.toDp() + bottomSpacer },
                     onActivityClick = onActivityClick
                 )
             }
@@ -426,7 +430,7 @@ private fun ActivitySection(
         LazyColumnWithStickyFooter(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
-            bottomSpacer = bottomSpacer + 100.dp,
+            bottomSpacer = bottomSpacer,
             forceSpacer = true
         ) {
             if (activities.values.all { it.isEmpty() })

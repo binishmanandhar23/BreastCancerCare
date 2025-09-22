@@ -50,6 +50,7 @@ import com.breastcancer.breastcancercare.theme.BreastCareTypography
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
+import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
@@ -239,13 +240,18 @@ fun App() {
                                     )
                                 }
 
-                                composable<Route.Main> {
+                                composable<Route.Main> { backStackEntry ->
+                                    val parentEntry =
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.BaseGraph) }
                                     MainScreen(
                                         homeViewModel = koinViewModel<HomeViewModel>(
-                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.BaseGraph)
+                                            viewModelStoreOwner = parentEntry
                                         ),
                                         onboardingViewModel = koinViewModel<OnboardingViewModel>(
-                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.BaseGraph)
+                                            viewModelStoreOwner = parentEntry
+                                        ),
+                                        calendarViewModel = koinViewModel<CalendarViewModel>(
+                                            viewModelStoreOwner = parentEntry
                                         ),
                                         permissionState = permissionState,
                                         loaderState = loaderState,
@@ -344,7 +350,7 @@ fun App() {
 
                                 composable<Route.Main.AllActivities> { backStackEntry ->
                                     val parentEntry =
-                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.BaseGraph) }
                                     val activityViewModel = koinViewModel<ActivityViewModel>(
                                         viewModelStoreOwner = parentEntry
                                     )
@@ -359,7 +365,7 @@ fun App() {
                                 composable<Route.Main.ActivityDetail> { backStackEntry ->
                                     val id = backStackEntry.toRoute<Route.Main.ActivityDetail>().id
                                     val activityViewModel = koinViewModel<ActivityViewModel>(
-                                        viewModelStoreOwner = navigator.getBackStackEntry<Route.Main>()
+                                        viewModelStoreOwner = navigator.getBackStackEntry<Route.BaseGraph>()
                                     )
                                     ActivityDetailScreen(
                                         id = id,
@@ -383,7 +389,7 @@ fun App() {
 
                                 composable<Route.Main.SurveyRoute> { backStackEntry ->
                                     val parentEntry =
-                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.BaseGraph) }
                                     val activityViewModel = koinViewModel<ActivityViewModel>(
                                         viewModelStoreOwner = parentEntry
                                     )
@@ -409,7 +415,7 @@ fun App() {
 
                                 composable<Route.Main.AllActivityHistory> { backStackEntry ->
                                     val parentEntry =
-                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.Main) }
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.BaseGraph) }
                                     val activityViewModel = koinViewModel<ActivityViewModel>(
                                         viewModelStoreOwner = parentEntry
                                     )

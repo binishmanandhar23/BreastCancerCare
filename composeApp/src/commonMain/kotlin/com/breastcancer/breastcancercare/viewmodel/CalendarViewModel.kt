@@ -27,8 +27,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -102,20 +104,19 @@ class CalendarViewModel(
         _selectedDate.update { date }
     }
 
-    fun getLoggedInUser() = viewModelScope.launch {
-        homeRepository.getLoggedInUser().collectLatest { user ->
+    fun getLoggedInUser() =
+        homeRepository.getLoggedInUser().onEach { user ->
             _user.update { user }
-        }
-    }
+        }.launchIn(viewModelScope)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getAllEventsAndPrograms() = viewModelScope.launch(Dispatchers.IO) {
         user                // Flow<User?>
-            .map { it?.userCategory }                    // Flow<UserCategory?>
+            .mapLatest { it?.userCategory }                    // Flow<UserCategory?>
             .distinctUntilChanged()                      // don’t reload if same category
             .flatMapLatest { category ->
                 if (category == null) flowOf(emptyList())    // or emit an Idle/Empty state
-                else homeRepository.getAllActivities(userCategory = category) // Flow<List<Event>>
+                else activityRepository.getAllActivities(userCategory = category) // Flow<List<Event>>
             }
             .mapLatest { events ->
                 events.sortedBy { it.startDate }          // ensure chronological
@@ -127,7 +128,7 @@ class CalendarViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getAllActivityHistory() = viewModelScope.launch(Dispatchers.IO) {
-        user.map { it?.id }
+        user.mapLatest { it?.id }
             .distinctUntilChanged()
             .flatMapLatest { userId ->
                 if (userId == null) flowOf(emptyList())

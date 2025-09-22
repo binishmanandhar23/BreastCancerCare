@@ -3,6 +3,7 @@ package com.breastcancer.breastcancercare.screens.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,7 +13,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,8 +30,11 @@ import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.Tabs
 import com.breastcancer.breastcancercare.theme.DefaultElevation
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
+import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.RoundedCornerSize
+import com.breastcancer.breastcancercare.utils.rememberIsLandscape
+import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import dev.icerock.moko.permissions.PermissionState
@@ -39,6 +45,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun MainScreen(
     onboardingViewModel: OnboardingViewModel = koinViewModel(),
     homeViewModel: HomeViewModel = koinViewModel(),
+    calendarViewModel: CalendarViewModel = koinViewModel(),
     permissionState: PermissionState,
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
@@ -49,38 +56,62 @@ fun MainScreen(
     val pagerState = rememberPagerState(pageCount = { Tabs.entries.size })
 
     val loggedInUser by homeViewModel.loggedInUser.collectAsStateWithLifecycle()
+    val isLandscape = rememberIsLandscape()
 
-    LaunchedEffect(loggedInUser){
+    val bottomSpacer by remember(isLandscape) {
+        derivedStateOf {
+            if (isLandscape) 0.dp else DefaultSpacerSize
+        }
+    }
+    val startSpacer by remember(isLandscape) {
+        derivedStateOf { if (isLandscape) DefaultSpacerSize * 2 else 0.dp }
+    }
+
+    LaunchedEffect(loggedInUser) {
         loggedInUser?.let { user ->
-            if(user.userCategory == UserCategory.Undefined)
+            if (user.userCategory == UserCategory.Undefined)
                 onSubScreenChange(Route.Journey(userId = user.id, hideBackButton = true), true)
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(start = startSpacer),
             state = pagerState,
             userScrollEnabled = false,
             beyondViewportPageCount = 1
         ) { page ->
             when (Tabs.entries[page].text) {
-                Tabs.Home.text -> HomeScreen(homeViewModel = homeViewModel, onBlogClick = {
-                    onSubScreenChange(Route.Main.BlogDetail(slug = it.slug), false)
-                }, onAllBlogs = {
-                    onSubScreenChange(Route.Main.AllBlogs, false)
-                }, onActivityClick = {
-                    onSubScreenChange(Route.Main.ActivityDetail(id = it.id), false)
-                }, onAllActivities = {
-                    onSubScreenChange(Route.Main.AllActivities, false)
-                })
-                Tabs.Calendar.text -> CalendarScreen(onSubScreenChange = onSubScreenChange)
+                Tabs.Home.text -> HomeScreen(
+                    homeViewModel = homeViewModel,
+                    bottomSpacer = bottomSpacer,
+                    onBlogClick = {
+                        onSubScreenChange(Route.Main.BlogDetail(slug = it.slug), false)
+                    },
+                    onAllBlogs = {
+                        onSubScreenChange(Route.Main.AllBlogs, false)
+                    },
+                    onActivityClick = {
+                        onSubScreenChange(Route.Main.ActivityDetail(id = it.id), false)
+                    },
+                    onAllActivities = {
+                        onSubScreenChange(Route.Main.AllActivities, false)
+                    })
+
+                Tabs.Calendar.text -> CalendarScreen(
+                    bottomSpacer = bottomSpacer,
+                    calendarViewModel = calendarViewModel,
+                    onSubScreenChange = onSubScreenChange
+                )
+
                 Tabs.FAQ.text -> FAQScreen(
                     loaderState = loaderState,
+                    bottomSpacer = bottomSpacer,
                     snackBarState = customSnackBarState
                 )
 
                 Tabs.Settings.text -> SettingsScreen(
+                    bottomSpacer = bottomSpacer,
                     permissionState = permissionState,
                     customSnackBarState = customSnackBarState,
                     onOpenProfile = { onSubScreenChange(Route.Main.Profile, false) },
@@ -95,12 +126,20 @@ fun MainScreen(
         }
 
         BottomBar(
-            outerModifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
+            outerModifier = Modifier.let {
+                if (isLandscape)
+                    it.fillMaxHeight()
+                else
+                    it.fillMaxWidth()
+            }.align(if (isLandscape) Alignment.CenterStart else Alignment.BottomCenter)
                 .padding(horizontal = 15.dp, vertical = 15.dp),
             innerModifier = Modifier
-                .fillMaxWidth()
+                .let {
+                    if (isLandscape)
+                        it.fillMaxHeight()
+                    else
+                        it.fillMaxWidth()
+                }
                 .shadow(
                     elevation = DefaultElevation,
                     shape = RoundedCornerShape(RoundedCornerSize)

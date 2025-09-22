@@ -12,8 +12,8 @@ actual fun createAlarmeePlatformConfiguration(): AlarmeePlatformConfiguration =
         notificationIconColor = androidx.compose.ui.graphics.Color.Transparent, // Defaults to Color.Transparent is not specified
         notificationChannels = listOf(
             AlarmeeNotificationChannel(
-                id = NotificationChannels.EventNotificationChannel.channelId,
-                name = NotificationChannels.EventNotificationChannel.channelName,
+                id = NotificationChannels.ActivityNotificationChannel.channelId,
+                name = NotificationChannels.ActivityNotificationChannel.channelName,
                 importance = NotificationManager.IMPORTANCE_HIGH,
             ),
             AlarmeeNotificationChannel(

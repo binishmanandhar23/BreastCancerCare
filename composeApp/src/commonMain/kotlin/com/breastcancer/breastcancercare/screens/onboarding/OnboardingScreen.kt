@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +39,10 @@ import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.states.LoginUIState
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 import com.breastcancer.breastcancercare.utils.rememberWindowSizeDp
 import com.breastcancer.breastcancercare.utils.text.ClickableText
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
@@ -60,11 +65,12 @@ fun OnboardingScreen(
     val emailValid by onboardingViewModel.emailValid.collectAsStateWithLifecycle()
     val loginUIState by onboardingViewModel.loginUIState.collectAsStateWithLifecycle()
     val windowSize = rememberWindowSizeDp()
+    val isLandscape = rememberIsLandscape()
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(loginUIState) {
         when (loginUIState) {
-            is LoginUIState.Error ->{
+            is LoginUIState.Error -> {
                 customSnackBarState.show(
                     overridingText = loginUIState.message,
                     overridingDelay = SnackBarLengthMedium
@@ -72,75 +78,100 @@ fun OnboardingScreen(
                 loaderState.hide()
                 onboardingViewModel.clearTransientLoginState()
             }
+
             is LoginUIState.Success -> {
                 onboardingViewModel.clearTransientLoginState()
                 onLogin()
                 loaderState.hide()
             }
+
             is LoginUIState.Loading -> loaderState.show()
             else -> loaderState.hide()
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxWidth().align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
-        ) {
+        val imageContent: @Composable (modifier: Modifier) -> Unit = { modifier ->
             Image(
-                modifier = Modifier.padding(vertical = DefaultVerticalPaddingMedium),
+                modifier = modifier.scale(0.5f),
                 painter = painterResource(Res.drawable.breast_cancer_care_wa),
                 contentDescription = stringResource(Res.string.app_name)
             )
-            BreastCancerSingleLineTextField(
-                modifier = Modifier.width(windowSize.first / 1.3f),
-                label = "Email",
-                value = userDTO.email,
-                leadingIcon = {
-                    Icon(imageVector = Icons.Outlined.Email, contentDescription = "Email")
-                },
-                onValueChange = { onboardingViewModel.updateUserDTO(userDTO = userDTO.copy(email = it)) },
-                errorText = if (!emailValid) "Invalid email" else null,
-                errorIcon = Icons.Default.Error,
-            )
-            BreastCancerSingleLineTextField(
-                modifier = Modifier.width(windowSize.first / 1.3f),
-                label = "Password",
-                value = password,
-                leadingIcon = {
-                    Icon(imageVector = Icons.Outlined.Password, contentDescription = "Password")
-                },
-                onValueChange = onboardingViewModel::updatePassword,
-                visualTransformation = PasswordVisualTransformation()
-            )
-            BreastCancerButton(text = "Login", onClick = {
-                coroutineScope.launch {
-                    onboardingViewModel.onLogin()
-                }
-            })
-            ClickableText(
-                textStyle = TextStyle.Default.copy(fontSize = 12.sp),
-                onClick = { tag ->
-                    if (tag == "register") {
-                        onRegister()
-                    }
-                }
+        }
+        val content: @Composable (modifier: Modifier) -> Unit = { modifier ->
+            Column(
+                modifier = modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
             ) {
-                append("New Member? ")
-                withClickable("register") {
-                    withStyle(
-                        SpanStyle(
-                            color = clickHereColor,
-                            textDecoration = TextDecoration.Underline,
-                            fontWeight = FontWeight.Bold
-                        )
-                    ) {
-                        append(" Click here")
+                BreastCancerSingleLineTextField(
+                    modifier = Modifier.width(windowSize.first / 1.3f),
+                    label = "Email",
+                    value = userDTO.email,
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Outlined.Email, contentDescription = "Email")
+                    },
+                    onValueChange = { onboardingViewModel.updateUserDTO(userDTO = userDTO.copy(email = it)) },
+                    errorText = if (!emailValid) "Invalid email" else null,
+                    errorIcon = Icons.Default.Error,
+                )
+                BreastCancerSingleLineTextField(
+                    modifier = Modifier.width(windowSize.first / 1.3f),
+                    label = "Password",
+                    value = password,
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Outlined.Password, contentDescription = "Password")
+                    },
+                    onValueChange = onboardingViewModel::updatePassword,
+                    visualTransformation = PasswordVisualTransformation()
+                )
+                BreastCancerButton(text = "Login", onClick = {
+                    coroutineScope.launch {
+                        onboardingViewModel.onLogin()
                     }
+                })
+                ClickableText(
+                    textStyle = TextStyle.Default.copy(fontSize = 12.sp),
+                    onClick = { tag ->
+                        if (tag == "register") {
+                            onRegister()
+                        }
+                    }
+                ) {
+                    append("New Member? ")
+                    withClickable("register") {
+                        withStyle(
+                            SpanStyle(
+                                color = clickHereColor,
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
+                            append(" Click here")
+                        }
+                    }
+                    append(".")
                 }
-                append(".")
             }
         }
+        if (isLandscape)
+            Row(
+                modifier = Modifier.fillMaxWidth().align(Alignment.Center)
+                    .padding(horizontal = DefaultHorizontalPaddingLarge),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
+            ) {
+                imageContent(Modifier.weight(0.5f))
+                content(Modifier.weight(0.5f))
+            }
+        else
+            Column(
+                modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
+            ) {
+                imageContent(Modifier.padding(vertical = DefaultVerticalPaddingMedium))
+                content(Modifier.fillMaxWidth())
+            }
     }
 }

@@ -3,6 +3,7 @@ package com.breastcancer.breastcancercare
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -102,7 +103,10 @@ fun App() {
         Scaffold { innerPadding ->
             Surface(
                 modifier = Modifier.fillMaxSize().padding(
-                    top = innerPadding.calculateTopPadding()
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = innerPadding.calculateBottomPadding(),
+                    start = if (isLandScape) innerPadding.calculateStartPadding(LayoutDirection.Ltr) else 0.dp,
+                    end = if (isLandScape) innerPadding.calculateEndPadding(LayoutDirection.Ltr) else 0.dp,
                 )
             ) {
                 CustomLoader(loaderState = loaderState) {

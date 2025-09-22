@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -122,7 +121,6 @@ class CalendarViewModel(
                 events.sortedBy { it.startDate }          // ensure chronological
             }.collectLatest { activities ->
                 _allActivities.update { activities }
-                scheduleNotificationsForEvents(events = activities)
             }
     }
 
@@ -138,40 +136,41 @@ class CalendarViewModel(
             }
     }
 
-    private fun scheduleNotificationsForEvents(events: List<ActivityDTO>) {
+    private fun scheduleNotificationsForEvents(activityHistory: List<ActivityHistoryDTO>) {
         val localService = alarmeeService.local
-        events.forEach { event ->
-            run NotificationLogic@{
-                if (event.startDate < LocalDate.now()) return@NotificationLogic
-                val scheduledDateTime =
-                    if (event.startTime != null) event.startDate.atTime(
-                        LocalTime(
-                            hour = max(
-                                0,
-                                event.startTime.hour - 1
-                            ), minute = event.startTime.minute
+        activityHistory.map { Triple(it.id, it.registeredForDate, it.activity) }
+            .forEach { (id, registeredDate, activity) ->
+                run NotificationLogic@{
+                    if (registeredDate < LocalDate.now()) return@NotificationLogic
+                    val scheduledDateTime =
+                        if (activity?.startTime != null) registeredDate.atTime(
+                            LocalTime(
+                                hour = max(
+                                    0,
+                                    activity.startTime.hour - 1
+                                ), minute = activity.startTime.minute
+                            )
+                        ) else registeredDate.atTime(
+                            6,
+                            0
                         )
-                    ) else event.startDate.atTime(
-                        6,
-                        0
-                    )
-                localService.schedule(
-                    alarmee = Alarmee(
-                        uuid = event.id.toString(),
-                        notificationTitle = "You have an event today!",
-                        notificationBody = if (event.startTime != null) "Your event starts at ${event.startTime}" else "",
-                        scheduledDateTime = scheduledDateTime,
+                    localService.schedule(
+                        alarmee = Alarmee(
+                            uuid = id.toString(),
+                            notificationTitle = "You have an event today!",
+                            notificationBody = if (activity?.startTime != null) "Your event starts at ${activity.startTime}" else "",
+                            scheduledDateTime = scheduledDateTime,
 //                    deepLinkUri = "https://www.example.com", // A deep link URI to be retrieved in MainActivity#onNewIntent() on Android and in AppDelegate#userNotificationCenter() on iOS
-                        androidNotificationConfiguration = AndroidNotificationConfiguration(
-                            // Required configuration for Android target only (this parameter is ignored on iOS)
-                            priority = AndroidNotificationPriority.HIGH,
-                            channelId = NotificationChannels.EventNotificationChannel.channelId,
-                        ),
-                        iosNotificationConfiguration = IosNotificationConfiguration(),
+                            androidNotificationConfiguration = AndroidNotificationConfiguration(
+                                // Required configuration for Android target only (this parameter is ignored on iOS)
+                                priority = AndroidNotificationPriority.HIGH,
+                                channelId = NotificationChannels.ActivityNotificationChannel.channelId,
+                            ),
+                            iosNotificationConfiguration = IosNotificationConfiguration(),
+                        )
                     )
-                )
+                }
             }
-        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -214,6 +213,7 @@ class CalendarViewModel(
                 _allDatesWithActivitiesHistory.update {
                     activityHistory.map { it.registeredForDate.toString() }.distinct()
                 }
+                scheduleNotificationsForEvents(activityHistory = activityHistory)
                 val availableDates = mutableListOf<String>()
                 activities.flatMap { it.dates }.distinct().forEach { date ->
                     val available =

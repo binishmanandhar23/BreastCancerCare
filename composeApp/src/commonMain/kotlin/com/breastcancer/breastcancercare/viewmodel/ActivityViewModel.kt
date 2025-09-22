@@ -54,7 +54,7 @@ class ActivityViewModel(
     val activityUIListState = _activityUIListState.asStateFlow()
 
     private var _activityUIHistoryState =
-        MutableStateFlow<ActivityUIState<List<ActivityHistoryDTO>>>(ActivityUIState.Initial())
+        MutableStateFlow<ActivityUIState<Map< LocalDate, List<ActivityHistoryDTO>>>>(ActivityUIState.Initial())
     val activityUIHistoryState = _activityUIHistoryState.asStateFlow()
 
 
@@ -174,15 +174,14 @@ class ActivityViewModel(
                 user?.id
             }
                 .distinctUntilChanged()
-                .combine(selectedActivityType) { userId, type ->
+                .map { userId ->
                     activityRepository.getAllActivityHistoryWithActivity(userId = userId)
-                        .filter { activityHistory ->
-                            if (type != null)
-                                activityHistory.any { it.activity?.activityType == type }
-                            else
-                                true
-                        }
                 }.flatMapLatest { activityHistory -> activityHistory }
+                .combine(selectedActivityType) { activityHistory, type ->
+                    if (type == null) activityHistory.groupBy { it.registeredForDate }
+                    else
+                        activityHistory.filter { it.activity?.activityType?.type == type.type }.groupBy { it.registeredForDate }
+                }
                 .onStart { _activityUIHistoryState.value = ActivityUIState.Loading() }
                 .catch { e -> _activityUIHistoryState.value = ActivityUIState.Error(e.message) }
                 .collectLatest { activityHistory ->

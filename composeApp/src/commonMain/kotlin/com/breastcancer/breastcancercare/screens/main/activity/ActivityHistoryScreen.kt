@@ -1,6 +1,7 @@
 package com.breastcancer.breastcancercare.screens.main.activity
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -21,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,14 +33,18 @@ import com.breastcancer.breastcancercare.components.ActivityTypeTag
 import com.breastcancer.breastcancercare.components.AllListContainer
 import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
 import com.breastcancer.breastcancercare.components.CategoryChip
+import com.breastcancer.breastcancercare.components.DefaultSpacerSize
+import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
 import com.breastcancer.breastcancercare.components.UserCategoryTag
+import com.breastcancer.breastcancercare.components.appDateFormat
 import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
 import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.states.ActivityUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
@@ -73,18 +80,42 @@ fun ActivityHistoryScreen(
         content = {
             when (activityUIHistoryState) {
                 is ActivityUIState.Loading -> item { BreastCancerCircularLoader() }
-                is ActivityUIState.Success -> items(
-                    items = activityUIHistoryState.data ?: emptyList(),
-                    key = { activityHistory -> activityHistory.id ?: 0 }
-                ) { activity ->
-                    ActivityHistoryCard(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(horizontal = DefaultHorizontalPaddingMedium),
-                        activityHistory = activity,
-                        onClick = {
+                is ActivityUIState.Success ->
+                    (activityUIHistoryState.data)?.let { data ->
+                        data.forEach { (date, activities) ->
+                            item {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(
+                                            horizontal = DefaultHorizontalPaddingMedium,
+                                        )
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                colors = listOf(
+                                                    MaterialTheme.colorScheme.background,
+                                                    MaterialTheme.colorScheme.background,
+                                                    MaterialTheme.colorScheme.background.copy(alpha = 0.8f),
+                                                )
+                                            )
+                                        ).padding(top = DefaultVerticalPaddingMedium),
+                                    text = appDateFormat(date, includeYear = true),
+                                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                                )
+                            }
+                            items(
+                                items = activities,
+                                key = { activityHistory -> activityHistory.id ?: 0 }
+                            ) { activity ->
+                                ActivityHistoryCard(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(horizontal = DefaultHorizontalPaddingMedium),
+                                    activityHistory = activity,
+                                    onClick = {
 
-                        })
-                }
+                                    })
+                            }
+                        }
+                    }
 
                 else -> Unit
             }
@@ -115,12 +146,14 @@ private fun ActivityHistoryCard(
                     ), verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingSmall)
                 ) {
                     UserCategoryTag(
-                        modifier = Modifier.scale(0.8f),
-                        userCategory = activity.category
+                        iconModifier = Modifier.size(15.dp),
+                        userCategory = activity.category,
+                        textStyle = MaterialTheme.typography.labelSmall
                     )
                     ActivityTypeTag(
-                        modifier = Modifier.scale(0.8f),
-                        activityType = activity.activityType
+                        iconModifier = Modifier.size(15.dp),
+                        activityType = activity.activityType,
+                        textStyle = MaterialTheme.typography.labelSmall
                     )
                 }
                 Row(

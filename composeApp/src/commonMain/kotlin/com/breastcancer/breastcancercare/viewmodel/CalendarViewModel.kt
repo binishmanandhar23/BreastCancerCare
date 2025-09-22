@@ -2,9 +2,11 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.ActivityDTO
+import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
+import com.breastcancer.breastcancercare.models.CalendarActivityType
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
+import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.notifications.NotificationChannels
 import com.breastcancer.breastcancercare.notifications.createAlarmeePlatformConfiguration
 import com.breastcancer.breastcancercare.repo.ActivityRepository
@@ -52,11 +54,18 @@ class CalendarViewModel(
     private var _allActivities = MutableStateFlow<List<ActivityDTO>>(emptyList())
     val allActivities = _allActivities.asStateFlow()
 
-    private var _selectedDayAvailableActivities = MutableStateFlow<List<ActivityDTO>>(emptyList())
+    private var _allActivityHistory = MutableStateFlow<List<ActivityHistoryDTO>>(emptyList())
+    val allActivityHistory = _allActivityHistory.asStateFlow()
+
+    private var _selectedDayAvailableActivities =
+        MutableStateFlow<Map<CalendarActivityType, List<ActivityDTO>>>(emptyMap())
     val selectedDayAvailableActivities = _selectedDayAvailableActivities.asStateFlow()
 
     private var _allDatesWithActivitiesAvailable = MutableStateFlow<List<String>>(emptyList())
     val allDatesWithActivitiesAvailable = _allDatesWithActivitiesAvailable.asStateFlow()
+
+    private var _allDatesWithActivitiesHistory = MutableStateFlow<List<String>>(emptyList())
+    val allDatesWithActivitiesHistory = _allDatesWithActivitiesHistory.asStateFlow()
 
     private var _allDatesWithPrograms = MutableStateFlow<List<String>>(emptyList())
     val allDatesWithPrograms = _allDatesWithPrograms.asStateFlow()
@@ -67,12 +76,17 @@ class CalendarViewModel(
     private var _selectedSuitability = MutableStateFlow<SuitabilityDTO?>(null)
     val selectedSuitability = _selectedSuitability.asStateFlow()
 
+    private var _user = MutableStateFlow<UserDTO?>(null)
+    val user = _user.asStateFlow()
+
     init {
+        getLoggedInUser()
         configureNotifications()
         getAllEventsAndPrograms()
+        getAllActivityHistory()
         getAllEventsOnSelectedDate()
         getAllSuitabilities()
-        findAllDatesWithActivitiesAvailable()
+        findAllDatesWithActivitiesAvailableAndRegistered()
     }
 
     fun configureNotifications() {
@@ -88,9 +102,15 @@ class CalendarViewModel(
         _selectedDate.update { date }
     }
 
+    fun getLoggedInUser() = viewModelScope.launch {
+        homeRepository.getLoggedInUser().collectLatest { user ->
+            _user.update { user }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getAllEventsAndPrograms() = viewModelScope.launch(Dispatchers.IO) {
-        homeRepository.getLoggedInUser()                 // Flow<User?>
+        user                // Flow<User?>
             .map { it?.userCategory }                    // Flow<UserCategory?>
             .distinctUntilChanged()                      // don’t reload if same category
             .flatMapLatest { category ->
@@ -102,6 +122,18 @@ class CalendarViewModel(
             }.collectLatest { activities ->
                 _allActivities.update { activities }
                 scheduleNotificationsForEvents(events = activities)
+            }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getAllActivityHistory() = viewModelScope.launch(Dispatchers.IO) {
+        user.map { it?.id }
+            .distinctUntilChanged()
+            .flatMapLatest { userId ->
+                if (userId == null) flowOf(emptyList())
+                else activityRepository.getAllActivityHistoryWithActivity(userId = userId)
+            }.collectLatest { activityHistory ->
+                _allActivityHistory.update { activityHistory }
             }
     }
 
@@ -143,24 +175,55 @@ class CalendarViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun getAllEventsOnSelectedDate() = viewModelScope.launch(Dispatchers.IO) {
-        combine(selectedDate, allActivities) { selectedDate, allActivities ->
-            Pair(selectedDate, allActivities)
-        }.collectLatest { (selectedDate, activities) ->
-            _selectedDayAvailableActivities.update {
-                activities.filter { activity ->
-                    activity.dates.contains(
-                        selectedDate
-                    )
+        combine(
+            selectedDate,
+            allActivities,
+            allActivityHistory
+        ) { selectedDate, allActivities, allActivityHistory ->
+            Triple(selectedDate, allActivities, allActivityHistory)
+        }.mapLatest { (selectedDate, activities, allActivityHistory) ->
+            activities.filter { activity ->
+                activity.dates.contains(
+                    selectedDate
+                )
+            }.let { activities ->
+                val registered = activities.filter { activity ->
+                    allActivityHistory.find { it.activityId == activity.id && it.registeredForDate == selectedDate } != null
                 }
+                val available =
+                    activities.filter { activity -> allActivityHistory.find { it.activityId == activity.id && it.registeredForDate == selectedDate } == null }
+                mapOf(
+                    CalendarActivityType.Registered to registered,
+                    CalendarActivityType.Available to available,
+                )
+            }
+        }.collectLatest { activities ->
+            _selectedDayAvailableActivities.update {
+                activities
             }
         }
     }
 
 
-    private fun findAllDatesWithActivitiesAvailable() {
+    private fun findAllDatesWithActivitiesAvailableAndRegistered() {
         viewModelScope.launch(Dispatchers.IO) {
-            allActivities.collect { activities ->
-                _allDatesWithActivitiesAvailable.update { activities.flatMap { it.dates }.map { it.toString() }.distinct() }
+            combine(allActivities, allActivityHistory) { activities, activityHistory ->
+                Pair(activities, activityHistory)
+            }.collectLatest { (activities, activityHistory) ->
+                _allDatesWithActivitiesHistory.update {
+                    activityHistory.map { it.registeredForDate.toString() }.distinct()
+                }
+                val availableDates = mutableListOf<String>()
+                activities.flatMap { it.dates }.distinct().forEach { date ->
+                    val available =
+                        activities.filter { it.dates.contains(date) }
+                            .filter { activity -> activityHistory.find { it.activityId == activity.id && it.registeredForDate == date } == null }
+                    if (available.isNotEmpty())
+                        availableDates.add(date.toString())
+                }
+                _allDatesWithActivitiesAvailable.update {
+                    availableDates.distinct()
+                }
             }
         }
     }

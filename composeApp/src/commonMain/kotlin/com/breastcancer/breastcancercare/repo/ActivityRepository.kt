@@ -64,6 +64,15 @@ class ActivityRepository(val activityDAO: ActivityDAO) {
             registeredDate = registeredDate.toString()
         ).map { it?.toDTO() }
 
+    fun getActivityHistoryByRegisteredDate(
+        userId: Long?,
+        registeredDate: LocalDate?
+    ): Flow<List<ActivityHistoryDTO>> =
+        activityDAO.getActivityHistoryByRegisteredDate(
+            userId = userId,
+            registeredDate = registeredDate.toString()
+        ).map { list -> list.map { it.toDTO() } }
+
     fun getAllActivityHistoryWithActivity(userId: Long?) = activityDAO.getAllActivityHistoryWithActivity(userId = userId)
         .map { activityHistoryWithActivityEntities -> activityHistoryWithActivityEntities.map { it.toDTO() } }
 }

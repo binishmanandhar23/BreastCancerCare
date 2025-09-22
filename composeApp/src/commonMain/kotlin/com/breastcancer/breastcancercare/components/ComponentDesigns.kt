@@ -202,11 +202,7 @@ fun TimeAndDateFormat(
     selectedDate: LocalDate
 ) = Row(modifier = modifier) {
     Text(text = buildAnnotatedString {
-        append(selectedDate.format(LocalDate.Format {
-            monthName(MonthNames.ENGLISH_FULL)
-            char(' ')
-            day()
-        }))
+        append(appDateFormat(selectedDate))
         activityDTO.startTime?.let {
             append(it.format(LocalTime.Format {
                 char(' ')
@@ -233,6 +229,18 @@ fun TimeAndDateFormat(
         }
     }, style = MaterialTheme.typography.labelSmall)
 }
+
+@Composable
+fun appDateFormat(date: LocalDate, includeYear: Boolean = false) = date.format(LocalDate.Format {
+    monthName(MonthNames.ENGLISH_FULL)
+    char(' ')
+    day()
+    if(includeYear){
+        char(',')
+        char(' ')
+        year()
+    }
+})
 
 
 @Composable
@@ -799,7 +807,12 @@ fun BreastCancerCircularLoader(modifier: Modifier = Modifier, size: Dp = 40.dp) 
     }
 
 @Composable
-fun UrlImage(url: String, contentDescription: String? = null, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Crop) {
+fun UrlImage(
+    url: String,
+    contentDescription: String? = null,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Crop
+) {
     var painterState by remember { mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty) }
     SubcomposeAsyncImage(
         model = url,
@@ -1066,7 +1079,12 @@ fun ActivityTypeTag(
 }
 
 @Composable
-fun UserCategoryTag(modifier: Modifier = Modifier, userCategory: UserCategory) {
+fun UserCategoryTag(
+    modifier: Modifier = Modifier,
+    userCategory: UserCategory,
+    iconModifier: Modifier = Modifier.size(25.dp),
+    textStyle: TextStyle = MaterialTheme.typography.labelMedium
+) {
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
@@ -1084,12 +1102,13 @@ fun UserCategoryTag(modifier: Modifier = Modifier, userCategory: UserCategory) {
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Icon(
+                modifier = iconModifier,
                 imageVector = User,
                 contentDescription = UserCategory.getLabel(userCategory)
             )
             Text(
                 text = UserCategory.getLabel(userCategory),
-                style = MaterialTheme.typography.labelMedium
+                style = textStyle
             )
 
         }

@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
@@ -72,9 +73,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.ActivityDesign
 import com.breastcancer.breastcancercare.components.LazyColumnWithStickyFooter
 import com.breastcancer.breastcancercare.models.ActivityDTO
+import com.breastcancer.breastcancercare.models.CalendarActivityType
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.theme.ColorSand
+import com.breastcancer.breastcancercare.theme.ColorSunshine
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
@@ -85,7 +88,6 @@ import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
-import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.minusMonths
 import com.kizitonwose.calendar.core.now
 import com.kizitonwose.calendar.core.plusMonths
@@ -124,7 +126,8 @@ fun CalendarScreen(
 
     val selectedDayAvailableActivities by calendarViewModel.selectedDayAvailableActivities.collectAsStateWithLifecycle()
 
-    val allDatesWithEvents by calendarViewModel.allDatesWithActivitiesAvailable.collectAsStateWithLifecycle()
+    val allDatesWithActivitiesAvailable by calendarViewModel.allDatesWithActivitiesAvailable.collectAsStateWithLifecycle()
+    val allDatesWithActivitiesHistory by calendarViewModel.allDatesWithActivitiesHistory.collectAsStateWithLifecycle()
 
     val allSuitabilities by calendarViewModel.allSuitabilities.collectAsStateWithLifecycle()
     val selectedSuitability by calendarViewModel.selectedSuitability.collectAsStateWithLifecycle()
@@ -134,20 +137,21 @@ fun CalendarScreen(
             modifier = Modifier.background(OffBackground),
             state = state,
             dayContent = {
-                var hasEvents by remember { mutableStateOf(false) }
-                var hasPrograms by remember { mutableStateOf(false) }
-                LaunchedEffect(allDatesWithEvents) {
+                var hasActivitiesAvailable by remember { mutableStateOf(false) }
+                var hasActivitiesRegistered by remember { mutableStateOf(false) }
+                LaunchedEffect(allDatesWithActivitiesAvailable) {
                     with(Dispatchers.IO) {
-                        hasEvents =
-                            allDatesWithEvents.contains(it.date.toString())
+                        hasActivitiesAvailable =
+                            allDatesWithActivitiesAvailable.contains(it.date.toString())
+                        hasActivitiesRegistered = allDatesWithActivitiesHistory.contains(it.date.toString())
                     }
                 }
                 if (it.position == DayPosition.MonthDate)
                     Day(
                         it,
                         selectedDate = selectedDate,
-                        hasEvents = hasEvents,
-                        hasPrograms = hasPrograms,
+                        hasActivitiesAVailable = hasActivitiesAvailable,
+                        hasActivitiesRegistered = hasActivitiesRegistered,
                         onDateClicked = onDateClicked
                     )
             },
@@ -209,8 +213,8 @@ fun CalendarScreen(
 fun Day(
     day: CalendarDay,
     selectedDate: LocalDate,
-    hasEvents: Boolean,
-    hasPrograms: Boolean,
+    hasActivitiesAVailable: Boolean,
+    hasActivitiesRegistered: Boolean,
     onDateClicked: (selectedDate: LocalDate) -> Unit
 ) {
     val currentDate by remember { mutableStateOf(LocalDate.now()) }
@@ -238,21 +242,10 @@ fun Day(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                if (hasEvents)
-                    Box(
-                        modifier = Modifier.size(7.dp).background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape
-                        )
-                    )
-
-                if (hasPrograms)
-                    Box(
-                        modifier = Modifier.size(7.dp).background(
-                            color = MaterialTheme.colorScheme.tertiary,
-                            shape = CircleShape
-                        )
-                    )
+                if (hasActivitiesAVailable)
+                    Indicator()
+                if(hasActivitiesRegistered)
+                    Indicator(color = ColorSunshine)
             }
         }
     }
@@ -315,7 +308,7 @@ fun BottomInfoCard(
     selectedDate: LocalDate,
     allSuitabilities: List<SuitabilityDTO>,
     selectedSuitability: SuitabilityDTO?,
-    selectedDayAvailableActivities: List<ActivityDTO>,
+    selectedDayAvailableActivities: Map<CalendarActivityType, List<ActivityDTO>>,
     onTabSelected: (index: Int) -> Unit,
     onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit,
     onActivityClick: (id: Long) -> Unit
@@ -425,7 +418,7 @@ fun BottomInfoCard(
 private fun ActivitySection(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
-    selectedDayAvailableActivities: List<ActivityDTO>,
+    selectedDayAvailableActivities: Map<CalendarActivityType, List<ActivityDTO>>,
     bottomSpacer: Dp,
     onActivityClick: (id: Long) -> Unit
 ) {
@@ -436,36 +429,48 @@ private fun ActivitySection(
             bottomSpacer = bottomSpacer + 100.dp,
             forceSpacer = true
         ) {
-            if (activities.isEmpty())
+            if (activities.values.all { it.isEmpty() })
                 item {
                     EmptyContainer(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
             else {
-                stickyHeader {
-                    Text(
-                        modifier = Modifier.fillMaxWidth().background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    ColorSand,
-                                    ColorSand.copy(0.9f),
-                                    ColorSand.copy(alpha = 0f)
+                activities.forEach { (type, activities) ->
+                    if (activities.isNotEmpty())
+                        stickyHeader {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            ColorSand,
+                                            ColorSand.copy(0.9f),
+                                            ColorSand.copy(alpha = 0f)
+                                        )
+                                    )
+                                ).padding(vertical = DefaultVerticalPaddingSmall),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    DefaultHorizontalPaddingSmall
                                 )
-                            )
-                        ).padding(vertical = DefaultVerticalPaddingSmall),
-                        text = "Activities available to you on this day",
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
-                    )
-                }
-                items(activities) { activity ->
-                    ActivityDesign(
-                        modifier = Modifier.fillMaxWidth(),
-                        selectedDate = selectedDate,
-                        activityDTO = activity,
-                        onClick = {
-                            onActivityClick(activity.id)
-                        })
+                            ) {
+                                Indicator(size = 14.dp, color = if (type == CalendarActivityType.Registered) ColorSunshine else MaterialTheme.colorScheme.primary)
+                                Text(
+                                    text = if (type == CalendarActivityType.Registered) "Your registered activities on this day" else "Activities available to you on this day",
+                                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                                    color = if (type == CalendarActivityType.Registered) ColorSunshine else MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    items(activities) { activity ->
+                        ActivityDesign(
+                            modifier = Modifier.fillMaxWidth(),
+                            selectedDate = selectedDate,
+                            activityDTO = activity,
+                            onClick = {
+                                onActivityClick(activity.id)
+                            })
+                    }
                 }
             }
         }
@@ -492,3 +497,11 @@ private fun EmptyContainer(modifier: Modifier) {
         }
     }
 }
+
+@Composable
+private fun Indicator(size: Dp = 7.dp, color: Color = MaterialTheme.colorScheme.primary) = Box(
+    modifier = Modifier.size(size).background(
+        color = color,
+        shape = CircleShape
+    )
+)

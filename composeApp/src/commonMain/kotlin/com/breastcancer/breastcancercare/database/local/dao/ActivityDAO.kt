@@ -8,6 +8,7 @@ import com.breastcancer.breastcancercare.database.local.entity.ActivityEntity
 import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryEntity
 import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryWithActivityEntity
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
+import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 
@@ -41,4 +42,10 @@ interface ActivityDAO {
     fun getAllActivityHistoryWithActivity(userId: Long?): Flow<List<ActivityHistoryWithActivityEntity>>
     @Query("SELECT * FROM activityhistoryentity WHERE activityId = :activityId AND userId = :userId AND registeredForDate = :registeredDate")
     fun getActivityHistoryByActivityIdAndRegisteredDate(activityId: Long, userId: Long?, registeredDate: String): Flow<ActivityHistoryEntity?>
+
+    @Query("SELECT * FROM activityhistoryentity WHERE userId = :userId AND registeredForDate = :registeredDate")
+    fun getActivityHistoryByRegisteredDate(
+        userId: Long?,
+        registeredDate: String?
+    ): Flow<List<ActivityHistoryEntity>>
 }

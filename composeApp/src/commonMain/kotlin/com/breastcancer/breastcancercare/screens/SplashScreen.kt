@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.Res
 import com.breastcancer.breastcancercare.app_name
@@ -51,6 +52,7 @@ fun SplashScreen(
             )
         ) {
             Image(
+                modifier = Modifier.scale(0.5f),
                 painter = painterResource(Res.drawable.breast_cancer_care_wa),
                 contentDescription = stringResource(Res.string.app_name)
             )

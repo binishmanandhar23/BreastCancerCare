@@ -8,7 +8,7 @@ import com.tweener.alarmee.configuration.AlarmeePlatformConfiguration
 
 actual fun createAlarmeePlatformConfiguration(): AlarmeePlatformConfiguration =
     AlarmeeAndroidPlatformConfiguration(
-        notificationIconResId = R.mipmap.ic_launcher_round,
+        notificationIconResId = R.mipmap.ic_launcher,
         notificationIconColor = androidx.compose.ui.graphics.Color.Transparent, // Defaults to Color.Transparent is not specified
         notificationChannels = listOf(
             AlarmeeNotificationChannel(

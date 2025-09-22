@@ -1,6 +1,7 @@
 package com.breastcancer.breastcancercare.repo
 
 import com.breastcancer.breastcancercare.database.local.dao.FAQDAO
+import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.models.toFAQDTO
@@ -20,6 +21,11 @@ class FAQRepository(val faqdao: FAQDAO) {
 
     fun getAllFAQs(): Flow<List<FAQDTO>> =
         faqdao.getAllFAQs().map { faqEntity ->
+            faqEntity.map { it.toFAQDTO() }
+        }
+
+    fun getAllFAQsBasedOnUserCategory(category: UserCategory): Flow<List<FAQDTO>> =
+        faqdao.getAllFAQsBasedOnUserCategory(category = category.category).map { faqEntity ->
             faqEntity.map { it.toFAQDTO() }
         }
 

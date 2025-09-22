@@ -13,6 +13,9 @@ interface FAQDAO {
     @Query("SELECT * FROM faqentity")
     fun getAllFAQs(): Flow<List<FAQEntity>>
 
+    @Query("SELECT * FROM faqentity WHERE userCategory=:category")
+    fun getAllFAQsBasedOnUserCategory(category: String): Flow<List<FAQEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(faqs: List<FAQEntity>)
 

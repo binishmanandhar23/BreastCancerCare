@@ -313,11 +313,12 @@ class SplashViewModel(
             faqRepository.insertAll(
                 listOf(
                     FAQDTO(
-                        1,
+                        id = 1,
                         question = "What do I do if I find a lump?",
                         answer = "In young women, breasts can feel much lumpier around the time of the menstrual cycle. If a lump persists after one menstrual cycle, contact your doctor. In older women, who have gone through the menopause, contact your doctor as soon as possible.\n" +
                                 "\n" +
                                 "All breasts have areas of lumpiness that fluctuate with the menstrual cycle, however if lumps are irregular, unchanging or slowly enlarging or new you should contact your doctor.",
+                        userCategory = UserCategory.StartingStrong.category,
                         suitabilities = allSuitabilities.find { it.key == Suitability.Early.key }
                             ?.toSuitabilityDTO()?.let {
                                 listOf(
@@ -326,9 +327,10 @@ class SplashViewModel(
                             } ?: emptyList()
                     ),
                     FAQDTO(
-                        2,
+                        id = 2,
                         question = "Are most breast lumps found to be cancerous?",
                         answer = "Nearly 80% of breast lumps are benign (not cancerous). Lumpy breasts are very common and they can change with different times of the menstrual cycle. Any lump that is new or unusual should be checked by a doctor.",
+                        userCategory = UserCategory.LivingWell.category,
                         suitabilities = allSuitabilities.find { it.key == Suitability.Early.key }
                             ?.toSuitabilityDTO()?.let {
                                 listOf(
@@ -337,7 +339,7 @@ class SplashViewModel(
                             } ?: emptyList()
                     ),
                     FAQDTO(
-                        3,
+                        id = 3,
                         question = "When I’m checking my breasts, am I looking for lumps?",
                         answer = "A lump in the breast is only one change that may indicate breast cancer. All women regardless of age are encouraged to be breast aware. Click here to find out how.\n" +
                                 "\n" +
@@ -352,6 +354,7 @@ class SplashViewModel(
                                 "New nipple inversion\n" +
                                 "New and persistent pain\n" +
                                 "If you notice any of the above changes please consult your GP or health professional as soon as possible.",
+                        userCategory = UserCategory.StartingStrong.category,
                         suitabilities = allSuitabilities.find { it.key == Suitability.Early.key }
                             ?.toSuitabilityDTO()?.let {
                                 listOf(

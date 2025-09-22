@@ -54,13 +54,14 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun JourneyScreen(
     userId: Long,
+    userCategory: UserCategory? = null,
     customSnackBarState: SnackBarState,
     hideBackButton: Boolean,
     onNext: (userId: Long, userCategory: UserCategory) -> Unit,
     onBack: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-    var selected by remember { mutableStateOf<UserCategory?>(null) }
+    var selected by remember(userCategory) { mutableStateOf(userCategory) }
     val isLandscape = rememberIsLandscape()
     Box(
         modifier = Modifier.fillMaxSize()

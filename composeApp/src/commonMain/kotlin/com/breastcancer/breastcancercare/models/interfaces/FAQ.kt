@@ -7,4 +7,6 @@ interface FAQ {
     val question: String
     val answer: String
     val suitabilities: List<SuitabilityDTO>
+
+    val userCategory: String //UserCategory
 }

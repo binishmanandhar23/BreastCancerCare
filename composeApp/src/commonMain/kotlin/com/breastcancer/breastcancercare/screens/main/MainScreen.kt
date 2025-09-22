@@ -117,6 +117,17 @@ fun MainScreen(
                     onOpenProfile = { onSubScreenChange(Route.Main.Profile, false) },
                     onOpenAbout = { onSubScreenChange(Route.Main.About, false) },
                     onContactSupport = { onSubScreenChange(Route.Main.Contact, false) },
+                    onSwitchJourney = {
+                        loggedInUser?.let { user ->
+                            onSubScreenChange(
+                                Route.Journey(
+                                    userId = user.id,
+                                    userCategory = user.userCategory.category,
+                                    hideBackButton = false
+                                ), false
+                            )
+                        }
+                    },
                     onLogOut = {
                         onboardingViewModel.onLogOut()
                         onLogOut()

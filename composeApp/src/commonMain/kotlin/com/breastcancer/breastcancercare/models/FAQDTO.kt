@@ -7,17 +7,20 @@ data class FAQDTO(
     override val id: Long,
     override val question: String,
     override val answer: String,
-    override val suitabilities: List<SuitabilityDTO>
+    override val suitabilities: List<SuitabilityDTO>,
+    override val userCategory: String
 ) : FAQ
 
 fun FAQDTO.toFAQEntity() = FAQEntity(
     id = id,
     question = question,
     answer = answer,
+    userCategory = userCategory,
     suitabilities = suitabilities.map { it.toSuitabilityEntity() })
 
 fun FAQEntity.toFAQDTO() = FAQDTO(
     id = id,
     question = question,
     answer = answer,
+    userCategory = userCategory,
     suitabilities = suitabilities.map { it.toSuitabilityDTO() })

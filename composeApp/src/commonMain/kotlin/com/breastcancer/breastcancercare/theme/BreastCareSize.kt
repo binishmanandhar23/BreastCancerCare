@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 val RoundedCornerSize = 30.dp
-val DefaultElevation = 5.dp
+val DefaultElevation = 2.dp
 val DefaultHorizontalPaddingSmall = 10.dp
 val DefaultHorizontalPaddingMedium = (10 * 1.5).dp
 val DefaultHorizontalPaddingLarge = (10 * 2).dp

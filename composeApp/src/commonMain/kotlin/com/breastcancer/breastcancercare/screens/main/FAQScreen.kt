@@ -10,6 +10,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -62,17 +64,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.components.LazyColumnCollapsibleHeader
+import com.breastcancer.breastcancercare.components.icons.Keyboard_arrow_down
 import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
+import com.breastcancer.breastcancercare.models.FAQDTO
 import com.breastcancer.breastcancercare.models.GuideDTO
 import com.breastcancer.breastcancercare.states.FAQUIState
 import com.breastcancer.breastcancercare.theme.DefaultElevation
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
+import com.breastcancer.breastcancercare.theme.DefaultTopHeaderTextSize
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.theme.InfoAnim
 import com.breastcancer.breastcancercare.theme.InfoColors
 import com.breastcancer.breastcancercare.theme.InfoDimens
 import com.breastcancer.breastcancercare.utils.DefaultSpacer
+import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 import com.breastcancer.breastcancercare.viewmodel.FAQViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -121,19 +131,15 @@ fun FAQScreen(
     viewModel: FAQViewModel = koinViewModel()
 ) {
     val uiState by viewModel.faqUIState.collectAsStateWithLifecycle()
-    val suitabilities by viewModel.suitabilities.collectAsStateWithLifecycle()
 
-    var menuExpanded by remember { mutableStateOf(false) }
     var currentTab by rememberSaveable { mutableStateOf(InfoTab.FAQs) }
 
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-    val selectedKey by viewModel.selectedSuitabilityKey.collectAsStateWithLifecycle()
-    val selectedLabel = remember(selectedKey, suitabilities) {
-        val k = selectedKey
-        if (k == null) "All" else suitabilities.firstOrNull { it.key == k }?.name ?: "All"
-    }
+
     val displayedFaqs by viewModel.displayedFaqs.collectAsStateWithLifecycle()
     val displayedGuides by viewModel.displayedGuides.collectAsStateWithLifecycle()
+
+    val isLandscape = rememberIsLandscape()
 
 
 
@@ -152,14 +158,8 @@ fun FAQScreen(
             else -> Unit
         }
     }
-    val listState = rememberLazyListState()
-    val elevated by remember {
-        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
-    }
-    val headerElevation = if (elevated) DefaultElevation else 0.dp
 
     LazyColumn(
-        state = listState,
         modifier = Modifier
             .fillMaxSize()
             .animateContentSize(
@@ -168,197 +168,93 @@ fun FAQScreen(
                     easing = LinearEasing
                 )
             ),
-        verticalArrangement = Arrangement.spacedBy(InfoDimens.CardSpacing),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            bottom = InfoDimens.ScreenVPadding
-        )
+        verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
     ) {
         stickyHeader {
-            Surface(
-                color = MaterialTheme.colorScheme.background,
-                shadowElevation = headerElevation,
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .zIndex(1f)
+                    .padding(horizontal = DefaultHorizontalPaddingMedium),
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = InfoDimens.ScreenHPadding)
-                ) {
-                    Text(
-                        modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
-                        text = "Info",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                Text(
+                    modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.background)
+                        .padding(
+                            vertical = DefaultVerticalPaddingSmall,
+                        ),
+                    text = "Info",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = DefaultTopHeaderTextSize,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
+                )
 
-                    TabRow(selectedTabIndex = currentTab.ordinal) {
-                        Tab(
-                            selected = currentTab == InfoTab.FAQs,
-                            onClick = { currentTab = InfoTab.FAQs },
-                            text = { Text("FAQs") }
-                        )
-                        Tab(
-                            selected = currentTab == InfoTab.Guides,
-                            onClick = { currentTab = InfoTab.Guides },
-                            text = { Text("Guides") }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
-
-                    // Search bar
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { viewModel.onSearchChange(it) },
-                        singleLine = true,
-                        label = { Text("Search topics") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Filled.Search,
-                                contentDescription = "Search"
-                            )
-                        },
-                        trailingIcon = {
-                            if (searchQuery.isNotBlank()) {
-                                IconButton(onClick = { viewModel.onSearchChange("") }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = "Clear"
-                                    )
-                                }
-                            }
-                        },
-                        shape = MaterialTheme.shapes.large,
-                        modifier = Modifier.fillMaxWidth()
+                TabRow(selectedTabIndex = currentTab.ordinal) {
+                    Tab(
+                        selected = currentTab == InfoTab.FAQs,
+                        onClick = { currentTab = InfoTab.FAQs },
+                        text = { Text("FAQs") }
                     )
+                    Tab(
+                        selected = currentTab == InfoTab.Guides,
+                        onClick = { currentTab = InfoTab.Guides },
+                        text = { Text("Guides") }
+                    )
+                }
 
-                    Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding / 2))
-
-                    if (currentTab == InfoTab.FAQs) {
-                        ExposedDropdownMenuBox(
-                            expanded = menuExpanded,
-                            onExpandedChange = { menuExpanded = !menuExpanded },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            OutlinedTextField(
-                                value = if (selectedKey == null) "All" else selectedLabel,
-                                onValueChange = {},
-                                readOnly = true,
-                                singleLine = true,
-                                label = { Text("Suitability") },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
-                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                                shape = MaterialTheme.shapes.large,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = menuExpanded,
-                                onDismissRequest = { menuExpanded = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("All") },
-                                    onClick = {
-                                        viewModel.onSuitabilityChange(null)
-                                        menuExpanded = false
-                                    }
+                // Search bar
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { viewModel.onSearchChange(it) },
+                    singleLine = true,
+                    label = { Text("Search topics") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = "Search"
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotBlank()) {
+                            IconButton(onClick = { viewModel.onSearchChange("") }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Clear"
                                 )
-                                suitabilities.forEach { s ->
-                                    DropdownMenuItem(
-                                        text = { Text(s.name) },
-                                        onClick = {
-                                            viewModel.onSuitabilityChange(s.key)
-                                            menuExpanded = false
-                                        }
-                                    )
-                                }
                             }
                         }
-                        Spacer(modifier = Modifier.height(InfoDimens.ScreenVPadding))
-                    }
-                }
+                    },
+                    shape = MaterialTheme.shapes.large,
+                    modifier = Modifier.fillMaxWidth().background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.background,
+                                MaterialTheme.colorScheme.background,
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.8f),
+                            )
+                        )
+                    ).padding(vertical = DefaultVerticalPaddingSmall)
+                )
+
             }
         }
         when (currentTab) {
             InfoTab.FAQs -> {
-                if (displayedFaqs.isEmpty()) {
+                if (displayedFaqs.isEmpty() && searchQuery.isNotEmpty()) {
                     item {
                         Text(
                             modifier = Modifier.padding(
                                 horizontal = InfoDimens.ScreenHPadding,
                                 vertical = InfoDimens.ScreenVPadding
                             ),
-                            text = "No FAQs for the current filter.",
+                            text = "No Search Results for \"${searchQuery}\"",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 } else {
-                    itemsIndexed(items = displayedFaqs) { key, item ->
-                        val color = InfoColors.faqCard(key)
-                        val onColor = InfoColors.onFaqCard()
-                        var isExpanded by rememberSaveable(item.question) { mutableStateOf(false) }
-                        val angle: Float by animateFloatAsState(
-                            targetValue = if (isExpanded) 180f else 0f,
-                            animationSpec = tween(
-                                durationMillis = InfoAnim.Expand,
-                                easing = LinearEasing
-                            )
-                        )
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = InfoDimens.ScreenHPadding)
-                                .animateContentSize(
-                                    animationSpec = tween(
-                                        durationMillis = InfoAnim.Expand,
-                                        easing = LinearEasing
-                                    )
-                                ),
-                            shape = MaterialTheme.shapes.large,
-                            colors = CardDefaults.cardColors(
-                                containerColor = color,
-                                contentColor = onColor
-                            ),
-                            elevation = CardDefaults.cardElevation(DefaultElevation),
-                            onClick = { isExpanded = !isExpanded }
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(
-                                    horizontal = InfoDimens.ScreenHPadding,
-                                    vertical = InfoDimens.ScreenVPadding
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.Top,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                ) {
-                                    Icon(
-                                        modifier = Modifier.rotate(angle),
-                                        imageVector = Icons.Default.ArrowDropDown,
-                                        contentDescription = if (isExpanded) "Collapse" else "Expand"
-                                    )
-                                    Text(
-                                        text = highlightQuery(item.question, searchQuery),
-                                        color = onColor,
-                                        style = LocalTextStyle.current.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 20.sp
-                                        )
-                                    )
-                                }
-                                AnimatedVisibility(visible = isExpanded) {
-                                    Text(
-                                        modifier = Modifier.padding(vertical = InfoDimens.ScreenVPadding),
-                                        text = item.answer,
-                                        color = onColor
-                                    )
-                                }
-                            }
-                        }
+                    itemsIndexed(items = displayedFaqs) { index, item ->
+                        FAQCard(index = index, item = item, searchQuery = searchQuery)
                     }
                 }
             }
@@ -390,11 +286,20 @@ fun FAQScreen(
 }
 
 @Composable
-private fun GuideCard(item: GuideDTO) {
+private fun FAQCard(index: Int, item: FAQDTO, searchQuery: String) {
+    var isExpanded by rememberSaveable(item.question) { mutableStateOf(false) }
+    val angle: Float by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        animationSpec = tween(
+            durationMillis = InfoAnim.Expand,
+            easing = LinearEasing
+        )
+    )
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = InfoDimens.ScreenHPadding)
+            .padding(horizontal = DefaultHorizontalPaddingMedium)
             .animateContentSize(
                 animationSpec = tween(
                     durationMillis = InfoAnim.Expand,
@@ -402,12 +307,59 @@ private fun GuideCard(item: GuideDTO) {
                 )
             ),
         shape = MaterialTheme.shapes.large,
+        elevation = CardDefaults.cardElevation(DefaultElevation),
+        onClick = { isExpanded = !isExpanded }
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = DefaultHorizontalPaddingMedium,
+                vertical = DefaultVerticalPaddingSmall
+            )
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                Icon(
+                    modifier = Modifier.rotate(angle),
+                    imageVector = Keyboard_arrow_down,
+                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = highlightQuery(item.question, searchQuery),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+            AnimatedVisibility(visible = isExpanded) {
+                Text(
+                    modifier = Modifier.padding(
+                        vertical = DefaultVerticalPaddingSmall,
+                        horizontal = DefaultHorizontalPaddingMedium
+                    ),
+                    text = item.answer,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GuideCard(item: GuideDTO) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = DefaultHorizontalPaddingMedium),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface
         ),
-        elevation = CardDefaults.cardElevation(DefaultElevation),
-        onClick = { /* TODO: navigate to guide detail when available */ }
+        elevation = CardDefaults.cardElevation(defaultElevation = DefaultElevation)
     ) {
         Column(
             modifier = Modifier.padding(

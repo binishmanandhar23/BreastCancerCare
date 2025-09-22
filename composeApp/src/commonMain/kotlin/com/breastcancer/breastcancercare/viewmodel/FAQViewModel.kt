@@ -16,14 +16,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.breastcancer.breastcancercare.models.GuideDTO
+import com.breastcancer.breastcancercare.repo.HomeRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 
 
-class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
+class FAQViewModel(private val faqRepository: FAQRepository, private val homeRepository: HomeRepository) : ViewModel() {
     private var _faqUIState = MutableStateFlow<FAQUIState<List<FAQDTO>>?>(null)
     private val _suitabilities = MutableStateFlow<List<SuitabilityDTO>>(emptyList())
     val suitabilities = _suitabilities.asStateFlow()
@@ -133,10 +139,15 @@ class FAQViewModel(private val faqRepository: FAQRepository) : ViewModel() {
     }
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun getAllFAQs() = viewModelScope.launch {
         _faqUIState.update { FAQUIState.Loading() }
-        delay(2000L)
-        faqRepository.getAllFAQs().collect { fAQDTOS ->
+        delay(1000L)
+        homeRepository.getLoggedInUser().mapLatest { user ->
+            user?.userCategory
+        }.filterNotNull().flatMapLatest {
+            faqRepository.getAllFAQsBasedOnUserCategory(category = it)
+        }.collectLatest { fAQDTOS ->
             _faqUIState.update {
                 if (fAQDTOS.isEmpty())
                     FAQUIState.Error("Empty List")

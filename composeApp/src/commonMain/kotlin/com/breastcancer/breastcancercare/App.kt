@@ -3,6 +3,7 @@ package com.breastcancer.breastcancercare
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,7 +50,11 @@ import com.breastcancer.breastcancercare.screens.main.survey.SurveyMandatoryDial
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 import com.breastcancer.breastcancercare.theme.BreastCareTypography
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
+import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
@@ -66,6 +73,7 @@ fun App() {
     val darkTheme = isSystemInDarkTheme()
     val loaderState = rememberLoaderState()
     val customSnackBarState = rememberSnackBarState()
+    val isLandScape = rememberIsLandscape()
     val permissionViewModel = koinViewModel<PermissionViewModel>()
     val permissionState by permissionViewModel.permissionState.collectAsStateWithLifecycle()
     val permissionImportantDialog by permissionViewModel.permissionImportantDialog.collectAsStateWithLifecycle()
@@ -93,7 +101,9 @@ fun App() {
     ) {
         Scaffold { innerPadding ->
             Surface(
-                modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())
+                modifier = Modifier.fillMaxSize().padding(
+                    top = innerPadding.calculateTopPadding()
+                )
             ) {
                 CustomLoader(loaderState = loaderState) {
                     CustomSnackBar(
@@ -193,10 +203,12 @@ fun App() {
 
                                 composable<Route.Journey> { backStackEntry ->
                                     val userId = backStackEntry.toRoute<Route.Journey>().userId
+                                    val userCategory = UserCategory.fromCategory(backStackEntry.toRoute<Route.Journey>().userCategory)
                                     val hideBackButton =
                                         backStackEntry.toRoute<Route.Journey>().hideBackButton
                                     JourneyScreen(
                                         userId = userId,
+                                        userCategory = userCategory,
                                         customSnackBarState = customSnackBarState,
                                         hideBackButton = hideBackButton,
                                         onNext = { userId, userCategory ->

@@ -18,7 +18,7 @@ import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.repo.BlogRepository
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 import com.breastcancer.breastcancercare.viewmodel.BlogViewModel
-import com.breastcancer.breastcancercare.viewmodel.EditProfileViewModel
+import com.breastcancer.breastcancercare.viewmodel.SettingsViewModel
 import com.breastcancer.breastcancercare.viewmodel.ProfileViewModel
 
 fun commonModule(): Module = module {
@@ -36,7 +36,7 @@ fun commonModule(): Module = module {
     singleOf(::PermissionViewModel)
     singleOf(::HomeViewModel)
     singleOf(::SplashViewModel)
-    singleOf(::EditProfileViewModel)
+    singleOf(::SettingsViewModel)
     singleOf(::ProfileViewModel)
     singleOf(::BlogViewModel)
     singleOf(::ActivityViewModel)

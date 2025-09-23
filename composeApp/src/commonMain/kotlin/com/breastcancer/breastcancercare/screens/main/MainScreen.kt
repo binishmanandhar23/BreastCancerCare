@@ -37,6 +37,7 @@ import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
+import com.breastcancer.breastcancercare.viewmodel.SettingsViewModel
 import dev.icerock.moko.permissions.PermissionState
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -46,6 +47,7 @@ fun MainScreen(
     onboardingViewModel: OnboardingViewModel = koinViewModel(),
     homeViewModel: HomeViewModel = koinViewModel(),
     calendarViewModel: CalendarViewModel = koinViewModel(),
+    settingsViewModel: SettingsViewModel = koinViewModel(),
     permissionState: PermissionState,
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
@@ -113,6 +115,7 @@ fun MainScreen(
                 Tabs.Settings.text -> SettingsScreen(
                     bottomSpacer = bottomSpacer,
                     permissionState = permissionState,
+                    settingsViewModel = settingsViewModel,
                     customSnackBarState = customSnackBarState,
                     onOpenProfile = { onSubScreenChange(Route.Main.Profile, false) },
                     onOpenAbout = { onSubScreenChange(Route.Main.About, false) },

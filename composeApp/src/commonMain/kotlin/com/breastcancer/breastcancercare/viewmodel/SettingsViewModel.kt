@@ -2,6 +2,7 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.breastcancer.breastcancercare.models.FontSizeEnum
 import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.repo.OnboardingRepository
 import com.breastcancer.breastcancercare.screens.main.EditProfileUiState
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 
-class EditProfileViewModel(
+class SettingsViewModel(
     private val repo: OnboardingRepository
 ) : ViewModel() {
 
@@ -26,6 +27,9 @@ class EditProfileViewModel(
 
     private var currentId: Long? = null
     private var currentPassword: String = ""
+
+    private var _fontSize = MutableStateFlow(FontSizeEnum.Small)
+    val fontSize = _fontSize.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -102,5 +106,25 @@ class EditProfileViewModel(
         val digits = phone.filter(Char::isDigit)
         val phoneOk = digits.length in 8..15
         return firstName.isNotBlank() && lastName.isNotBlank() && phoneOk
+    }
+
+    fun incrementFontSize() {
+        _fontSize.update {
+            when(it){
+                FontSizeEnum.Small -> FontSizeEnum.Medium
+                FontSizeEnum.Medium -> FontSizeEnum.Large
+                else -> it
+            }
+        }
+    }
+
+    fun decrementFontSize() {
+        _fontSize.update {
+            when(it){
+                FontSizeEnum.Large -> FontSizeEnum.Medium
+                FontSizeEnum.Medium -> FontSizeEnum.Small
+                else -> it
+            }
+        }
     }
 }

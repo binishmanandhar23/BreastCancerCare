@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
@@ -51,9 +52,6 @@ import com.breastcancer.breastcancercare.screens.main.survey.SurveyMandatoryDial
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
 import com.breastcancer.breastcancercare.theme.BreastCareTypography
-import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
 import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
@@ -62,6 +60,7 @@ import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
+import com.breastcancer.breastcancercare.viewmodel.SettingsViewModel
 import com.breastcancer.breastcancercare.viewmodel.SplashViewModel
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
@@ -78,9 +77,17 @@ fun App() {
     val permissionViewModel = koinViewModel<PermissionViewModel>()
     val permissionState by permissionViewModel.permissionState.collectAsStateWithLifecycle()
     val permissionImportantDialog by permissionViewModel.permissionImportantDialog.collectAsStateWithLifecycle()
+    val navigator = rememberNavController()
+
+    val rootOwner = LocalViewModelStoreOwner.current
+    val settingsViewModel =
+        if (rootOwner != null) koinViewModel<SettingsViewModel>(viewModelStoreOwner = rootOwner) else koinViewModel<SettingsViewModel>()
+
 
     BindEffect(permissionViewModel.permissionsController)
     val coroutineScope = rememberCoroutineScope()
+
+    val fontSizeIncrement by settingsViewModel.fontSize.collectAsStateWithLifecycle()
 
     LaunchedEffect(permissionState) {
         when (permissionState) {
@@ -98,7 +105,7 @@ fun App() {
 
     MaterialTheme(
         colorScheme = if (darkTheme) LightAppColorScheme else LightAppColorScheme,
-        typography = BreastCareTypography()
+        typography = BreastCareTypography(extraTextSize = fontSizeIncrement.sizeChange)
     ) {
         Scaffold { innerPadding ->
             Surface(
@@ -115,7 +122,6 @@ fun App() {
                         snackBarState = customSnackBarState,
                         useBox = true
                     ) {
-                        val navigator = rememberNavController()
                         NavHost(
                             navController = navigator,
                             startDestination = Route.BaseGraph,
@@ -207,7 +213,8 @@ fun App() {
 
                                 composable<Route.Journey> { backStackEntry ->
                                     val userId = backStackEntry.toRoute<Route.Journey>().userId
-                                    val userCategory = UserCategory.fromCategory(backStackEntry.toRoute<Route.Journey>().userCategory)
+                                    val userCategory =
+                                        UserCategory.fromCategory(backStackEntry.toRoute<Route.Journey>().userCategory)
                                     val hideBackButton =
                                         backStackEntry.toRoute<Route.Journey>().hideBackButton
                                     JourneyScreen(
@@ -269,6 +276,7 @@ fun App() {
                                         calendarViewModel = koinViewModel<CalendarViewModel>(
                                             viewModelStoreOwner = parentEntry
                                         ),
+                                        settingsViewModel = if (rootOwner != null) koinViewModel<SettingsViewModel>(viewModelStoreOwner = rootOwner) else koinViewModel<SettingsViewModel>(),
                                         permissionState = permissionState,
                                         loaderState = loaderState,
                                         customSnackBarState = customSnackBarState,
@@ -325,8 +333,11 @@ fun App() {
                                     )
                                 }
 
-                                composable<Route.Main.EditProfile> {
+                                composable<Route.Main.EditProfile> { backStackEntry ->
                                     EditProfileRoute(
+                                        vm = if (rootOwner != null) koinViewModel<SettingsViewModel>(
+                                            viewModelStoreOwner = rootOwner
+                                        ) else koinViewModel<SettingsViewModel>(),
                                         onBack = { navigator.popBackStack() }
                                     )
                                 }

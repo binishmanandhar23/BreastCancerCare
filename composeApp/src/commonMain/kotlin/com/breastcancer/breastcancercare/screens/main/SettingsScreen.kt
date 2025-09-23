@@ -1,6 +1,8 @@
 package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -318,9 +320,9 @@ private fun FontSizeRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowUp,
+                imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = text,
-                modifier = Modifier.clickable(onClick = onIncrement)
+                modifier = Modifier.clickable(onClick = onDecrement)
             )
             Row(
                 verticalAlignment = Alignment.Bottom,
@@ -335,7 +337,11 @@ private fun FontSizeRow(
                         }
                     }
                     val color by animateColorAsState(
-                        if (fontSize.sizeChange <= currentFontSize.sizeChange) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.background
+                        if (fontSize.sizeChange <= currentFontSize.sizeChange) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.background,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
                     )
                     Box(
                         modifier = Modifier.size(width = 16.dp, height = height)
@@ -346,10 +352,11 @@ private fun FontSizeRow(
                     )
                 }
             }
+
             Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
+                imageVector = Icons.Default.KeyboardArrowUp,
                 contentDescription = text,
-                modifier = Modifier.clickable(onClick = onDecrement)
+                modifier = Modifier.clickable(onClick = onIncrement)
             )
         }
     }

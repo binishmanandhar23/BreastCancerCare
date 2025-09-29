@@ -26,6 +26,7 @@ import com.breastcancer.breastcancercare.components.BottomBar
 import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
+import com.breastcancer.breastcancercare.models.FontSizeEnum
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.Tabs
 import com.breastcancer.breastcancercare.theme.DefaultElevation
@@ -60,14 +61,24 @@ fun MainScreen(
     val loggedInUser by homeViewModel.loggedInUser.collectAsStateWithLifecycle()
     val isLandscape = rememberIsLandscape()
 
+    val fontSizeEnum by settingsViewModel.fontSize.collectAsStateWithLifecycle()
     val bottomSpacer by remember(isLandscape) {
         derivedStateOf {
             if (isLandscape) 0.dp else DefaultSpacerSize
         }
     }
-    val startSpacer by remember(isLandscape) {
-        derivedStateOf { if (isLandscape) DefaultSpacerSize * 2 else 0.dp }
+    val startSpacer by remember(isLandscape, fontSizeEnum) {
+        derivedStateOf { if (isLandscape)
+            when(fontSizeEnum.second){
+                FontSizeEnum.Small -> DefaultSpacerSize * 2
+                FontSizeEnum.Medium -> (DefaultSpacerSize.value * 2.3).dp
+                FontSizeEnum.Large -> (DefaultSpacerSize.value * 2.7).dp
+            }
+        else
+            0.dp
+        }
     }
+
 
     LaunchedEffect(loggedInUser) {
         loggedInUser?.let { user ->

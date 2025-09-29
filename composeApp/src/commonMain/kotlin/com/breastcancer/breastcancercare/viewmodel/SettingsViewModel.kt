@@ -28,7 +28,7 @@ class SettingsViewModel(
     private var currentId: Long? = null
     private var currentPassword: String = ""
 
-    private var _fontSize = MutableStateFlow(FontSizeEnum.Small)
+    private var _fontSize = MutableStateFlow(Pair(FontSizeEnum.Small, FontSizeEnum.Small))
     val fontSize = _fontSize.asStateFlow()
 
     init {
@@ -110,9 +110,9 @@ class SettingsViewModel(
 
     fun incrementFontSize() {
         _fontSize.update {
-            when(it){
-                FontSizeEnum.Small -> FontSizeEnum.Medium
-                FontSizeEnum.Medium -> FontSizeEnum.Large
+            when(it.second){
+                FontSizeEnum.Small -> Pair(FontSizeEnum.Small,FontSizeEnum.Medium)
+                FontSizeEnum.Medium ->  Pair(FontSizeEnum.Medium,FontSizeEnum.Large)
                 else -> it
             }
         }
@@ -120,9 +120,9 @@ class SettingsViewModel(
 
     fun decrementFontSize() {
         _fontSize.update {
-            when(it){
-                FontSizeEnum.Large -> FontSizeEnum.Medium
-                FontSizeEnum.Medium -> FontSizeEnum.Small
+            when(it.second){
+                FontSizeEnum.Large -> Pair(FontSizeEnum.Large,FontSizeEnum.Medium)
+                FontSizeEnum.Medium -> Pair(FontSizeEnum.Medium,FontSizeEnum.Small)
                 else -> it
             }
         }

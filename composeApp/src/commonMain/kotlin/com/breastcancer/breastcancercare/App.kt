@@ -105,7 +105,7 @@ fun App() {
 
     MaterialTheme(
         colorScheme = if (darkTheme) LightAppColorScheme else LightAppColorScheme,
-        typography = BreastCareTypography(extraTextSize = fontSizeIncrement.sizeChange)
+        typography = BreastCareTypography(textSizes = Pair(fontSizeIncrement.first.sizeChange, fontSizeIncrement.second.sizeChange))
     ) {
         Scaffold { innerPadding ->
             Surface(

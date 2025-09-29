@@ -152,7 +152,7 @@ fun SettingsScreen(
                 FontSizeRow(
                     text = "Font Size",
                     icon = Icons.Default.FontDownload,
-                    currentFontSize = currentFontSize,
+                    currentFontSize = currentFontSize.second,
                     onIncrement = settingsViewModel::incrementFontSize,
                     onDecrement = settingsViewModel::decrementFontSize,
                 )

@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType.Companion.GeneralActivityTypeEnum
 
 class SplashViewModel(
     val onboardingRepository: OnboardingRepository,
@@ -617,7 +618,7 @@ class SplashViewModel(
                         isOnline = false,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2024/02/IMG_8837-652x437.jpg",
                         location = null,
-                        activityType = GeneralActivityType.GeneralActivityTypeEnum.Nursing.type,
+                        activityType = GeneralActivityTypeEnum.Nursing.type,
                         category = null,
                         onlineLink = null,
                         audience = null,
@@ -636,7 +637,7 @@ class SplashViewModel(
                         isOnline = true,
                         image = "https://www.breastcancer.org.au/wp-content/uploads/2020/07/SharedScreenshot.jpg",
                         location = null,
-                        activityType = GeneralActivityType.GeneralActivityTypeEnum.Counselling.type,
+                        activityType = GeneralActivityTypeEnum.Counselling.type,
                         category = null,
                         onlineLink = null,
                         audience = null,

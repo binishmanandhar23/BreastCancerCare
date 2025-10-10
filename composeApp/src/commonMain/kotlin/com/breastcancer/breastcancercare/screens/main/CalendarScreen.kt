@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.ActivityDesign
 import com.breastcancer.breastcancercare.components.LazyColumnWithStickyFooter
+import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.CalendarActivityType
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
@@ -145,7 +146,8 @@ fun CalendarScreen(
                     with(Dispatchers.IO) {
                         hasActivitiesAvailable =
                             allDatesWithActivitiesAvailable.contains(it.date.toString())
-                        hasActivitiesRegistered = allDatesWithActivitiesHistory.contains(it.date.toString())
+                        hasActivitiesRegistered =
+                            allDatesWithActivitiesHistory.contains(it.date.toString())
                     }
                 }
                 if (it.position == DayPosition.MonthDate)
@@ -204,8 +206,14 @@ fun CalendarScreen(
             selectedDate = selectedDate,
             onTabSelected = calendarViewModel::changeTab,
             onSuitabilitySelected = calendarViewModel::updateSelectedSuitability,
-            onActivityClick = {
-                onSubScreenChange(Route.Main.ActivityDetail(id = it), false)
+            onActivityClick = { activity ->
+                onSubScreenChange(
+                    if (activity.activityType is GeneralActivityType)
+                        Route.Main.GeneralActivityDetail(type = activity.activityType.type)
+                    else
+                        Route.Main.ActivityDetail(id = activity.id),
+                    false
+                )
             }
         )
     }
@@ -247,7 +255,7 @@ fun Day(
             ) {
                 if (hasActivitiesAVailable)
                     Indicator()
-                if(hasActivitiesRegistered)
+                if (hasActivitiesRegistered)
                     Indicator(color = ColorSunshine)
             }
         }
@@ -315,7 +323,7 @@ fun BottomInfoCard(
     selectedDayAvailableActivities: Map<CalendarActivityType, List<ActivityDTO>>,
     onTabSelected: (index: Int) -> Unit,
     onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit,
-    onActivityClick: (id: Long) -> Unit
+    onActivityClick: (activity: ActivityDTO) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     // Parent size needed to compute pixel offsets
@@ -424,7 +432,7 @@ private fun ActivitySection(
     selectedDate: LocalDate,
     selectedDayAvailableActivities: Map<CalendarActivityType, List<ActivityDTO>>,
     bottomSpacer: Dp,
-    onActivityClick: (id: Long) -> Unit
+    onActivityClick: (activity: ActivityDTO) -> Unit
 ) {
     AnimatedContent(selectedDayAvailableActivities, label = "Activities") { activities ->
         LazyColumnWithStickyFooter(
@@ -458,7 +466,10 @@ private fun ActivitySection(
                                     DefaultHorizontalPaddingSmall
                                 )
                             ) {
-                                Indicator(size = 14.dp, color = if (type == CalendarActivityType.Registered) ColorSunshine else MaterialTheme.colorScheme.primary)
+                                Indicator(
+                                    size = 14.dp,
+                                    color = if (type == CalendarActivityType.Registered) ColorSunshine else MaterialTheme.colorScheme.primary
+                                )
                                 Text(
                                     text = if (type == CalendarActivityType.Registered) "Your registered activities on this day" else "Activities available to you on this day",
                                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
@@ -472,7 +483,7 @@ private fun ActivitySection(
                             selectedDate = selectedDate,
                             activityDTO = activity,
                             onClick = {
-                                onActivityClick(activity.id)
+                                onActivityClick(activity)
                             })
                     }
                 }

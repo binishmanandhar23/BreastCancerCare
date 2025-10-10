@@ -159,7 +159,7 @@ fun BottomBar(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = {},
+                    onClick = onAddNursing,
                     colors = ButtonDefaults.buttonColors(
                         contentColor = MaterialTheme.colorScheme.onTertiary,
                         containerColor = MaterialTheme.colorScheme.tertiary
@@ -177,7 +177,7 @@ fun BottomBar(
                     }
                 }
                 Button(
-                    onClick = {},
+                    onClick = onAddCounselling,
                     colors = ButtonDefaults.buttonColors(
                         contentColor = MaterialTheme.colorScheme.onTertiary,
                         containerColor = MaterialTheme.colorScheme.tertiary

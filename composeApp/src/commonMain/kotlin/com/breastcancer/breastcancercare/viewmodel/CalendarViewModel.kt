@@ -2,6 +2,7 @@ package com.breastcancer.breastcancercare.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.breastcancer.breastcancercare.database.local.types.FrequencyType
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
 import com.breastcancer.breastcancercare.models.CalendarActivityType
@@ -114,11 +115,10 @@ class CalendarViewModel(
             .mapLatest { it?.userCategory }                    // Flow<UserCategory?>
             .distinctUntilChanged()                      // don’t reload if same category
             .flatMapLatest { category ->
-                if (category == null) flowOf(emptyList())    // or emit an Idle/Empty state
-                else activityRepository.getAllActivities(userCategory = category) // Flow<List<Event>>
+                activityRepository.getAllActivitiesAndGeneralActivities(userCategory = category) // Flow<List<Event>>
             }
-            .mapLatest { events ->
-                events.sortedBy { it.startDate }          // ensure chronological
+            .mapLatest { activities ->
+                activities.sortedBy { it.startDate }          // ensure chronological
             }.collectLatest { activities ->
                 _allActivities.update { activities }
             }
@@ -185,13 +185,16 @@ class CalendarViewModel(
             activities.filter { activity ->
                 activity.dates.contains(
                     selectedDate
-                )
+                ) || activity.frequency == FrequencyType.OnceOff
             }.let { activities ->
                 val registered = activities.filter { activity ->
                     allActivityHistory.find { it.activityId == activity.id && it.registeredForDate == selectedDate } != null
                 }
                 val available =
-                    activities.filter { activity -> allActivityHistory.find { it.activityId == activity.id && it.registeredForDate == selectedDate } == null }
+                    activities.filter { activity ->
+                        allActivityHistory.find { it.activityId == activity.id && it.registeredForDate == selectedDate } == null
+                                && activity.frequency != FrequencyType.OnceOff
+                    }
                 mapOf(
                     CalendarActivityType.Registered to registered,
                     CalendarActivityType.Available to available,

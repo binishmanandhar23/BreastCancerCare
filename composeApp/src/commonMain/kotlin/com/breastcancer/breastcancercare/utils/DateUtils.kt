@@ -7,10 +7,16 @@ import com.kizitonwose.calendar.core.plusDays
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 fun getDatesFromActivity(
     frequencyType: FrequencyType,
@@ -202,3 +208,18 @@ fun datesInMonth(
 ): List<LocalDate> =
     rules.mapNotNull { (dow, occ) -> dateOfMonthlyOccurrence(year, month, dow, occ) }
         .sorted()
+
+
+val ddMMYYYY = LocalDate.Format {
+    day(Padding.ZERO); char('/'); monthNumber(padding = Padding.ZERO); char('/'); year()
+}
+
+@OptIn(ExperimentalTime::class)
+fun convertMillisToDate(millis: Long, tz: TimeZone = TimeZone.currentSystemDefault()): String =
+    convertMillisToLocalDate(millis = millis, tz = tz).format(ddMMYYYY)
+
+@OptIn(ExperimentalTime::class)
+fun convertMillisToLocalDate(
+    millis: Long,
+    tz: TimeZone = TimeZone.currentSystemDefault()
+): LocalDate = Instant.fromEpochMilliseconds(millis).toLocalDateTime(tz).date

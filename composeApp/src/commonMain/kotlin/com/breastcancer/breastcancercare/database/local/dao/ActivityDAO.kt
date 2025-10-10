@@ -8,14 +8,15 @@ import com.breastcancer.breastcancercare.database.local.entity.ActivityEntity
 import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryEntity
 import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryWithActivityEntity
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
-import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.LocalDate
 
 @Dao
 interface ActivityDAO {
     @Query("SELECT * FROM activityentity WHERE category = :userCategory")
     fun getAllActivities(userCategory: String): Flow<List<ActivityEntity>>
+
+    @Query("SELECT * FROM activityentity WHERE category = :userCategory OR category IS null") //null = General Activities included
+    fun getAllActivitiesAndGeneralActivities(userCategory: String?): Flow<List<ActivityEntity>>
 
     @Query("SELECT * FROM activityentity WHERE activityType = :activityType")
     fun getAllActivitiesByType(activityType: String): Flow<List<ActivityEntity>>
@@ -40,6 +41,9 @@ interface ActivityDAO {
 
     @Query("SELECT * FROM activityhistoryentity WHERE userId = :userId")
     fun getAllActivityHistoryWithActivity(userId: Long?): Flow<List<ActivityHistoryWithActivityEntity>>
+
+    @Query("SELECT * FROM activityhistoryentity WHERE activityId = :activityId AND userId = :userId")
+    fun getActivityHistoryByActivityId(activityId: Long?, userId: Long?): Flow<List<ActivityHistoryWithActivityEntity>?>
     @Query("SELECT * FROM activityhistoryentity WHERE activityId = :activityId AND userId = :userId AND registeredForDate = :registeredDate")
     fun getActivityHistoryByActivityIdAndRegisteredDate(activityId: Long, userId: Long?, registeredDate: String): Flow<ActivityHistoryEntity?>
 

@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,6 +33,7 @@ import com.breastcancer.breastcancercare.components.loader.CustomLoader
 import com.breastcancer.breastcancercare.components.loader.rememberLoaderState
 import com.breastcancer.breastcancercare.components.snackbar.CustomSnackBar
 import com.breastcancer.breastcancercare.components.snackbar.rememberSnackBarState
+import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.screens.SplashScreen
@@ -48,6 +50,7 @@ import com.breastcancer.breastcancercare.screens.main.ProfileRoute
 import com.breastcancer.breastcancercare.screens.main.survey.SurveyScreen
 import com.breastcancer.breastcancercare.screens.journey.JourneyScreen
 import com.breastcancer.breastcancercare.screens.main.activity.ActivityHistoryScreen
+import com.breastcancer.breastcancercare.screens.main.activity.GeneralActivityScreen
 import com.breastcancer.breastcancercare.screens.main.survey.SurveyMandatoryDialogScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
@@ -105,7 +108,12 @@ fun App() {
 
     MaterialTheme(
         colorScheme = if (darkTheme) LightAppColorScheme else LightAppColorScheme,
-        typography = BreastCareTypography(textSizes = Pair(fontSizeIncrement.first.sizeChange, fontSizeIncrement.second.sizeChange))
+        typography = BreastCareTypography(
+            textSizes = Pair(
+                fontSizeIncrement.first.sizeChange,
+                fontSizeIncrement.second.sizeChange
+            )
+        )
     ) {
         Scaffold { innerPadding ->
             Surface(
@@ -276,7 +284,9 @@ fun App() {
                                         calendarViewModel = koinViewModel<CalendarViewModel>(
                                             viewModelStoreOwner = parentEntry
                                         ),
-                                        settingsViewModel = if (rootOwner != null) koinViewModel<SettingsViewModel>(viewModelStoreOwner = rootOwner) else koinViewModel<SettingsViewModel>(),
+                                        settingsViewModel = if (rootOwner != null) koinViewModel<SettingsViewModel>(
+                                            viewModelStoreOwner = rootOwner
+                                        ) else koinViewModel<SettingsViewModel>(),
                                         permissionState = permissionState,
                                         loaderState = loaderState,
                                         customSnackBarState = customSnackBarState,
@@ -390,7 +400,8 @@ fun App() {
                                 }
 
                                 composable<Route.Main.ActivityDetail> { backStackEntry ->
-                                    val id = backStackEntry.toRoute<Route.Main.ActivityDetail>().id
+                                    val id by
+                                        remember(backStackEntry) { derivedStateOf { backStackEntry.toRoute<Route.Main.ActivityDetail>().id } }
                                     val activityViewModel = koinViewModel<ActivityViewModel>(
                                         viewModelStoreOwner = navigator.getBackStackEntry<Route.BaseGraph>()
                                     )
@@ -409,7 +420,36 @@ fun App() {
                                                 )
                                                 return@ActivityDetailScreen
                                             }
-                                            activityViewModel.insertActivityHistory(activity = activity)
+                                            activityViewModel.insertActivityHistoryForActivityDetail(
+                                                activity = activity
+                                            )
+                                        }
+                                    )
+                                }
+
+                                composable<Route.Main.GeneralActivityDetail> { backStackEntry ->
+                                    val activityType by remember(backStackEntry) {
+                                        derivedStateOf {
+                                            ActivityUtils.fromType(type = backStackEntry.toRoute<Route.Main.GeneralActivityDetail>().type)
+                                        }
+                                    }
+                                    val parentEntry =
+                                        remember(backStackEntry) { navigator.getBackStackEntry(Route.BaseGraph) }
+                                    val activityViewModel = koinViewModel<ActivityViewModel>(
+                                        viewModelStoreOwner = parentEntry
+                                    )
+                                    GeneralActivityScreen(
+                                        activityType = activityType,
+                                        customSnackBarState = customSnackBarState,
+                                        activityViewModel = activityViewModel, onBack = {
+                                            navigator.popBackStack()
+                                        },
+                                        onBookAppointment = { activity, activityHistories, appointmentDate ->
+                                            activityViewModel.insertActivityHistoryForAddActivity(
+                                                activity = activity,
+                                                activityHistories = activityHistories,
+                                                registeredForDate = appointmentDate
+                                            )
                                         }
                                     )
                                 }
@@ -429,12 +469,12 @@ fun App() {
                                         onBack = {
                                             navigator.popBackStack()
                                         }, onSurveySubmit = { activity, answers ->
-                                            activityViewModel.insertActivityHistory(
+                                            activityViewModel.insertActivityHistoryForActivityDetail(
                                                 activity = activity,
                                                 preSurveyAnswer = answers
                                             )
                                         }, onSkipped = { activity ->
-                                            activityViewModel.insertActivityHistory(
+                                            activityViewModel.insertActivityHistoryForActivityDetail(
                                                 activity = activity
                                             )
                                         })

@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.BottomBar
 import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
+import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.FontSizeEnum
 import com.breastcancer.breastcancercare.screens.Route
@@ -42,6 +43,7 @@ import com.breastcancer.breastcancercare.viewmodel.SettingsViewModel
 import dev.icerock.moko.permissions.PermissionState
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
+import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType.Companion.GeneralActivityTypeEnum
 
 @Composable
 fun MainScreen(
@@ -190,10 +192,10 @@ fun MainScreen(
                 scope.launch { pagerState.animateScrollToPage(Tabs.Settings.ordinal) }
             },
             onAddNursing = {
-
+                onSubScreenChange(Route.Main.GeneralActivityDetail(type = GeneralActivityTypeEnum.Nursing.type), false)
             },
             onAddCounselling = {
-
+                onSubScreenChange(Route.Main.GeneralActivityDetail(type = GeneralActivityTypeEnum.Counselling.type), false)
             }
         )
     }

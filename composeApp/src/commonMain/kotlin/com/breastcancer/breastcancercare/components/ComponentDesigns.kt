@@ -230,7 +230,6 @@ fun TimeAndDateFormat(
     }, style = MaterialTheme.typography.labelSmall)
 }
 
-@Composable
 fun appDateFormat(date: LocalDate, includeYear: Boolean = false) = date.format(LocalDate.Format {
     monthName(MonthNames.ENGLISH_FULL)
     char(' ')
@@ -1085,7 +1084,7 @@ fun UserCategoryTag(
     iconModifier: Modifier = Modifier.size(25.dp),
     textStyle: TextStyle = MaterialTheme.typography.labelMedium
 ) {
-    if (userCategory != null)
+    if (userCategory != null && userCategory != UserCategory.Undefined)
         Card(
             modifier = modifier,
             shape = MaterialTheme.shapes.medium,
@@ -1111,7 +1110,6 @@ fun UserCategoryTag(
                     text = UserCategory.getLabel(userCategory),
                     style = textStyle
                 )
-
             }
         }
 }

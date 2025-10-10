@@ -6,7 +6,9 @@ import com.breastcancer.breastcancercare.database.local.types.LivingWellActivity
 import com.breastcancer.breastcancercare.database.local.types.LivingWellActivityType.Webinars
 import com.breastcancer.breastcancercare.database.local.types.LivingWellActivityType.WellnessActivities
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType.Companion.StartingStrongActivityTypeEnum
+import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType.Companion.GeneralActivityTypeEnum
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType.SupportGroups
+import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType.Workshops
 
 
 interface ActivityType {
@@ -78,10 +80,18 @@ sealed class GeneralActivityType(override val type: String): ActivityType{
 
     class FinancialAndPracticalHardshipSupport(type: String = GeneralActivityTypeEnum.FinancialAndPracticalHardshipSupport.type) :
         GeneralActivityType(type)
-    enum class GeneralActivityTypeEnum(val type: String) {
-        Counselling("counselling"), //Same for both Starting Strong and Living Well
-        Nursing("nursing"), //Same for both Starting Strong and Living Well
-        FinancialAndPracticalHardshipSupport("financial_and_practical_hardship_support") //Same for both Starting Strong and Living Well
+    companion object {
+        val all: List<ActivityType> = listOf(
+            Nursing(),
+            Counselling(),
+            FinancialAndPracticalHardshipSupport()
+        )
+
+        enum class GeneralActivityTypeEnum(val type: String) {
+            Counselling("counselling"), //Same for both Starting Strong and Living Well
+            Nursing("nursing"), //Same for both Starting Strong and Living Well
+            FinancialAndPracticalHardshipSupport("financial_and_practical_hardship_support") //Same for both Starting Strong and Living Well
+        }
     }
 }
 
@@ -90,22 +100,22 @@ object ActivityUtils {
     private fun norm(s: String) = s.trim().lowercase().replace('-', '_')
 
     /** Returns an *instance* of the matching subclass, or null if unknown. */
-    fun fromType(category: UserCategory?, type: String): ActivityType =
+    fun fromType(category: UserCategory? = null, type: String): ActivityType =
         when (category) {
             null, UserCategory.Undefined -> when(norm(type)){
-                GeneralActivityType.GeneralActivityTypeEnum.Counselling.type -> GeneralActivityType.Counselling()
-                GeneralActivityType.GeneralActivityTypeEnum.Nursing.type -> GeneralActivityType.Nursing()
-                GeneralActivityType.GeneralActivityTypeEnum.FinancialAndPracticalHardshipSupport.type -> GeneralActivityType.FinancialAndPracticalHardshipSupport()
+                GeneralActivityTypeEnum.Counselling.type -> GeneralActivityType.Counselling()
+                GeneralActivityTypeEnum.Nursing.type -> GeneralActivityType.Nursing()
+                GeneralActivityTypeEnum.FinancialAndPracticalHardshipSupport.type -> GeneralActivityType.FinancialAndPracticalHardshipSupport()
                 else -> throw IllegalArgumentException("Unknown type: $type")
             }
 
             UserCategory.StartingStrong -> {
                 when (norm(type)) {
                     StartingStrongActivityTypeEnum.SupportGroups.type -> SupportGroups()
-                    StartingStrongActivityTypeEnum.Workshops.type -> StartingStrongActivityType.Workshops()
-                    GeneralActivityType.GeneralActivityTypeEnum.Counselling.type -> GeneralActivityType.Counselling()
-                    GeneralActivityType.GeneralActivityTypeEnum.Nursing.type -> GeneralActivityType.Nursing()
-                    GeneralActivityType.GeneralActivityTypeEnum.FinancialAndPracticalHardshipSupport.type -> GeneralActivityType.FinancialAndPracticalHardshipSupport()
+                    StartingStrongActivityTypeEnum.Workshops.type -> Workshops()
+                    GeneralActivityTypeEnum.Counselling.type -> GeneralActivityType.Counselling()
+                    GeneralActivityTypeEnum.Nursing.type -> GeneralActivityType.Nursing()
+                    GeneralActivityTypeEnum.FinancialAndPracticalHardshipSupport.type -> GeneralActivityType.FinancialAndPracticalHardshipSupport()
                     else -> throw IllegalArgumentException("Unknown type: $type")
                 }
             }
@@ -117,9 +127,9 @@ object ActivityUtils {
                     LivingWellActivityTypeEnum.Webinars.type -> Webinars()
                     LivingWellActivityTypeEnum.WellnessActivities.type -> WellnessActivities()
                     LivingWellActivityTypeEnum.MindfulRecoveryProgram.type -> MindfulRecoveryProgram()
-                    GeneralActivityType.GeneralActivityTypeEnum.Counselling.type -> GeneralActivityType.Counselling()
-                    GeneralActivityType.GeneralActivityTypeEnum.Nursing.type -> GeneralActivityType.Nursing()
-                    GeneralActivityType.GeneralActivityTypeEnum.FinancialAndPracticalHardshipSupport.type -> GeneralActivityType.FinancialAndPracticalHardshipSupport()
+                    GeneralActivityTypeEnum.Counselling.type -> GeneralActivityType.Counselling()
+                    GeneralActivityTypeEnum.Nursing.type -> GeneralActivityType.Nursing()
+                    GeneralActivityTypeEnum.FinancialAndPracticalHardshipSupport.type -> GeneralActivityType.FinancialAndPracticalHardshipSupport()
                     else -> throw IllegalArgumentException("Unknown type: $type")
                 }
             }
@@ -127,7 +137,7 @@ object ActivityUtils {
 
     fun getActivityTypeLabel(type: ActivityType): String = when (type) {
         is SupportGroups -> "Support Groups"
-        is StartingStrongActivityType.Workshops -> "Workshops"
+        is Workshops -> "Workshops"
         is GeneralActivityType.Counselling -> "Counselling"
         is GeneralActivityType.Nursing -> "Nursing"
         is GeneralActivityType.FinancialAndPracticalHardshipSupport -> "Financial and Practical Hardship Support"

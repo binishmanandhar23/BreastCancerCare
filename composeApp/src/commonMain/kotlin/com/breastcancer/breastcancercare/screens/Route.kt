@@ -43,6 +43,8 @@ sealed interface Route {
 
         @Serializable
         data class ActivityDetail(val id: Long) : Route
+        @Serializable
+        data class GeneralActivityDetail(val type: String) : Route
 
         @Serializable
         data object AllActivityHistory : Route

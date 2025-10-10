@@ -17,6 +17,10 @@ class ActivityRepository(val activityDAO: ActivityDAO) {
         activityDAO.getAllActivities(userCategory = userCategory.category).map { activityEntities ->
             activityEntities.map { it.toActivityDTO() }
         }
+    fun getAllActivitiesAndGeneralActivities(userCategory: UserCategory?) =
+        activityDAO.getAllActivitiesAndGeneralActivities(userCategory = userCategory?.category).map { activityEntities ->
+            activityEntities.map { it.toActivityDTO() }
+        }
 
     fun getAllActivitiesByType(activityType: ActivityType) =
         activityDAO.getAllActivitiesByType(activityType = activityType.type)
@@ -76,7 +80,6 @@ class ActivityRepository(val activityDAO: ActivityDAO) {
     fun getAllActivityHistoryWithActivity(userId: Long?) = activityDAO.getAllActivityHistoryWithActivity(userId = userId)
         .map { activityHistoryWithActivityEntities -> activityHistoryWithActivityEntities.map { it.toDTO() } }
 
-    fun insertActivity(){
-
-    }
+    fun getActivityHistoryByActivityId(activityId: Long?, userId: Long?) =
+        activityDAO.getActivityHistoryByActivityId(activityId = activityId, userId = userId).map { activityHistories -> activityHistories?.map { it.toDTO() }?: emptyList() }
 }

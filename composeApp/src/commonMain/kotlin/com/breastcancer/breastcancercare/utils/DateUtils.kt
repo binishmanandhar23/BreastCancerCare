@@ -14,129 +14,132 @@ import kotlin.time.ExperimentalTime
 
 fun getDatesFromActivity(
     frequencyType: FrequencyType,
-    startDate: LocalDate,
+    startDate: LocalDate?,
     endDate: LocalDate?,
     frequencySeries: FrequencySeries?
 ): List<LocalDate> {
     val endDate = endDate ?: startDate
     val dates = mutableListOf<LocalDate>()
-    when (frequencyType) {
-        FrequencyType.Ongoing -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plusDays(i)
-                dates.add(date)
-                i++
+    if (startDate != null && endDate != null)
+        when (frequencyType) {
+            FrequencyType.Ongoing -> {
+                var date = startDate
+                var i = 0
+                while (date!! <= endDate) {
+                    date = startDate.plusDays(i)
+                    dates.add(date)
+                    i++
+                }
             }
-        }
 
-        FrequencyType.Weekly -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plus(i, DateTimeUnit.WEEK)
-                dates.add(date)
-                i++
+            FrequencyType.Weekly -> {
+                var date = startDate
+                var i = 0
+                while (date!! <= endDate) {
+                    date = startDate.plus(i, DateTimeUnit.WEEK)
+                    dates.add(date)
+                    i++
+                }
             }
-        }
 
-        FrequencyType.Monthly -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plus(i, DateTimeUnit.MONTH)
-                dates.add(date)
-                i++
+            FrequencyType.Monthly -> {
+                var date = startDate
+                var i = 0
+                while (date!! <= endDate) {
+                    date = startDate.plus(i, DateTimeUnit.MONTH)
+                    dates.add(date)
+                    i++
+                }
             }
-        }
 
-        FrequencyType.Series -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plus(i, DateTimeUnit.MONTH)
-                val datesInMonth =
-                    datesInMonth(
-                        year = date.year,
-                        month = date.month.number,
-                        rules = getRules(frequencySeries = frequencySeries)
-                    )
-                dates.addAll(datesInMonth)
-                i++
+            FrequencyType.Series -> {
+                var date = startDate
+                var i = 0
+                while (date!! <= endDate) {
+                    date = startDate.plus(i, DateTimeUnit.MONTH)
+                    val datesInMonth =
+                        datesInMonth(
+                            year = date.year,
+                            month = date.month.number,
+                            rules = getRules(frequencySeries = frequencySeries)
+                        )
+                    dates.addAll(datesInMonth)
+                    i++
+                }
             }
-        }
 
-        FrequencyType.OnceOff -> dates.add(startDate)
-        FrequencyType.Block -> dates
-    }
+            else -> Unit
+        }
     return dates
 }
 
 @OptIn(ExperimentalTime::class)
 fun getDateForNextSession(
     frequencyType: FrequencyType,
-    startDate: LocalDate,
+    startDate: LocalDate?,
     endDate: LocalDate?,
     frequencySeries: FrequencySeries?
 ): LocalDate? {
     val endDate = endDate ?: startDate
-    when (frequencyType) {
-        FrequencyType.OnceOff -> (startDate > LocalDate.now()).let {
-            return if(it) startDate else null
-        }
-        FrequencyType.Ongoing -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plusDays(i)
-                if (date > LocalDate.now())
-                    return date
-                i++
+    if (startDate != null && endDate != null)
+        when (frequencyType) {
+            FrequencyType.OnceOff -> (startDate > LocalDate.now()).let {
+                return if (it) startDate else null
             }
-        }
 
-        FrequencyType.Weekly -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plus(i, DateTimeUnit.WEEK)
-                if (date > LocalDate.now())
-                    return date
-                i++
-            }
-        }
-
-        FrequencyType.Monthly -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plus(i, DateTimeUnit.MONTH)
-                if (date > LocalDate.now())
-                    return date
-                i++
-            }
-        }
-
-        FrequencyType.Series -> {
-            var date = startDate
-            var i = 0
-            while (date <= endDate) {
-                date = startDate.plus(i, DateTimeUnit.MONTH)
-                val datesInMonth =
-                    datesInMonth(
-                        year = date.year,
-                        month = date.month.number,
-                        rules = getRules(frequencySeries = frequencySeries)
-                    )
-                datesInMonth.sortedBy { it }.find { it > LocalDate.now() }?.let {
-                    return it
+            FrequencyType.Ongoing -> {
+                var date = startDate
+                var i = 0
+                while (date!! <= endDate) {
+                    date = startDate.plusDays(i)
+                    if (date > LocalDate.now())
+                        return date
+                    i++
                 }
-                i++
             }
+
+            FrequencyType.Weekly -> {
+                var date = startDate
+                var i = 0
+                while (date!! <= endDate) {
+                    date = startDate.plus(i, DateTimeUnit.WEEK)
+                    if (date > LocalDate.now())
+                        return date
+                    i++
+                }
+            }
+
+            FrequencyType.Monthly -> {
+                var date = startDate
+                var i = 0
+                while (date!! <= endDate) {
+                    date = startDate.plus(i, DateTimeUnit.MONTH)
+                    if (date > LocalDate.now())
+                        return date
+                    i++
+                }
+            }
+
+            FrequencyType.Series -> {
+                var date = startDate
+                var i = 0
+                while (date!! <= endDate) {
+                    date = startDate.plus(i, DateTimeUnit.MONTH)
+                    val datesInMonth =
+                        datesInMonth(
+                            year = date.year,
+                            month = date.month.number,
+                            rules = getRules(frequencySeries = frequencySeries)
+                        )
+                    datesInMonth.sortedBy { it }.find { it > LocalDate.now() }?.let {
+                        return it
+                    }
+                    i++
+                }
+            }
+
+            FrequencyType.Block -> return null
         }
-        FrequencyType.Block -> return null
-    }
     return null
 }
 

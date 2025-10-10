@@ -9,9 +9,9 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    alias(libs.plugins.json)
 
     id("com.google.gms.google-services")
-    alias(libs.plugins.json)
 }
 
 kotlin {
@@ -60,6 +60,8 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            /*Extended Icons*/
             implementation(libs.material.icons.extended)
 
             /*Kotlin Coroutines*/

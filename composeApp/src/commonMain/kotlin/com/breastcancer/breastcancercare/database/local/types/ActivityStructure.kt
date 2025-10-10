@@ -9,12 +9,12 @@ interface ActivityStructure {
 
     val image: String?
     val title: String
-    val category: String // ⬅️ UserCategory
+    val category: String? // ⬅️ UserCategory
     val activityType: String // ⬅️ ActivityType
     val description: String
-    val audience: String // Basically who it's for (will be string)
+    val audience: String? // Basically who it's for (will be string)
 
-    val startDate: String
+    val startDate: String?
     val endDate: String?
     val startTime: String?
     val endTime: String?

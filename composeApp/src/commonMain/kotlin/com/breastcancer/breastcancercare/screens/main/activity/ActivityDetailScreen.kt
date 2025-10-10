@@ -46,6 +46,7 @@ import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
 import com.breastcancer.breastcancercare.components.UserCategoryTag
 import com.breastcancer.breastcancercare.components.icons.User
+import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType
 import com.breastcancer.breastcancercare.database.local.types.LivingWellActivityType
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
@@ -133,13 +134,10 @@ fun ActivityDetailScreen(
                                             is LivingWellActivityType.WellnessActivities,
                                             is LivingWellActivityType.MindfulRecoveryProgram -> "register your interest"
 
-                                            is StartingStrongActivityType.Counselling,
-                                            is StartingStrongActivityType.Nursing,
-                                            is LivingWellActivityType.Counselling,
-                                            is LivingWellActivityType.Nursing -> "book an appointment"
+                                            is GeneralActivityType.Counselling,
+                                            is GeneralActivityType.Nursing -> "book an appointment"
 
-                                            is StartingStrongActivityType.FinancialAndPracticalHardshipSupport,
-                                            is LivingWellActivityType.FinancialAndPracticalHardshipSupport -> "enquire"
+                                            is GeneralActivityType.FinancialAndPracticalHardshipSupport-> "enquire"
 
                                             else -> ""
                                         },
@@ -161,13 +159,10 @@ fun ActivityDetailScreen(
                                                 is LivingWellActivityType.WellnessActivities,
                                                 is LivingWellActivityType.MindfulRecoveryProgram -> "Register Interest"
 
-                                                is StartingStrongActivityType.Counselling,
-                                                is StartingStrongActivityType.Nursing,
-                                                is LivingWellActivityType.Counselling,
-                                                is LivingWellActivityType.Nursing -> "Book Appointment"
+                                                is GeneralActivityType.Counselling,
+                                                is GeneralActivityType.Nursing -> "Book Appointment"
 
-                                                is StartingStrongActivityType.FinancialAndPracticalHardshipSupport,
-                                                is LivingWellActivityType.FinancialAndPracticalHardshipSupport -> "Enquire"
+                                                is GeneralActivityType.FinancialAndPracticalHardshipSupport -> "Enquire"
 
                                                 else -> ""
                                             }, onClick = {
@@ -177,7 +172,8 @@ fun ActivityDetailScreen(
                                             })
                                     else if (activityUIState is ActivityUIState.Final)
                                         Text(
-                                            modifier = Modifier.align(Alignment.CenterEnd).padding(vertical = DefaultVerticalPaddingSmall),
+                                            modifier = Modifier.align(Alignment.CenterEnd)
+                                                .padding(vertical = DefaultVerticalPaddingSmall),
                                             text = "Registered ✔",
                                             fontSize = MaterialTheme.typography.labelMedium.fontSize,
                                             color = MaterialTheme.colorScheme.primary
@@ -233,50 +229,53 @@ fun ActivityDetailScreen(
                                     )
                             ) {
                                 activity?.let { activity ->
-                                    CardContainer(
-                                        modifier = Modifier.weight(0.5f).fillMaxHeight()
-                                    ) {
-                                        ColumnContainer(title = "Who it's for") {
-                                            Text(
-                                                text = activity.audience ?: "",
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
-                                        }
-                                    }
-                                    DefaultSpacer(size = DefaultHorizontalPaddingSmall)
-                                    getDateForNextSession(
-                                        frequencyType = activity.frequency,
-                                        frequencySeries = activity.frequencySeries,
-                                        startDate = activity.startDate,
-                                        endDate = activity.endDate
-                                    )?.let { nextSession ->
+                                    if (!activity.audience.isNullOrEmpty()) {
                                         CardContainer(
                                             modifier = Modifier.weight(0.5f).fillMaxHeight()
                                         ) {
-                                            ColumnContainer(title = "When") {
+                                            ColumnContainer(title = "Who it's for") {
                                                 Text(
-                                                    text = "Next Session",
-                                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                )
-                                                TimeAndDateFormat(
-                                                    activityDTO = activity,
-                                                    selectedDate = nextSession
-                                                )
-                                                Text(
-                                                    text = "Repeats",
-                                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                )
-                                                Text(
-                                                    text = activity.frequency.type,
+                                                    text = activity.audience,
                                                     style = MaterialTheme.typography.bodyMedium
                                                 )
                                             }
                                         }
+                                        DefaultSpacer(size = DefaultHorizontalPaddingSmall)
                                     }
+                                    if (activity.startDate != null)
+                                        getDateForNextSession(
+                                            frequencyType = activity.frequency,
+                                            frequencySeries = activity.frequencySeries,
+                                            startDate = activity.startDate,
+                                            endDate = activity.endDate
+                                        )?.let { nextSession ->
+                                            CardContainer(
+                                                modifier = Modifier.weight(0.5f).fillMaxHeight()
+                                            ) {
+                                                ColumnContainer(title = "When") {
+                                                    Text(
+                                                        text = "Next Session",
+                                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                                            fontWeight = FontWeight.Bold
+                                                        )
+                                                    )
+                                                    TimeAndDateFormat(
+                                                        activityDTO = activity,
+                                                        selectedDate = nextSession
+                                                    )
+                                                    Text(
+                                                        text = "Repeats",
+                                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                                            fontWeight = FontWeight.Bold
+                                                        )
+                                                    )
+                                                    Text(
+                                                        text = activity.frequency.type,
+                                                        style = MaterialTheme.typography.bodyMedium
+                                                    )
+                                                }
+                                            }
+                                        }
                                 }
                             }
                             WhereSection(

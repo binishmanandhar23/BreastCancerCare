@@ -1,6 +1,20 @@
 package com.breastcancer.breastcancercare.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,12 +23,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.AddBusiness
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,9 +45,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.breastcancer.breastcancercare.screens.Tabs
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
 import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 
@@ -36,11 +64,15 @@ fun BottomBar(
     onHome: () -> Unit,
     onCalendar: () -> Unit,
     onFAQ: () -> Unit,
-    onSettings: () -> Unit = {}
+    onSettings: () -> Unit,
+    onAddNursing: () -> Unit,
+    onAddCounselling: () -> Unit
 ) {
     var buttonSize by remember { mutableStateOf(DpSize(0.dp, 0.dp)) }
     val selectedPage by remember(page) { mutableStateOf(Tabs.entries[page].text) }
 
+    var expanded by remember { mutableStateOf(false) }
+    val fabAngle by animateFloatAsState(if (expanded) -45f else 0f, animationSpec = spring())
     val isLandscape = rememberIsLandscape()
 
     val homeColor by animateColorAsState(targetValue = getColor(selectedPage == Tabs.Home.text))
@@ -78,24 +110,144 @@ fun BottomBar(
             onClick = onSettings
         )
     }
+    val fabButton: @Composable () -> Unit = {
+        FloatingActionButton(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            onClick = { expanded = !expanded },
+            shape = CircleShape
+        ) {
+            Icon(
+                modifier = Modifier.rotate(fabAngle),
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add an Activity"
+            )
+        }
+    }
+    val fabContent: @Composable () -> Unit = {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = (
+                    if (isLandscape) slideInVertically(
+                        initialOffsetY = { it / 2 },
+                        animationSpec = spring()
+                    ) else slideInHorizontally(
+                        initialOffsetX = { it / 2 },
+                        animationSpec = spring()
+                    )) + scaleIn(
+                transformOrigin = TransformOrigin(
+                    if (isLandscape) 0f else 1f,
+                    if(isLandscape) 0f else 1f
+                )
+            ) + fadeIn(),
+            exit = (if (isLandscape) slideOutVertically(
+                targetOffsetY = { it / 2 },
+                animationSpec = spring()
+            ) else
+                slideOutHorizontally(
+                    targetOffsetX = { it / 2 },
+                    animationSpec = spring()
+                )) + scaleOut(
+                transformOrigin = TransformOrigin(
+                    if (isLandscape) 0f else 1f,
+                    if(isLandscape) 0f else 1f
+                )
+            ) + fadeOut()
+        ) {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = MaterialTheme.colorScheme.onTertiary,
+                        containerColor = MaterialTheme.colorScheme.tertiary
+                    )
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddBusiness,
+                            contentDescription = "Book a Nursing session"
+                        )
+                        Text(text = "Nursing")
+                    }
+                }
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = MaterialTheme.colorScheme.onTertiary,
+                        containerColor = MaterialTheme.colorScheme.tertiary
+                    )
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddAPhoto,
+                            contentDescription = "Book a Counselling Session"
+                        )
+                        Text(text = "Counselling")
+                    }
+                }
+            }
+        }
+    }
     Box(modifier = outerModifier) {
         if (isLandscape)
-            Column(
-                modifier = innerModifier.align(Alignment.CenterStart),
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally
+            Row(
+                modifier = Modifier.align(Alignment.CenterStart),
+                verticalAlignment = Alignment.Bottom
             ) {
-                content()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Column(
+                        modifier = innerModifier.weight(0.8f),
+                        verticalArrangement = Arrangement.SpaceEvenly,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        content()
+                    }
+                    Row(
+                        modifier = Modifier.weight(0.2f),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        fabButton()
+                    }
+                }
+                fabContent()
             }
         else
-            Row(
-                modifier = innerModifier.align(Alignment.BottomCenter),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.End
             ) {
-                content()
+                fabContent()
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = innerModifier.weight(0.8f),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        content()
+                    }
+                    Column(
+                        modifier = Modifier.weight(0.2f),
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        fabButton()
+                    }
+                }
             }
-
         /*CenterButton(modifier = Modifier.padding(bottom = 50.dp).align(Alignment.TopCenter), onSizeChange = { size ->
             density.convertIntSizeToDpSize(size){
                 buttonSize = it

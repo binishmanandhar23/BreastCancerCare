@@ -235,7 +235,7 @@ fun appDateFormat(date: LocalDate, includeYear: Boolean = false) = date.format(L
     monthName(MonthNames.ENGLISH_FULL)
     char(' ')
     day()
-    if(includeYear){
+    if (includeYear) {
         char(',')
         char(' ')
         year()
@@ -1081,37 +1081,38 @@ fun ActivityTypeTag(
 @Composable
 fun UserCategoryTag(
     modifier: Modifier = Modifier,
-    userCategory: UserCategory,
+    userCategory: UserCategory?,
     iconModifier: Modifier = Modifier.size(25.dp),
     textStyle: TextStyle = MaterialTheme.typography.labelMedium
 ) {
-    Card(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.onSecondary
-        ),
-    ) {
-        Row(
-            modifier = Modifier.padding(
-                horizontal = DefaultHorizontalPaddingSmall,
-                vertical = DefaultVerticalPaddingSmall
+    if (userCategory != null)
+        Card(
+            modifier = modifier,
+            shape = MaterialTheme.shapes.medium,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.onSecondary
             ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Icon(
-                modifier = iconModifier,
-                imageVector = User,
-                contentDescription = UserCategory.getLabel(userCategory)
-            )
-            Text(
-                text = UserCategory.getLabel(userCategory),
-                style = textStyle
-            )
+            Row(
+                modifier = Modifier.padding(
+                    horizontal = DefaultHorizontalPaddingSmall,
+                    vertical = DefaultVerticalPaddingSmall
+                ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Icon(
+                    modifier = iconModifier,
+                    imageVector = User,
+                    contentDescription = UserCategory.getLabel(userCategory)
+                )
+                Text(
+                    text = UserCategory.getLabel(userCategory),
+                    style = textStyle
+                )
 
+            }
         }
-    }
 }
 

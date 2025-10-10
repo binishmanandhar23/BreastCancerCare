@@ -188,6 +188,12 @@ fun MainScreen(
             },
             onSettings = {
                 scope.launch { pagerState.animateScrollToPage(Tabs.Settings.ordinal) }
+            },
+            onAddNursing = {
+
+            },
+            onAddCounselling = {
+
             }
         )
     }

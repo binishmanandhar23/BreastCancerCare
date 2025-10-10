@@ -108,3 +108,29 @@ val LoremIpsum =
             "Aenean congue maximus sapien, vel hendrerit urna sodales id. Vestibulum eleifend ex a dui porttitor ultricies. Sed id metus ut magna condimentum pulvinar vitae eget tellus. Mauris ultricies nunc at bibendum dictum. Sed faucibus dictum mi sit amet varius. Integer blandit, purus et sodales accumsan, purus purus molestie nibh, nec elementum urna sem vel ligula. Suspendisse ipsum nisl, ultrices at venenatis eget, luctus vitae ipsum. Donec non lectus pharetra, fringilla nunc nec, vulputate nulla. Nunc in tellus at tortor fringilla fringilla. Nam vitae est sollicitudin orci eleifend venenatis. Proin id condimentum sapien.\n" +
             "\n" +
             "Sed dapibus condimentum odio, viverra lobortis dolor. Etiam hendrerit, neque elementum tempus scelerisque, ligula leo fringilla leo, eu malesuada lorem metus sed libero. Aliquam rutrum sem dui, quis egestas diam commodo at. In hac habitasse platea dictumst. Nulla fermentum lectus gravida aliquam mattis. Vestibulum at mi venenatis, rutrum ex et, tempus arcu. Praesent nibh velit, lobortis a justo quis, volutpat sollicitudin massa. Ut varius semper arcu nec lobortis. Phasellus at tempor nibh, ac mattis libero."
+
+val StartingStrongDescription = "Starting Strong\n" +
+        "\n" +
+        "Starting Strong is a supportive program designed for people who have recently been diagnosed with breast cancer. The program brings together a team of nurses and counsellors to provide holistic care at a time when it’s most needed.\n" +
+        "\n" +
+        "Through nursing support, participants receive guidance on treatment, symptom management, and ongoing health needs. Our counsellors offer emotional support to help navigate the challenges that come with a diagnosis.\n" +
+        "\n" +
+        "You may also be eligible for our financial and practical support service which helps with managing costs, accessing resources, and reducing day-to-day stressors.\n" +
+        "\n" +
+        "Starting Strong is about more than just treatment — it’s about giving people the confidence, knowledge, and support to move forward with strength and dignity."
+
+val LivingWellDescription = "Living Well\n" +
+        "\n" +
+        "The Living Well Program offers a comprehensive suite of wellness activities, interactive workshops, educational webinars, discussion groups, and community events. These programs are designed to empower you if you have completed active treatment for early breast cancer or if you are living well with metastatic breast cancer. \n" +
+        "\n" +
+        "Some activities or workshops will be available to both those who have early breast cancer and those who have metastatic breast cancer, while others are tailored specifically for one group. \n" +
+        "\n" +
+        "The Living Well program aims to optimise health and wellbeing for Breast Cancer Care WA clients. To maximise safety and outcomes, we require annual medical clearance for clients who are living with metastatic breast cancer. We also require updated medical clearance from your treating specialist if there is disease progression / a change to medical treatment.   \n" +
+        "\n" +
+        "Program Highlights: \n" +
+        "\n" +
+        "- Wellness Activities: Engage in mind-body activities aimed at enhancing physical and mental well-being. Please note, we are currently developing this part of our Living Well program and some activities will as such be limited at this time.\n" +
+        "- Interactive Workshops: Participate in sessions that provide practical skills and knowledge to support your post-treatment journey or when living well after a metastatic breast cancer diagnosis \n" +
+        "- Educational Webinars: Access expert-led discussions on topics relevant to life with and beyond breast cancer treatment. \n" +
+        "- Discussion Groups: Connect with peers to discuss specific topics and offer mutual support. \n" +
+        "- Community Events: Join events that foster a sense of community and shared purpose. "

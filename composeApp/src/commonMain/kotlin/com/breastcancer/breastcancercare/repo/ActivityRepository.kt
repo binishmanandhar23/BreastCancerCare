@@ -75,4 +75,8 @@ class ActivityRepository(val activityDAO: ActivityDAO) {
 
     fun getAllActivityHistoryWithActivity(userId: Long?) = activityDAO.getAllActivityHistoryWithActivity(userId = userId)
         .map { activityHistoryWithActivityEntities -> activityHistoryWithActivityEntities.map { it.toDTO() } }
+
+    fun insertActivity(){
+
+    }
 }

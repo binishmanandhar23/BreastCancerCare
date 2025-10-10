@@ -237,4 +237,9 @@ class CalendarViewModel(
 
     fun updateSelectedSuitability(suitabilityDTO: SuitabilityDTO?) =
         _selectedSuitability.update { suitabilityDTO }
+
+
+    fun addNursingActivity() {
+
+    }
 }

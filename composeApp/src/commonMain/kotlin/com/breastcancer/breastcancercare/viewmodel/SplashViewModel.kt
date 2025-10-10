@@ -8,6 +8,7 @@ import com.breastcancer.breastcancercare.database.local.entity.BlogCategoryEntit
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
 import com.breastcancer.breastcancercare.database.local.types.CategoryType
 import com.breastcancer.breastcancercare.database.local.types.FrequencyType
+import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType
 import com.breastcancer.breastcancercare.database.local.types.LivingWellActivityType
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
 import com.breastcancer.breastcancercare.database.local.types.Suitability
@@ -600,6 +601,46 @@ class SplashViewModel(
                             occurrence = 4,
                             dayOfWeek = DayOfWeek.THURSDAY.name
                         )
+                    ),
+                    ActivityEntity(
+                        id = 15,
+                        title = "Nursing",
+                        description = "Our specialist breast care nurses provide compassionate guidance at every stage of the journey. They help you understand your diagnosis and treatment, navigate health services, communicate with multidisciplinary care teams, and make informed choices about your wellbeing. We are also privileged to have a dedicated metastatic breast care nurse, supporting clients living with metastatic cancer.\n" +
+                                "\n" +
+                                "Our nurses offer home and hospital visits within the metropolitan area and provide ongoing support to regional clients through phone, email, or video consultations.\n" +
+                                "\n" +
+                                "From diagnosis through treatment and into survivorship, our team delivers expert care and support. They identify individuals at risk, develop personalised care plans, provide information on breast cancer and treatment options, and assist with navigating the health system. They also manage physical symptoms, offer emotional support, liaise with cancer care professionals, advocate on your behalf, connect you with internal and external services, and create survivorship care plans tailored to your needs.",
+                        startDate = null,
+                        endDate = null,
+                        startTime = null,
+                        endTime = null,
+                        isOnline = false,
+                        image = "https://www.breastcancer.org.au/wp-content/uploads/2024/02/IMG_8837-652x437.jpg",
+                        location = null,
+                        activityType = GeneralActivityType.GeneralActivityTypeEnum.Nursing.type,
+                        category = null,
+                        onlineLink = null,
+                        audience = null,
+                        frequency = FrequencyType.OnceOff.type
+                    ),
+                    ActivityEntity(
+                        id = 16,
+                        title = "Counselling",
+                        description = "Our counselling team offers support from diagnosis through treatment and beyond. Working in close partnership with our breast care nurses, counsellors are available to clients and their loved ones whenever additional support is needed.\n" +
+                                "\n" +
+                                "Counselling is offered via face-to-face sessions, phone, home visits, or video conferencing. Interim support is also available for clients waiting to access Breast Cancer Clinical Psychology Services.",
+                        startDate = null,
+                        endDate = null,
+                        startTime = null,
+                        endTime = null,
+                        isOnline = true,
+                        image = "https://www.breastcancer.org.au/wp-content/uploads/2020/07/SharedScreenshot.jpg",
+                        location = null,
+                        activityType = GeneralActivityType.GeneralActivityTypeEnum.Counselling.type,
+                        category = null,
+                        onlineLink = null,
+                        audience = null,
+                        frequency = FrequencyType.OnceOff.type
                     ),
                 )
             )

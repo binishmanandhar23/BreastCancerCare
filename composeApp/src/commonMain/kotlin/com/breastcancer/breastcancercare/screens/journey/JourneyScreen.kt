@@ -142,7 +142,7 @@ fun JourneyScreen(
                     }
                 )
             BreastCancerButton(
-                text = "Next",
+                text = "Learn More",
                 onClick = {
                     onNext(userId, selected!!)
                 },

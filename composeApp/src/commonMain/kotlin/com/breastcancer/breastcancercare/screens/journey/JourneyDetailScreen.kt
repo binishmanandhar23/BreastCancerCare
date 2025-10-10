@@ -32,7 +32,9 @@ import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.utils.text.LivingWellDescription
 import com.breastcancer.breastcancercare.utils.text.LoremIpsum
+import com.breastcancer.breastcancercare.utils.text.StartingStrongDescription
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -110,7 +112,10 @@ fun JourneyDetailScreen(
                         tint = ColorSunshine
                     )
                 }
-                Text(text = LoremIpsum, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = if (userCategory == UserCategory.StartingStrong) StartingStrongDescription else LivingWellDescription,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }

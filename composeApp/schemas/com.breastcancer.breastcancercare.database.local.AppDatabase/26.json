@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 24,
-    "identityHash": "19b630c0a01bd3f6e64852ba10ce9a55",
+    "version": 26,
+    "identityHash": "69b910590c9c8ed0d1d2d344a6c86988",
     "entities": [
       {
         "tableName": "FAQEntity",
@@ -48,7 +48,7 @@
       },
       {
         "tableName": "ActivityEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `image` TEXT, `startDate` TEXT, `endDate` TEXT, `startTime` TEXT, `endTime` TEXT, `location` TEXT, `category` TEXT NOT NULL, `isOnline` INTEGER NOT NULL, `onlineLink` TEXT, `audience` TEXT, `activityType` TEXT NOT NULL, `frequency` TEXT NOT NULL, `frequencySeries` TEXT, `surveys` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `image` TEXT, `startDate` TEXT, `endDate` TEXT, `startTime` TEXT, `endTime` TEXT, `location` TEXT, `category` TEXT, `isOnline` INTEGER NOT NULL, `onlineLink` TEXT, `audience` TEXT, `activityType` TEXT NOT NULL, `frequency` TEXT NOT NULL, `frequencySeries` TEXT, `surveys` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -101,8 +101,7 @@
           {
             "fieldPath": "category",
             "columnName": "category",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "isOnline",
@@ -455,7 +454,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '19b630c0a01bd3f6e64852ba10ce9a55')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '69b910590c9c8ed0d1d2d344a6c86988')"
     ]
   }
 }

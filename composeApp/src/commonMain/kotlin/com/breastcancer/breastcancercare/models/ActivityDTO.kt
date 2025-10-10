@@ -17,10 +17,10 @@ data class ActivityDTO(
     val startTime: LocalTime? = null,
     val endTime: LocalTime? = null,
     val location: Location? = null,
-    val category: UserCategory,
+    val category: UserCategory? = null,
     val isOnline: Boolean = (location == null),
     val image: String? = null,
-    val startDate: LocalDate,
+    val startDate: LocalDate?,
     val endDate: LocalDate?,
     val onlineLink: String? = null,
     val audience: String? = null,
@@ -35,7 +35,7 @@ data class ActivityDTO(
 
 fun ActivityEntity.toActivityDTO(): ActivityDTO {
     val frequency = FrequencyType.valueOf(frequency)
-    val startDate = LocalDate.parse(startDate)
+    val startDate = if (startDate != null) LocalDate.parse(startDate) else null
     val endDate = if (endDate != null) LocalDate.parse(endDate) else null
     return ActivityDTO(
         id = id,

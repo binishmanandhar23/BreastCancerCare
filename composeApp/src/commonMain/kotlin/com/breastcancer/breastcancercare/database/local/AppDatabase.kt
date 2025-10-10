@@ -38,7 +38,7 @@ import kotlinx.coroutines.IO
         BlogCategoryEntity::class,
         ActivityHistoryEntity::class
     ],
-    version = 24
+    version = 26
 )
 @TypeConverters(
     FAQConverter::class, BlogConverter::class, ListConverter::class,

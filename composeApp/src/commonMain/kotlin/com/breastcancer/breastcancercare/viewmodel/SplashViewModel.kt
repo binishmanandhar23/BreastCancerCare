@@ -605,7 +605,7 @@ class SplashViewModel(
                     ),
                     ActivityEntity(
                         id = 15,
-                        title = "Nursing",
+                        title = "Specialist Breast Care Nurses",
                         description = "Our specialist breast care nurses provide compassionate guidance at every stage of the journey. They help you understand your diagnosis and treatment, navigate health services, communicate with multidisciplinary care teams, and make informed choices about your wellbeing. We are also privileged to have a dedicated metastatic breast care nurse, supporting clients living with metastatic cancer.\n" +
                                 "\n" +
                                 "Our nurses offer home and hospital visits within the metropolitan area and provide ongoing support to regional clients through phone, email, or video consultations.\n" +
@@ -626,7 +626,7 @@ class SplashViewModel(
                     ),
                     ActivityEntity(
                         id = 16,
-                        title = "Counselling",
+                        title = "Breast Cancer Counselling Service",
                         description = "Our counselling team offers support from diagnosis through treatment and beyond. Working in close partnership with our breast care nurses, counsellors are available to clients and their loved ones whenever additional support is needed.\n" +
                                 "\n" +
                                 "Counselling is offered via face-to-face sessions, phone, home visits, or video conferencing. Interim support is also available for clients waiting to access Breast Cancer Clinical Psychology Services.",

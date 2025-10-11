@@ -57,6 +57,7 @@ class HomeViewModel(val homeRepository: HomeRepository, val blogRepository: Blog
 
     fun getHomeGreeting() =
         homeRepository.getLoggedInUser().onEach { user ->
+            println("HomeUser Tutorial Viewed: ${user?.tutorialViewed}")
             _loggedInUser.update { user }
             _homeGreeting.update {
                 getHomeGreetingText(userName = "${user?.firstName}")

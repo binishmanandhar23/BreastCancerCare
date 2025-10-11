@@ -13,7 +13,8 @@ data class UserDTO(
     val password: String = "",
     val phoneNumber: String = "",
     val address: String? = "",
-    val userCategory: UserCategory = UserCategory.Undefined
+    val userCategory: UserCategory = UserCategory.Undefined,
+    val tutorialViewed: Boolean = false
 )
 
 fun UserDTO.toEntity() = UserEntity(
@@ -24,7 +25,8 @@ fun UserDTO.toEntity() = UserEntity(
     password = password,
     phoneNumber = phoneNumber,
     address = address,
-    userCategory = userCategory.category
+    userCategory = userCategory.category,
+    tutorialViewed = tutorialViewed
 )
 
 fun UserDTO.toLoggedInEntity() = LoggedInUserEntity(
@@ -35,7 +37,8 @@ fun UserDTO.toLoggedInEntity() = LoggedInUserEntity(
     password = password,
     phoneNumber = phoneNumber,
     address = address,
-    userCategory = userCategory.category
+    userCategory = userCategory.category,
+    tutorialViewed = tutorialViewed
 )
 
 fun UserInterface.toDTO() = UserDTO(
@@ -46,7 +49,8 @@ fun UserInterface.toDTO() = UserDTO(
     password = password,
     phoneNumber = phoneNumber,
     address = address,
-    userCategory = UserCategory.fromCategory(category = userCategory)
+    userCategory = UserCategory.fromCategory(category = userCategory),
+    tutorialViewed = tutorialViewed
 )
 
 

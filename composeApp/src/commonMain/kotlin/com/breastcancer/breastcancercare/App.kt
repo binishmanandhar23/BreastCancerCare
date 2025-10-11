@@ -54,6 +54,7 @@ import com.breastcancer.breastcancercare.screens.main.activity.GeneralActivitySc
 import com.breastcancer.breastcancercare.screens.main.survey.SurveyMandatoryDialogScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
 import com.breastcancer.breastcancercare.screens.onboarding.RegisterScreen
+import com.breastcancer.breastcancercare.screens.tutorial.TutorialScreen
 import com.breastcancer.breastcancercare.theme.BreastCareTypography
 import com.breastcancer.breastcancercare.theme.LightAppColorScheme
 import com.breastcancer.breastcancercare.utils.rememberIsLandscape
@@ -65,6 +66,7 @@ import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import com.breastcancer.breastcancercare.viewmodel.PermissionViewModel
 import com.breastcancer.breastcancercare.viewmodel.SettingsViewModel
 import com.breastcancer.breastcancercare.viewmodel.SplashViewModel
+import com.breastcancer.breastcancercare.viewmodel.TutorialViewModel
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
 import kotlinx.coroutines.launch
@@ -217,6 +219,30 @@ fun App() {
                                             }
                                         }
                                     )
+                                }
+
+                                composable<Route.TutorialScreen> { backStackEntry ->
+                                    val userId =
+                                        backStackEntry.toRoute<Route.TutorialScreen>().userId
+                                    val hideSkipButton =
+                                        backStackEntry.toRoute<Route.TutorialScreen>().hideSkipButton
+                                    TutorialScreen(
+                                        userId = userId,
+                                        hideSkipButton = hideSkipButton,
+                                        tutorialViewModel = koinViewModel<TutorialViewModel>(
+                                            viewModelStoreOwner = navigator.getBackStackEntry(Route.BaseGraph)
+                                        ),
+                                        onFinish = {
+                                            if (hideSkipButton)
+                                                navigator.popBackStack()
+                                            else
+                                                navigator.navigate(Route.Main) {
+                                                    popUpTo(route = Route.TutorialScreen(userId = userId)) {
+                                                        inclusive = true
+                                                    }
+                                                    launchSingleTop = true
+                                                }
+                                        })
                                 }
 
                                 composable<Route.Journey> { backStackEntry ->
@@ -401,7 +427,7 @@ fun App() {
 
                                 composable<Route.Main.ActivityDetail> { backStackEntry ->
                                     val id by
-                                        remember(backStackEntry) { derivedStateOf { backStackEntry.toRoute<Route.Main.ActivityDetail>().id } }
+                                    remember(backStackEntry) { derivedStateOf { backStackEntry.toRoute<Route.Main.ActivityDetail>().id } }
                                     val activityViewModel = koinViewModel<ActivityViewModel>(
                                         viewModelStoreOwner = navigator.getBackStackEntry<Route.BaseGraph>()
                                     )

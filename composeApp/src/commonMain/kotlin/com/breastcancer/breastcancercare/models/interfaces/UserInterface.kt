@@ -10,4 +10,6 @@ interface UserInterface {
     val address: String?
 
     val userCategory: String
+
+    val tutorialViewed: Boolean
 }

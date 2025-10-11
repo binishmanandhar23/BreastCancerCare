@@ -65,4 +65,7 @@ sealed interface Route {
         @Serializable
         data class JourneyDetail(val userId: Long, val userCategory: String) : Route
     }
+
+    @Serializable
+    data class TutorialScreen(val userId: Long, val hideSkipButton: Boolean = false): Route
 }

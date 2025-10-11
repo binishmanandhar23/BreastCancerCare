@@ -84,7 +84,9 @@ fun MainScreen(
 
     LaunchedEffect(loggedInUser) {
         loggedInUser?.let { user ->
-            if (user.userCategory == UserCategory.Undefined)
+            if(!user.tutorialViewed)
+                onSubScreenChange(Route.TutorialScreen(userId = user.id), true)
+            else if (user.userCategory == UserCategory.Undefined)
                 onSubScreenChange(Route.Journey(userId = user.id, hideBackButton = true), true)
         }
     }
@@ -142,6 +144,11 @@ fun MainScreen(
                                     hideBackButton = false
                                 ), false
                             )
+                        }
+                    },
+                    onTutorial = {
+                        loggedInUser?.let { user ->
+                            onSubScreenChange(Route.TutorialScreen(userId = user.id, hideSkipButton = true), false)
                         }
                     },
                     onLogOut = {

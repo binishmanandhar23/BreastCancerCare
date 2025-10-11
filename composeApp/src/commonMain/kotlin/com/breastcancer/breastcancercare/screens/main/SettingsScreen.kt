@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.FontDownload
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -77,6 +78,7 @@ fun SettingsScreen(
     onOpenAbout: () -> Unit,
     onSwitchJourney: () -> Unit,
     onContactSupport: () -> Unit,
+    onTutorial: () -> Unit,
     onLogOut: () -> Unit
 ) {
     var notificationsEnabled by rememberSaveable { mutableStateOf(false) }
@@ -156,6 +158,12 @@ fun SettingsScreen(
                     onIncrement = settingsViewModel::incrementFontSize,
                     onDecrement = settingsViewModel::decrementFontSize,
                 )
+            },
+        ),
+        Pair<String, @Composable (ColumnScope.() -> Unit)>(
+            "System",
+            {
+                NavRow(text = "View Tutorial", icon = Icons.Default.Book, onClick = onTutorial)
             },
         ),
         Pair<String, @Composable (ColumnScope.() -> Unit)>(

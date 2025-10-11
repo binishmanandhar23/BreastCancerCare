@@ -56,4 +56,10 @@ SELECT EXISTS(
 
     @Query("UPDATE loggedinuserentity SET userCategory = :userCategory WHERE id = :id")
     suspend fun updateLoggedInUserCategoryById(id: Long, userCategory: String): Int
+
+    @Query("UPDATE userentity SET tutorialViewed = :tutorialViewed WHERE id = :id")
+    suspend fun updateTutorialViewedById(id: Long, tutorialViewed: Boolean): Int
+
+    @Query("UPDATE loggedinuserentity SET tutorialViewed = :tutorialViewed WHERE id = :id")
+    suspend fun updateLoggedInTutorialViewedById(id: Long, tutorialViewed: Boolean): Int
 }

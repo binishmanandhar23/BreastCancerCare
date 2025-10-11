@@ -16,4 +16,5 @@ data class UserEntity(
     override val phoneNumber: String,
     override val address: String?,
     override val userCategory: String,
+    override val tutorialViewed: Boolean = false
 ): UserInterface

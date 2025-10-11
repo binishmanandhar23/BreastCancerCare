@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -48,7 +47,9 @@ import androidx.compose.ui.unit.dp
 import com.breastcancer.breastcancercare.components.icons.Counselling
 import com.breastcancer.breastcancercare.components.icons.Nurse
 import com.breastcancer.breastcancercare.screens.Tabs
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 
 @Composable
@@ -119,7 +120,46 @@ fun BottomBar(
             )
         }
     }
+
     val fabContent: @Composable () -> Unit = {
+        Button(
+            onClick = onAddNursing,
+            colors = ButtonDefaults.buttonColors(
+                contentColor = MaterialTheme.colorScheme.onTertiary,
+                containerColor = MaterialTheme.colorScheme.tertiary
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Nurse,
+                    contentDescription = "Book a Nursing session"
+                )
+                Text(text = "Nursing")
+            }
+        }
+        Button(
+            onClick = onAddCounselling,
+            colors = ButtonDefaults.buttonColors(
+                contentColor = MaterialTheme.colorScheme.onTertiary,
+                containerColor = MaterialTheme.colorScheme.tertiary
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Counselling,
+                    contentDescription = "Book a Counselling Session"
+                )
+                Text(text = "Counselling")
+            }
+        }
+    }
+    val fabVisibilityContainer: @Composable () -> Unit = {
         AnimatedVisibility(
             visible = expanded,
             enter = (
@@ -131,8 +171,8 @@ fun BottomBar(
                         animationSpec = spring()
                     )) + scaleIn(
                 transformOrigin = TransformOrigin(
-                    if (isLandscape) 0f else 1f,
-                    if(isLandscape) 0f else 1f
+                    if (isLandscape) 0f else 0.5f,
+                    if (isLandscape) 0f else 1f
                 )
             ) + fadeIn(),
             exit = (if (isLandscape) slideOutVertically(
@@ -144,52 +184,25 @@ fun BottomBar(
                     animationSpec = spring()
                 )) + scaleOut(
                 transformOrigin = TransformOrigin(
-                    if (isLandscape) 0f else 1f,
-                    if(isLandscape) 0f else 1f
+                    if (isLandscape) 0f else 0f,
+                    if (isLandscape) 0f else 1f
                 )
             ) + fadeOut()
         ) {
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = onAddNursing,
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.onTertiary,
-                        containerColor = MaterialTheme.colorScheme.tertiary
-                    )
+            if (isLandscape)
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(DefaultHorizontalPaddingMedium)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Nurse,
-                            contentDescription = "Book a Nursing session"
-                        )
-                        Text(text = "Nursing")
-                    }
+                    fabContent()
                 }
-                Button(
-                    onClick = onAddCounselling,
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.onTertiary,
-                        containerColor = MaterialTheme.colorScheme.tertiary
-                    )
+            else
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Counselling,
-                            contentDescription = "Book a Counselling Session"
-                        )
-                        Text(text = "Counselling")
-                    }
+                    fabContent()
                 }
-            }
         }
     }
     Box(modifier = outerModifier) {
@@ -216,14 +229,14 @@ fun BottomBar(
                         fabButton()
                     }
                 }
-                fabContent()
+                fabVisibilityContainer()
             }
         else
             Column(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 horizontalAlignment = Alignment.End
             ) {
-                fabContent()
+                fabVisibilityContainer()
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {

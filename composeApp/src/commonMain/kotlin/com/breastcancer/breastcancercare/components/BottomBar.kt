@@ -241,14 +241,14 @@ fun BottomBar(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = innerModifier.weight(0.8f),
+                        modifier = innerModifier.weight(0.82f),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         content()
                     }
                     Column(
-                        modifier = Modifier.weight(0.2f),
+                        modifier = Modifier.weight(0.18f),
                         horizontalAlignment = Alignment.End,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {

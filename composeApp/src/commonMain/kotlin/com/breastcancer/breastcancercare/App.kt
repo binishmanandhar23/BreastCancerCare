@@ -314,6 +314,9 @@ fun App() {
                                             viewModelStoreOwner = rootOwner
                                         ) else koinViewModel<SettingsViewModel>(),
                                         permissionState = permissionState,
+                                        onEnableNotifications = {
+                                            permissionViewModel.onRequestPermissionButtonPressed()
+                                        },
                                         loaderState = loaderState,
                                         customSnackBarState = customSnackBarState,
                                         onSubScreenChange = { route, clearStack ->

@@ -63,6 +63,7 @@ import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
 import com.breastcancer.breastcancercare.theme.DefaultTopHeaderTextSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.utils.DefaultSpacer
+import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 import com.breastcancer.breastcancercare.viewmodel.SettingsViewModel
 import dev.icerock.moko.permissions.PermissionState
 
@@ -77,6 +78,7 @@ fun SettingsScreen(
     onOpenProfile: () -> Unit,
     onOpenAbout: () -> Unit,
     onSwitchJourney: () -> Unit,
+    onEnableNotifications: () -> Unit,
     onContactSupport: () -> Unit,
     onTutorial: () -> Unit,
     onLogOut: () -> Unit
@@ -86,17 +88,20 @@ fun SettingsScreen(
     var feedbackMessage by rememberSaveable { mutableStateOf("") }
 
     val currentFontSize by settingsViewModel.fontSize.collectAsStateWithLifecycle()
+    val isLandscape = rememberIsLandscape()
 
     LaunchedEffect(notificationsEnabled, permissionState) {
         if ((permissionState == PermissionState.Denied
                     || permissionState == PermissionState.DeniedAlways
-                    || permissionState == PermissionState.NotGranted) && notificationsEnabled
+                    || permissionState == PermissionState.NotGranted)
         ) {
             notificationsEnabled = false
             customSnackBarState.show(
                 overridingText = "Please grant notifications permission.",
                 overridingDelay = SnackBarLengthMedium
             )
+        } else {
+            notificationsEnabled = true
         }
     }
 
@@ -128,7 +133,15 @@ fun SettingsScreen(
                     text = "Notifications",
                     icon = Icons.Default.Notifications,
                     checked = notificationsEnabled,
-                    onCheckedChange = { notificationsEnabled = it }
+                    onCheckedChange = {
+                        if (!it)
+                            customSnackBarState.show(
+                                overridingText = "Please go to the App settings to disable notifications.",
+                                overridingDelay = SnackBarLengthMedium
+                            )
+                        else
+                            onEnableNotifications()
+                    }
                 )
             },
         ),
@@ -220,7 +233,7 @@ fun SettingsScreen(
             }
         }
         item {
-            DefaultSpacer(bottomSpacer)
+            DefaultSpacer(bottomSpacer + if (isLandscape) 0.dp else (5 * currentFontSize.second.sizeChange).dp)
         }
     }
 

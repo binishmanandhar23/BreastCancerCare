@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.internal.sharedruntime.support.classFilePathCandidatesFor
+
 rootProject.name = "BreastCancerCare"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
@@ -13,6 +15,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+
 }
 
 dependencyResolutionManagement {

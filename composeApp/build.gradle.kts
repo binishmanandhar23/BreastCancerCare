@@ -1,3 +1,6 @@
+
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.INT
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
@@ -10,6 +13,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.json)
+    alias(libs.plugins.buildkonfig)
 
     id("com.google.gms.google-services")
 }
@@ -112,20 +116,41 @@ kotlin {
     }
 }
 
+buildkonfig{
+    packageName = "com.breastcancer.breastcancercare"
+    defaultConfigs {
+        buildConfigField(
+            STRING,
+            "APP_PACKAGE_NAME",
+            libs.versions.app.pkg.name.get()
+        )
+        buildConfigField(
+            STRING,
+            "APP_VERSION_NAME",
+            libs.versions.app.version.name.get()
+        )
+        buildConfigField(
+            INT,
+            "APP_VERSION_CODE",
+            libs.versions.app.version.code.get()
+        )
+    }
+}
+
 room {
     schemaDirectory("$projectDir/schemas")
 }
 
 android {
-    namespace = "com.breastcancer.breastcancercare"
+    namespace = libs.versions.app.pkg.name.get()
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.breastcancer.breastcancercare"
+        applicationId = libs.versions.app.pkg.name.get()
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = libs.versions.app.version.code.get().toInt()
+        versionName = libs.versions.app.version.name.get()
     }
     packaging {
         resources {

@@ -9,8 +9,6 @@ androidx-core = "1.17.0"
 androidx-espresso = "3.7.0"
 androidx-lifecycle = "2.9.4"
 androidx-testExt = "1.3.0"
-#Firebase android
-firebase-android-bom = "33.10.0" #Need to use 33.10.0 because of the gitlive library
 junit = "4.13.2"
 kotlin = "2.2.20"
 kotlinxCoroutinesCore = "1.10.2"
@@ -18,6 +16,14 @@ kotlinxSerializationJson = "1.9.0"
 materialIconsExtended = "1.7.3"
 ksp = "2.2.10-2.0.2"
 composeMultiplatform = "1.9.0"
+
+#Variables
+app-version-name="2.0.0"
+app-version-code="2"
+app-pkg-name="com.breastcancer.breastcancercare"
+
+#Firebase android
+firebase-android-bom = "33.10.0" #Need to use 33.10.0 because of the gitlive library
 
 #Calendar
 calendar = "2.9.0"
@@ -50,6 +56,9 @@ coil = "3.3.0"
 
 #Ktor
 ktor = "3.3.1"
+
+#Buildkonfig
+buildkonfig = "0.17.1"
 
 
 [libraries]
@@ -111,3 +120,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "androidx-room" }
 json = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }

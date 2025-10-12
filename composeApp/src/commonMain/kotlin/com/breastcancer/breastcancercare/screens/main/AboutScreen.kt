@@ -12,34 +12,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.LocalUriHandler
+import com.breastcancer.breastcancercare.BuildKonfig
+import com.breastcancer.breastcancercare.components.BreastCancerToolbar
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 
 @Composable
 fun AboutScreen(onBack: () -> Unit = {}) {
     val uriHandler = LocalUriHandler.current
     val websiteUrl = "https://www.breastcancer.org.au/"
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("About") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back")
-                    }
-                }
-            )
-        }
-    ) { inner ->
+    Column(modifier = Modifier.fillMaxSize().padding(vertical = 0.dp, horizontal = DefaultHorizontalPaddingMedium)) {
+        BreastCancerToolbar(title = "About", onBack = onBack)
         LazyColumn(
             modifier = Modifier
-                .padding(inner)
-                .padding(horizontal = 20.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(
+                    vertical = DefaultVerticalPaddingMedium,
+                    horizontal = DefaultHorizontalPaddingMedium
+                ),
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
         ) {
             item { Text("BreastCancerCare", style = MaterialTheme.typography.titleLarge) }
             item {
                 Text(
-                    "Version 1.0.0",
+                    "Version ${BuildKonfig.APP_VERSION_NAME}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

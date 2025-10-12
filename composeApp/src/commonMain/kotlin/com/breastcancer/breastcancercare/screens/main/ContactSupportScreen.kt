@@ -12,6 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import com.breastcancer.breastcancercare.components.BreastCancerToolbar
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 
 @Composable
 fun ContactSupportScreen(onBack: () -> Unit = {}) {
@@ -19,23 +22,13 @@ fun ContactSupportScreen(onBack: () -> Unit = {}) {
     val supportEmail = "info@breastcancer.org.au"
     val supportPhone = "(08) 9324 3703"
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Contact support") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back")
-                    }
-                }
-            )
-        }
-    ) { inner ->
+    Column(modifier = Modifier.fillMaxSize().padding(vertical = 0.dp, horizontal = DefaultHorizontalPaddingMedium)) {
+        BreastCancerToolbar(title = "Contact Support", onBack = onBack)
         LazyColumn(
             modifier = Modifier
-                .padding(inner)
-                .padding(horizontal = 20.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(vertical = DefaultVerticalPaddingMedium,
+                    horizontal = DefaultHorizontalPaddingMedium),
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
         ) {
             // Intro
             item {

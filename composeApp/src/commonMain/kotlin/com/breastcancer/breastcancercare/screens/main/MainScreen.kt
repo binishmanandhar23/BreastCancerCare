@@ -54,6 +54,7 @@ fun MainScreen(
     permissionState: PermissionState,
     loaderState: LoaderState,
     customSnackBarState: SnackBarState,
+    onEnableNotifications:() -> Unit,
     onSubScreenChange: (route: Route, clearStack: Boolean) -> Unit,
     onLogOut: () -> Unit
 ) {
@@ -135,6 +136,7 @@ fun MainScreen(
                     onOpenProfile = { onSubScreenChange(Route.Main.Profile, false) },
                     onOpenAbout = { onSubScreenChange(Route.Main.About, false) },
                     onContactSupport = { onSubScreenChange(Route.Main.Contact, false) },
+                    onEnableNotifications = onEnableNotifications,
                     onSwitchJourney = {
                         loggedInUser?.let { user ->
                             onSubScreenChange(

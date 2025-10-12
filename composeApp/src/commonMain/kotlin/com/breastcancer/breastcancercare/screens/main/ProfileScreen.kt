@@ -5,6 +5,9 @@ package com.breastcancer.breastcancercare.screens.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -30,9 +33,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.breastcancer.breastcancercare.components.BreastCancerToolbar
 import com.breastcancer.breastcancercare.components.CategoryChip
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
+import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 import org.koin.compose.viewmodel.koinViewModel
 
 
@@ -51,7 +56,11 @@ fun ProfileScreen(
     onBack: () -> Unit = {},
     onEditProfile: () -> Unit = {}
 ) {
-    Column(modifier = Modifier.fillMaxSize().padding(vertical = 0.dp, horizontal = DefaultHorizontalPaddingMedium)) {
+    val isLandscape = rememberIsLandscape()
+    Column(
+        modifier = Modifier.fillMaxSize()
+            .padding(vertical = 0.dp, horizontal = DefaultHorizontalPaddingMedium)
+    ) {
         BreastCancerToolbar(title = "Profile", onBack = onBack)
         if (uiState.loading) {
             Box(
@@ -79,44 +88,69 @@ fun ProfileScreen(
             return@Column
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+        if (isLandscape)
+            LazyRow(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(
+                        vertical = DefaultVerticalPaddingMedium,
+                        horizontal = DefaultHorizontalPaddingMedium
+                    ),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                body(uiState, onEditProfile)
+            }
+        else
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(
+                        vertical = DefaultVerticalPaddingMedium,
+                        horizontal = DefaultHorizontalPaddingMedium
+                    ),
+                verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                body(uiState, onEditProfile)
+            }
+    }
+}
+
+private fun LazyListScope.body(uiState: ProfileUiState, onEditProfile: () -> Unit) {
+    item {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            item {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    AvatarPlaceholder(
-                        initials = (uiState.initials ?: uiState.name?.firstOrNull()?.uppercase()
-                        ?: "U")
-                    )
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(
-                            DefaultVerticalPaddingSmall
-                        )
-                    ) {
-                        Text(
-                            uiState.name ?: "—",
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        Text(uiState.email ?: "—", style = MaterialTheme.typography.bodyMedium)
-                        CategoryChip(categoryName = UserCategory.getLabel(uiState.userCategory))
-                    }
-                }
+            AvatarPlaceholder(
+                initials = (uiState.initials ?: uiState.name?.firstOrNull()?.uppercase()
+                ?: "U")
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(
+                    DefaultVerticalPaddingSmall
+                )
+            ) {
+                Text(
+                    uiState.name ?: "—",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Text(uiState.email ?: "—", style = MaterialTheme.typography.bodyMedium)
+                CategoryChip(categoryName = UserCategory.getLabel(uiState.userCategory))
             }
-            item {
-                Button(
-                    onClick = onEditProfile,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Text("Edit profile")
-                }
-            }
+        }
+    }
+    item {
+        Button(
+            onClick = onEditProfile,
+            modifier = Modifier
+        ) {
+            Text(
+                modifier = Modifier.padding(
+                    horizontal = DefaultHorizontalPaddingLarge,
+                    vertical = DefaultVerticalPaddingMedium
+                ), text = "Edit profile"
+            )
         }
     }
 }

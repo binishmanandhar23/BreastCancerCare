@@ -4,20 +4,26 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +42,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.BreastCancerButton
@@ -44,10 +49,15 @@ import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
 import com.breastcancer.breastcancercare.components.DefaultSpacerSize
 import com.breastcancer.breastcancercare.models.TutorialDTO
 import com.breastcancer.breastcancercare.states.TutorialUIState
+import com.breastcancer.breastcancercare.theme.ColorSunshine
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
+import com.breastcancer.breastcancercare.utils.rememberIsLandscape
+import com.breastcancer.breastcancercare.utils.rememberWindowSizeDp
 import com.breastcancer.breastcancercare.viewmodel.TutorialViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -161,6 +171,8 @@ private fun TutorialPager(tutorials: List<TutorialDTO>, pagerState: PagerState) 
 @Composable
 private fun TutorialBody(tutorialDTO: TutorialDTO) {
     val scrollState = rememberScrollState()
+    val isLandscape = rememberIsLandscape()
+    val (width, height) = rememberWindowSizeDp()
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(scrollState)
             .padding(
@@ -179,11 +191,22 @@ private fun TutorialBody(tutorialDTO: TutorialDTO) {
             )
         )
         Image(
-            modifier = Modifier.padding(
+            modifier = Modifier.widthIn(max = width * 0.8f).height(height * 0.5f).padding(
                 horizontal = DefaultHorizontalPaddingLarge,
                 vertical = DefaultVerticalPaddingLarge
+            ).border(
+                width = tutorialDTO.borderWidth,
+                color = MaterialTheme.colorScheme.secondary.copy(alpha = if (tutorialDTO.borderWidth == 0.dp) 0f else 1f),
+                shape = MaterialTheme.shapes.medium
+            )
+                .padding(
+                    horizontal = DefaultHorizontalPaddingSmall,
+                    vertical = DefaultVerticalPaddingSmall
+                ),
+            painter = painterResource(
+                if (isLandscape) tutorialDTO.tabletImage
+                    ?: tutorialDTO.phoneImage else tutorialDTO.phoneImage
             ),
-            painter = painterResource(tutorialDTO.image),
             contentDescription = tutorialDTO.title
         )
         Text(

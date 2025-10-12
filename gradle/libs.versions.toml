@@ -1,30 +1,30 @@
 [versions]
-agp = "8.12.1"
+agp = "8.12.3"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-androidx-activity = "1.10.1"
+androidx-activity = "1.11.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.17.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.9.3"
+androidx-lifecycle = "2.9.4"
 androidx-testExt = "1.3.0"
 #Firebase android
 firebase-android-bom = "33.10.0" #Need to use 33.10.0 because of the gitlive library
 junit = "4.13.2"
-kotlin = "2.2.10"
+kotlin = "2.2.20"
 kotlinxCoroutinesCore = "1.10.2"
 kotlinxSerializationJson = "1.9.0"
 materialIconsExtended = "1.7.3"
 ksp = "2.2.10-2.0.2"
-composeMultiplatform = "1.8.2"
+composeMultiplatform = "1.9.0"
 
 #Calendar
-calendar = "2.8.0"
+calendar = "2.9.0"
 
 #Koin
-koin = "4.1.0"
-koinAnnotations = "2.1.0"
+koin = "4.1.1"
+koinAnnotations = "2.2.0"
 
 #Moko Permissions
 permissions = "0.20.1"
@@ -33,14 +33,14 @@ permissionsNotifications = "0.20.1"
 permissionsTest = "0.20.1"
 
 #Room
-sqlite = "2.5.2"
-androidx-room = "2.7.2"
+sqlite = "2.6.1"
+androidx-room = "2.8.2"
 
 #Precompose
 precompose = "1.6.2"
 
 #Navigation
-navigationCompose = "2.9.0-rc01"
+navigationCompose = "2.9.0"
 
 #Alarmee
 alarmee = "2.3.0"
@@ -49,7 +49,7 @@ alarmee = "2.3.0"
 coil = "3.3.0"
 
 #Ktor
-ktor = "3.2.3"
+ktor = "3.3.1"
 
 
 [libraries]

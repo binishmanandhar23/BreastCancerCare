@@ -29,9 +29,18 @@ import com.breastcancer.breastcancercare.viewmodel.OnboardingViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.breastcancer.breastcancercare.utils.ensureHttpScheme
+import com.breastcancer.breastcancercare.utils.text.ClickableText
 import com.breastcancer.breastcancercare.utils.text.removeSpaces
 
 @Composable
@@ -43,6 +52,10 @@ fun RegisterScreen(
     onRegister: () -> Unit
 ) {
     val (screenW, _) = rememberWindowSizeDp()
+
+    val uriHandler = LocalUriHandler.current
+    val termsOfUseURL = remember { "https://www.breastcancer.org.au/terms-and-conditions/" }
+    val privacyPolicyURL = remember { "https://www.breastcancer.org.au/wp-content/uploads/2025/09/BCCWA-Privacy-Policy-020424.-Sept-2025-FINAL.pdf" }
 
     val pw by onboardingViewModel.password.collectAsStateWithLifecycle()
     val confirm by onboardingViewModel.confirmPassword.collectAsStateWithLifecycle()
@@ -63,6 +76,7 @@ fun RegisterScreen(
     )
     val borderNormal = MaterialTheme.colorScheme.outline
     val borderFocused = MaterialTheme.colorScheme.primary
+    val termsOfUseColor = MaterialTheme.colorScheme.secondary
 
     val formWidth = (screenW * 0.88f).coerceAtMost(520.dp)
 
@@ -204,7 +218,47 @@ fun RegisterScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Checkbox(checked = agree, onCheckedChange = onboardingViewModel::toggleAgree)
-                    Text("I agree to the Terms & Privacy")
+                    ClickableText(
+                        textStyle = TextStyle.Default.copy(fontSize = 12.sp),
+                        onClick = { tag ->
+                            when(tag) {
+                                "terms_and_conditions" -> {
+                                    val url = termsOfUseURL.ensureHttpScheme()
+                                    runCatching { uriHandler.openUri(url) }
+                                }
+                                "privacy_policy" -> {
+                                    val url = privacyPolicyURL.ensureHttpScheme()
+                                    runCatching { uriHandler.openUri(url) }
+                                }
+                            }
+                        }
+                    ) {
+                        append("I agree to the ")
+                        withClickable("privacy_policy") {
+                            withStyle(
+                                SpanStyle(
+                                    color = termsOfUseColor,
+                                    textDecoration = TextDecoration.Underline,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            ) {
+                                append("Privacy Policy")
+                            }
+                        }
+                        append(" and ")
+                        withClickable("terms_and_conditions") {
+                            withStyle(
+                                SpanStyle(
+                                    color = termsOfUseColor,
+                                    textDecoration = TextDecoration.Underline,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            ) {
+                                append("Terms of Use")
+                            }
+                        }
+                        append(".")
+                    }
                 }
             }
         }

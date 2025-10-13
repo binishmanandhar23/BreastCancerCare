@@ -272,3 +272,6 @@ fun rememberIsLandscape(): Boolean {
     val h = win.containerSize.height
     return w > 0 && h > 0 && w >= h
 }
+
+fun String.ensureHttpScheme(): String =
+    if (startsWith("http://") || startsWith("https://")) this else "https://$this"

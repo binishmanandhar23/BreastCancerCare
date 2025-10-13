@@ -11,16 +11,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalUriHandler
 import com.breastcancer.breastcancercare.BuildKonfig
 import com.breastcancer.breastcancercare.components.BreastCancerToolbar
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
+import com.breastcancer.breastcancercare.utils.ensureHttpScheme
 
 @Composable
 fun AboutScreen(onBack: () -> Unit = {}) {
     val uriHandler = LocalUriHandler.current
-    val websiteUrl = "https://www.breastcancer.org.au/"
+    val websiteUrl = remember { "https://www.breastcancer.org.au/" }
     Column(modifier = Modifier.fillMaxSize().padding(vertical = 0.dp, horizontal = DefaultHorizontalPaddingMedium)) {
         BreastCancerToolbar(title = "About", onBack = onBack)
         LazyColumn(
@@ -61,5 +63,4 @@ fun AboutScreen(onBack: () -> Unit = {}) {
     }
 }
 
-private fun String.ensureHttpScheme(): String =
-    if (startsWith("http://") || startsWith("https://")) this else "https://$this"
+

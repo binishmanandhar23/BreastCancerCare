@@ -3,6 +3,9 @@ package com.breastcancer.breastcancercare.survey.controller// commonMain
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,6 +34,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -245,13 +249,28 @@ private fun IntScaleQuestionView(
     Spacer(Modifier.height(8.dp))
     val min = q.startRange
     val max = q.endRange
-    var value by remember { mutableStateOf((a?.value ?: min).toFloat()) }
+    var value by remember {
+        mutableStateOf(
+            Pair((a?.value ?: min).toFloat(), (a?.value ?: min).toFloat())
+        )
+    } //value.first = OldValue, value.second = NewValue
+
+    var animatedValue by remember { mutableStateOf((a?.value ?: min).toFloat()) }
+    LaunchedEffect(value) {
+        animate(
+            initialValue = value.first,
+            targetValue = value.second,
+            animationSpec = tween(durationMillis = 200)
+        ) { value, _ ->
+            animatedValue = value
+        }
+    }
 
     Column {
         Slider(
-            value = value,
+            value = animatedValue,
             onValueChange = {
-                value = it
+                value = Pair(value.second, it)
                 onAnswer(IntAnswer(it.roundToInt().coerceIn(min, max)))
             },
             valueRange = min.toFloat()..max.toFloat(),

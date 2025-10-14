@@ -113,6 +113,9 @@ fun MainScreen(
                     onActivityClick = {
                         onSubScreenChange(Route.Main.ActivityDetail(id = it.id), false)
                     },
+                    onAllSchedules = {
+                        onSubScreenChange(Route.Main.AllActivityHistory, false)
+                    },
                     onAllActivities = {
                         onSubScreenChange(Route.Main.AllActivities, false)
                     })

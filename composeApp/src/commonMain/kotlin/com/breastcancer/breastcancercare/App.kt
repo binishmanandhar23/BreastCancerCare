@@ -49,7 +49,7 @@ import com.breastcancer.breastcancercare.screens.main.MainScreen
 import com.breastcancer.breastcancercare.screens.main.ProfileRoute
 import com.breastcancer.breastcancercare.screens.main.survey.SurveyScreen
 import com.breastcancer.breastcancercare.screens.journey.JourneyScreen
-import com.breastcancer.breastcancercare.screens.main.activity.ActivityHistoryScreen
+import com.breastcancer.breastcancercare.screens.main.activity.ActivityScheduleScreen
 import com.breastcancer.breastcancercare.screens.main.activity.GeneralActivityScreen
 import com.breastcancer.breastcancercare.screens.main.survey.SurveyMandatoryDialogScreen
 import com.breastcancer.breastcancercare.screens.onboarding.OnboardingScreen
@@ -436,9 +436,12 @@ fun App() {
                                     )
                                     ActivityDetailScreen(
                                         id = id,
-                                        activityViewModel = activityViewModel, onBack = {
+                                        activityViewModel = activityViewModel,
+                                        loaderState = loaderState,
+                                        onBack = {
                                             navigator.popBackStack()
-                                        }, onRegister = { activity ->
+                                        },
+                                        onRegister = { activity ->
                                             activity.surveys?.preSurvey?.let { preSurvey ->
                                                 navigator.navigate(
                                                     route = if (preSurvey.mandatory) Route.Main.SurveyMandatoryDialog(
@@ -470,6 +473,7 @@ fun App() {
                                     GeneralActivityScreen(
                                         activityType = activityType,
                                         customSnackBarState = customSnackBarState,
+                                        loaderState = loaderState,
                                         activityViewModel = activityViewModel, onBack = {
                                             navigator.popBackStack()
                                         },
@@ -515,7 +519,7 @@ fun App() {
                                     val activityViewModel = koinViewModel<ActivityViewModel>(
                                         viewModelStoreOwner = parentEntry
                                     )
-                                    ActivityHistoryScreen(
+                                    ActivityScheduleScreen(
                                         activityViewModel = activityViewModel,
                                         onBackPress = { navigator.popBackStack() },
                                         onSubScreenChange = {

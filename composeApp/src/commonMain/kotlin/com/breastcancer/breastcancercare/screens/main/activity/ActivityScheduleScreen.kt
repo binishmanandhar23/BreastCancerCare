@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -33,32 +32,30 @@ import com.breastcancer.breastcancercare.components.ActivityTypeTag
 import com.breastcancer.breastcancercare.components.AllListContainer
 import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
 import com.breastcancer.breastcancercare.components.CategoryChip
-import com.breastcancer.breastcancercare.components.DefaultSpacerSize
-import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
 import com.breastcancer.breastcancercare.components.UserCategoryTag
 import com.breastcancer.breastcancercare.components.appDateFormat
+import com.breastcancer.breastcancercare.database.local.types.ActivityType
 import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
-import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
+import com.breastcancer.breastcancercare.models.ActivityScheduleDTO
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.states.ActivityUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
-import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingLarge
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
 
 @Composable
-fun ActivityHistoryScreen(
+fun ActivityScheduleScreen(
     activityViewModel: ActivityViewModel, onBackPress: () -> Unit,
     onSubScreenChange: (Route) -> Unit
 ) {
     val allActivityTypes by activityViewModel.allActivityTypes.collectAsStateWithLifecycle()
-    val selectedActivityType by activityViewModel.selectedActivityType.collectAsStateWithLifecycle()
+    val selectedActivityType by activityViewModel.selectedScheduledActivityType.collectAsStateWithLifecycle()
     val activityUIHistoryState by activityViewModel.activityUIHistoryState.collectAsStateWithLifecycle()
     AllListContainer(
-        title = "History",
+        title = "Schedules",
         listOfCategories = allActivityTypes,
         selectedCategory = selectedActivityType,
         categorySectionContent = { borderStroke ->
@@ -71,7 +68,7 @@ fun ActivityHistoryScreen(
                     colors = CardDefaults.cardColors(
                         containerColor = selectedContainerColor,
                         contentColor = selectedContentColor
-                    ), onClick = { activityViewModel.selectActivityType(activityType) }
+                    ), onClick = { activityViewModel.selectScheduledActivityType(activityType) }
                 )
             }
         },
@@ -81,40 +78,51 @@ fun ActivityHistoryScreen(
             when (activityUIHistoryState) {
                 is ActivityUIState.Loading -> item { BreastCancerCircularLoader() }
                 is ActivityUIState.Success ->
-                    (activityUIHistoryState.data)?.let { data ->
-                        data.forEach { (date, activities) ->
+                    (activityUIHistoryState.data).let { data ->
+                        if (data.isNullOrEmpty())
                             item {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(
-                                            horizontal = DefaultHorizontalPaddingMedium,
-                                        )
-                                        .background(
-                                            brush = Brush.verticalGradient(
-                                                colors = listOf(
-                                                    MaterialTheme.colorScheme.background,
-                                                    MaterialTheme.colorScheme.background,
-                                                    MaterialTheme.colorScheme.background.copy(alpha = 0.8f),
-                                                )
-                                            )
-                                        ).padding(top = DefaultVerticalPaddingMedium),
-                                    text = appDateFormat(date, includeYear = true),
-                                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                                EmptyActivities(
+                                    modifier = Modifier.fillMaxWidth().padding(
+                                        horizontal = DefaultHorizontalPaddingMedium,
+                                        vertical = DefaultVerticalPaddingMedium
+                                    ), activityType = selectedActivityType, isScheduled = true
                                 )
                             }
-                            items(
-                                items = activities,
-                                key = { activityHistory -> activityHistory.id ?: 0 }
-                            ) { activity ->
-                                ActivityHistoryCard(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(horizontal = DefaultHorizontalPaddingMedium),
-                                    activityHistory = activity,
-                                    onClick = {
-
-                                    })
+                        else
+                            data.forEach { (date, activities) ->
+                                item {
+                                    Text(
+                                        modifier = Modifier.fillMaxWidth()
+                                            .padding(
+                                                horizontal = DefaultHorizontalPaddingMedium,
+                                            )
+                                            .background(
+                                                brush = Brush.verticalGradient(
+                                                    colors = listOf(
+                                                        MaterialTheme.colorScheme.background,
+                                                        MaterialTheme.colorScheme.background,
+                                                        MaterialTheme.colorScheme.background.copy(
+                                                            alpha = 0.8f
+                                                        ),
+                                                    )
+                                                )
+                                            ).padding(top = DefaultVerticalPaddingMedium),
+                                        text = appDateFormat(date, includeYear = true),
+                                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                }
+                                items(
+                                    items = activities,
+                                    key = { activityHistory -> activityHistory.id ?: 0 }
+                                ) { activity ->
+                                    ActivityHistoryCard(
+                                        modifier = Modifier.fillMaxWidth()
+                                            .padding(horizontal = DefaultHorizontalPaddingMedium),
+                                        activityHistory = activity,
+                                        onClick = {}
+                                    )
+                                }
                             }
-                        }
                     }
 
                 else -> Unit
@@ -123,11 +131,12 @@ fun ActivityHistoryScreen(
     )
 }
 
+
 @Composable
 private fun ActivityHistoryCard(
     modifier: Modifier = Modifier,
-    activityHistory: ActivityHistoryDTO,
-    onClick: (ActivityHistoryDTO) -> Unit
+    activityHistory: ActivityScheduleDTO,
+    onClick: (ActivityScheduleDTO) -> Unit
 ) {
     val activity by remember(activityHistory) { mutableStateOf(activityHistory.activity) }
     activity?.let { activity ->

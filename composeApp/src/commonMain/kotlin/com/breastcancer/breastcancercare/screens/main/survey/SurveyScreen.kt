@@ -44,12 +44,20 @@ fun SurveyScreen(
             activityViewModel.getActivityById(id = id)
         }
     }
-    LaunchedEffect(activityUIState){
-        when(activityUIState){
+    LaunchedEffect(activityUIState) {
+        when (activityUIState) {
             is ActivityUIState.Loading -> loaderState.show()
-            is ActivityUIState.Final -> loaderState.hide().also {
-                onBack()
+            is ActivityUIState.Success -> {
+                when (activityUIState.registrationUIState) {
+                    is ActivityUIState.Success.RegistrationUIState.Registering -> loaderState.show()
+                    is ActivityUIState.Success.RegistrationUIState.Registered -> {
+                        loaderState.hide()
+                        onBack()
+                    }
+                    else -> loaderState.hide()
+                }
             }
+
             else -> loaderState.hide()
         }
     }

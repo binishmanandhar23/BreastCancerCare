@@ -16,10 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,9 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.breastcancer.breastcancercare.components.ActivityTypeTag
 import com.breastcancer.breastcancercare.components.BreastCancerButton
@@ -39,6 +47,8 @@ import com.breastcancer.breastcancercare.components.SeeMoreComponent
 import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
 import com.breastcancer.breastcancercare.components.UserCategoryTag
+import com.breastcancer.breastcancercare.database.local.types.ActivityType
+import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
 import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType
 import com.breastcancer.breastcancercare.database.local.types.LivingWellActivityType
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
@@ -132,7 +142,10 @@ fun ActivityOuterContainer(
 
 
 @Composable
-fun ActivityBodyContainer(activity: ActivityDTO?, extraContent: @Composable ColumnScope.() -> Unit = {}){
+fun ActivityBodyContainer(
+    activity: ActivityDTO?,
+    extraContent: @Composable ColumnScope.() -> Unit = {}
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
@@ -236,6 +249,7 @@ fun ActivityBodyContainer(activity: ActivityDTO?, extraContent: @Composable Colu
         }
     }
 }
+
 @Composable
 fun DescriptionSection(activity: ActivityDTO?) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -282,9 +296,9 @@ fun DescriptionSection(activity: ActivityDTO?) {
 fun WhereSection(modifier: Modifier = Modifier, activity: ActivityDTO?) {
     if (activity == null)
         return
-    if(!activity.isOnline && activity.location == null)
+    if (!activity.isOnline && activity.location == null)
         return
-    if(activity.isOnline && activity.onlineLink == null)
+    if (activity.isOnline && activity.onlineLink == null)
         return
 
     CardContainer(modifier = modifier) {
@@ -342,5 +356,41 @@ fun ColumnContainer(
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
         )
         content()
+    }
+}
+
+@Composable
+fun EmptyActivities(modifier: Modifier = Modifier, activityType: ActivityType?, isScheduled: Boolean = false) {
+    Box(modifier = modifier) {
+        Column(
+            modifier = Modifier.fillMaxWidth().alpha(0.5f)
+                .padding(
+                    horizontal = DefaultHorizontalPaddingSmall,
+                    vertical = DefaultVerticalPaddingMedium * 2
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(DefaultVerticalPaddingMedium)
+        ) {
+            Icon(imageVector = Icons.Outlined.HourglassEmpty, contentDescription = "Empty Icon")
+            Text(
+                text = buildAnnotatedString {
+                    append("Oops! \nIt seems that there are no ")
+                    if(isScheduled)
+                        append("scheduled ")
+                    if (activityType != null) {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(
+                                ActivityUtils.getActivityTypeLabel(
+                                    activityType
+                                )
+                            )
+                        }
+                        append(" ")
+                    }
+                    append("activities.")
+                },
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }

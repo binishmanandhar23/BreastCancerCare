@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.History
@@ -30,6 +31,7 @@ import com.breastcancer.breastcancercare.components.CategoryChip
 import com.breastcancer.breastcancercare.components.CoreHomeCardDesign
 import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
+import com.breastcancer.breastcancercare.database.local.types.ActivityType
 import com.breastcancer.breastcancercare.database.local.types.ActivityUtils
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.screens.Route
@@ -37,6 +39,7 @@ import com.breastcancer.breastcancercare.states.ActivityUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultTopBarIconSize
+import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.utils.getDateForNextSession
 import com.breastcancer.breastcancercare.viewmodel.ActivityViewModel
@@ -69,34 +72,44 @@ fun AllActivitiesScreen(
             }
         },
         onBack = onBackPress,
-        titleIconContent = {
-            IconButton(onClick = {
-                onSubScreenChange(Route.Main.AllActivityHistory)
-            }){
-                Icon(modifier = Modifier.size(DefaultTopBarIconSize), imageVector = Icons.Outlined.History, contentDescription = "Previous Activities")
-            }
-        },
         onAllClicked = { activityViewModel.selectActivityType(null) },
         content = {
             when (activityUIListState) {
                 is ActivityUIState.Loading -> item { BreastCancerCircularLoader() }
-                is ActivityUIState.Success -> items(
-                    items = activityUIListState.data ?: emptyList(),
-                    key = { activity -> activity.id }
-                ) { activity ->
-                    ActivityCard(
-                        modifier = Modifier.fillMaxWidth().height(350.dp)
-                            .padding(horizontal = DefaultHorizontalPaddingMedium),
-                        activity = activity,
-                        onClick = {
-                            onSubScreenChange(Route.Main.ActivityDetail(it.id))
-                        })
+                is ActivityUIState.Success -> body(activities = activityUIListState.data, selectedActivityType = selectedActivityType) {
+                    onSubScreenChange(Route.Main.ActivityDetail(it.id))
                 }
 
                 else -> Unit
             }
         }
     )
+}
+
+private fun LazyListScope.body(
+    activities: List<ActivityDTO>?,
+    selectedActivityType: ActivityType?,
+    onClick: (activity: ActivityDTO) -> Unit
+) {
+    if (activities.isNullOrEmpty())
+        item {
+            EmptyActivities(modifier = Modifier.fillMaxWidth().padding(
+                horizontal = DefaultHorizontalPaddingMedium,
+                vertical = DefaultVerticalPaddingMedium
+            ), activityType = selectedActivityType)
+        }
+    else
+        items(
+            items = activities,
+            key = { activity -> activity.id }
+        ) { activity ->
+            ActivityCard(
+                modifier = Modifier.fillMaxWidth().height(350.dp)
+                    .padding(horizontal = DefaultHorizontalPaddingMedium),
+                activity = activity,
+                onClick = onClick
+            )
+        }
 }
 
 @Composable
@@ -130,7 +143,10 @@ private fun ActivityCard(
                     modifier = Modifier.padding(bottom = DefaultVerticalPaddingSmall),
                     iconModifier = Modifier.size(15.dp),
                     activityType = activity.activityType,
-                    paddingValues = PaddingValues(horizontal = DefaultHorizontalPaddingSmall, vertical = 3.dp),
+                    paddingValues = PaddingValues(
+                        horizontal = DefaultHorizontalPaddingSmall,
+                        vertical = 3.dp
+                    ),
                     textStyle = MaterialTheme.typography.labelSmall
                 )
             }

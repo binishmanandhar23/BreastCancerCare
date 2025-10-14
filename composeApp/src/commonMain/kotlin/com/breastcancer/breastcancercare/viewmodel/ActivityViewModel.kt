@@ -8,7 +8,7 @@ import com.breastcancer.breastcancercare.database.local.types.LivingWellActivity
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
 import com.breastcancer.breastcancercare.models.ActivityDTO
-import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
+import com.breastcancer.breastcancercare.models.ActivityScheduleDTO
 import com.breastcancer.breastcancercare.models.GeneralActivityDTO
 import com.breastcancer.breastcancercare.models.UserDTO
 import com.breastcancer.breastcancercare.repo.ActivityRepository
@@ -55,7 +55,7 @@ class ActivityViewModel(
     val activityUIListState = _activityUIListState.asStateFlow()
 
     private var _activityUIHistoryState =
-        MutableStateFlow<ActivityUIState<Map<LocalDate, List<ActivityHistoryDTO>>>>(ActivityUIState.Initial())
+        MutableStateFlow<ActivityUIState<Map<LocalDate, List<ActivityScheduleDTO>>>>(ActivityUIState.Initial())
     val activityUIHistoryState = _activityUIHistoryState.asStateFlow()
 
     private var _activityUIAddState =
@@ -65,6 +65,9 @@ class ActivityViewModel(
 
     private var _selectedActivityType = MutableStateFlow<ActivityType?>(null)
     val selectedActivityType = _selectedActivityType.asStateFlow()
+
+    private var _selectedScheduledActivityType = MutableStateFlow<ActivityType?>(null)
+    val selectedScheduledActivityType = _selectedScheduledActivityType.asStateFlow()
 
     private var _allActivityTypes = MutableStateFlow<List<ActivityType>>(emptyList())
     val allActivityTypes = _allActivityTypes.asStateFlow()
@@ -98,14 +101,14 @@ class ActivityViewModel(
                     activities.firstOrNull()
                 }
                 .combine(user) { activity, user ->
-                    activityRepository.getActivityHistoryByActivityId(
+                    activityRepository.getActivityScheduleByActivityId(
                         activityId = activity?.id,
                         userId = user?.id
                     )
                         .mapLatest { activityHistory ->
                             GeneralActivityDTO(
                                 activityDTO = activity,
-                                activityHistoryDTO = activityHistory.filter { it.registeredForDate >= LocalDate.now() }
+                                activityScheduleDTO = activityHistory.filter { it.registeredForDate >= LocalDate.now() }
                             )
                         }
                 }.distinctUntilChanged().flatMapLatest { it }.collectLatest {
@@ -131,6 +134,9 @@ class ActivityViewModel(
 
     fun selectActivityType(activityType: ActivityType?) =
         _selectedActivityType.update { activityType }
+
+    fun selectScheduledActivityType(activityType: ActivityType?) =
+        _selectedScheduledActivityType.update { activityType }
 
     private fun getLoggedInUser() = viewModelScope.launch {
         onboardingRepository.getLoggedInUser().collectLatest { user ->
@@ -177,20 +183,30 @@ class ActivityViewModel(
             endDate = activity.endDate,
             frequencySeries = activity.frequencySeries
         ) ?: LocalDate.now(), preSurveyAnswer: Map<String, Answer>? = null,
-        onStart: () -> Unit = { _activityUIDetailState.update { ActivityUIState.Loading() } },
+        onStart: () -> Unit = {
+            _activityUIDetailState.update {
+                ActivityUIState.Success(
+                    data = activity,
+                    registrationUIState = ActivityUIState.Success.RegistrationUIState.Registering()
+                )
+            }
+        },
         onFinish: (activity: ActivityDTO) -> Unit = {
             _activityUIDetailState.update {
-                ActivityUIState.Final(
-                    data = activity
+                ActivityUIState.Success(
+                    data = activity,
+                    registrationUIState = ActivityUIState.Success.RegistrationUIState.Registered(
+                        data = activity
+                    )
                 )
             }
         }
     ) =
         viewModelScope.launch {
             onStart()
-            delay(1000)
+            delay(1500)
             activityRepository.insertActivityHistory(
-                activityHistoryDTO = ActivityHistoryDTO(
+                activityScheduleDTO = ActivityScheduleDTO(
                     activityId = activity.id,
                     userId = user.value?.id ?: 0,
                     registeredForDate = registeredForDate,
@@ -208,11 +224,21 @@ class ActivityViewModel(
             endDate = activity.endDate,
             frequencySeries = activity.frequencySeries
         ) ?: LocalDate.now(), preSurveyAnswer: Map<String, Answer>? = null,
-        onStart: () -> Unit = { _activityUIDetailState.update { ActivityUIState.Loading() } },
+        onStart: () -> Unit = {
+            _activityUIDetailState.update { uiState ->
+                ActivityUIState.Success(
+                    data = activity,
+                    registrationUIState = ActivityUIState.Success.RegistrationUIState.Registering()
+                )
+            }
+        },
         onFinish: (activity: ActivityDTO) -> Unit = {
             _activityUIDetailState.update {
-                ActivityUIState.Final(
-                    data = activity
+                ActivityUIState.Success(
+                    data = activity,
+                    registrationUIState = ActivityUIState.Success.RegistrationUIState.Registered(
+                        data = activity
+                    )
                 )
             }
         }
@@ -227,10 +253,21 @@ class ActivityViewModel(
     @OptIn(ExperimentalTime::class)
     fun insertActivityHistoryForAddActivity(
         activity: ActivityDTO,
-        activityHistories: List<ActivityHistoryDTO>,
+        activityHistories: List<ActivityScheduleDTO>,
         registeredForDate: LocalDate,
         preSurveyAnswer: Map<String, Answer>? = null,
-        onStart: () -> Unit = { _activityUIAddState.update { ActivityUIState.Loading() } }
+        onStart: () -> Unit = {
+            _activityUIAddState.update {
+                ActivityUIState.Success(
+                    data = GeneralActivityDTO(
+                        activityDTO = activity,
+                        activityScheduleDTO = activityHistories,
+                        appointmentDate = registeredForDate
+                    ),
+                    registrationUIState = ActivityUIState.Success.RegistrationUIState.Registering()
+                )
+            }
+        }
     ) =
         insertActivityHistory(
             activity = activity,
@@ -239,11 +276,18 @@ class ActivityViewModel(
             onStart = onStart,
             onFinish = {
                 _activityUIAddState.update {
-                    ActivityUIState.Final(
+                    ActivityUIState.Success(
                         data = GeneralActivityDTO(
                             activityDTO = activity,
-                            activityHistoryDTO = activityHistories,
+                            activityScheduleDTO = activityHistories,
                             appointmentDate = registeredForDate
+                        ),
+                        registrationUIState = ActivityUIState.Success.RegistrationUIState.Registered(
+                            data = GeneralActivityDTO(
+                                activityDTO = activity,
+                                activityScheduleDTO = activityHistories,
+                                appointmentDate = registeredForDate
+                            )
                         )
                     )
                 }
@@ -269,7 +313,14 @@ class ActivityViewModel(
                 ).map { activityHistory -> activity to activityHistory }
             }.collectLatest { (activity, activityHistory) ->
                 activityHistory?.let {
-                    _activityUIDetailState.update { ActivityUIState.Final(data = activity) }
+                    _activityUIDetailState.update {
+                        ActivityUIState.Success(
+                            data = activity,
+                            registrationUIState = ActivityUIState.Success.RegistrationUIState.Registered(
+                                data = activity
+                            )
+                        )
+                    }
                 }
             }
     }
@@ -282,7 +333,7 @@ class ActivityViewModel(
             }
                 .distinctUntilChanged()
                 .mapLatest { userId ->
-                    activityRepository.getAllActivityHistoryWithActivity(userId = userId)
+                    activityRepository.getAllActivityScheduleWithActivity(userId = userId)
                 }.flatMapLatest { activityHistory -> activityHistory }
                 .combine(selectedActivityType) { activityHistory, type ->
                     if (type == null) activityHistory.groupBy { it.registeredForDate }

@@ -5,8 +5,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.breastcancer.breastcancercare.database.local.entity.ActivityEntity
-import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryEntity
-import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryWithActivityEntity
+import com.breastcancer.breastcancercare.database.local.entity.ActivityScheduleEntity
+import com.breastcancer.breastcancercare.database.local.entity.ActivityScheduleWithActivityEntity
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -37,19 +37,19 @@ interface ActivityDAO {
     suspend fun getActivityById(id: Long): ActivityEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertActivityHistoryEntity(activityHistoryEntity: ActivityHistoryEntity)
+    suspend fun insertActivityHistoryEntity(activityScheduleEntity: ActivityScheduleEntity)
 
-    @Query("SELECT * FROM activityhistoryentity WHERE userId = :userId")
-    fun getAllActivityHistoryWithActivity(userId: Long?): Flow<List<ActivityHistoryWithActivityEntity>>
+    @Query("SELECT * FROM activityscheduleentity WHERE userId = :userId")
+    fun getAllActivityHistoryWithActivity(userId: Long?): Flow<List<ActivityScheduleWithActivityEntity>>
 
-    @Query("SELECT * FROM activityhistoryentity WHERE activityId = :activityId AND userId = :userId")
-    fun getActivityHistoryByActivityId(activityId: Long?, userId: Long?): Flow<List<ActivityHistoryWithActivityEntity>?>
-    @Query("SELECT * FROM activityhistoryentity WHERE activityId = :activityId AND userId = :userId AND registeredForDate = :registeredDate")
-    fun getActivityHistoryByActivityIdAndRegisteredDate(activityId: Long, userId: Long?, registeredDate: String): Flow<ActivityHistoryEntity?>
+    @Query("SELECT * FROM activityscheduleentity WHERE activityId = :activityId AND userId = :userId")
+    fun getActivityScheduleByActivityId(activityId: Long?, userId: Long?): Flow<List<ActivityScheduleWithActivityEntity>?>
+    @Query("SELECT * FROM activityscheduleentity WHERE activityId = :activityId AND userId = :userId AND registeredForDate = :registeredDate")
+    fun getActivityScheduleByActivityIdAndRegisteredDate(activityId: Long, userId: Long?, registeredDate: String): Flow<ActivityScheduleEntity?>
 
-    @Query("SELECT * FROM activityhistoryentity WHERE userId = :userId AND registeredForDate = :registeredDate")
-    fun getActivityHistoryByRegisteredDate(
+    @Query("SELECT * FROM activityscheduleentity WHERE userId = :userId AND registeredForDate = :registeredDate")
+    fun getActivityScheduleByRegisteredDate(
         userId: Long?,
         registeredDate: String?
-    ): Flow<List<ActivityHistoryEntity>>
+    ): Flow<List<ActivityScheduleEntity>>
 }

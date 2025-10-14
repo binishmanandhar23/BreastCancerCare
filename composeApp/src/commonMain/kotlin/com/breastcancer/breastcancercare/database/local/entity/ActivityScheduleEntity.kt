@@ -2,7 +2,6 @@ package com.breastcancer.breastcancercare.database.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.breastcancer.breastcancercare.survey.model.PostSurveyAnswer
@@ -16,7 +15,7 @@ import com.breastcancer.breastcancercare.survey.model.PreSurveyAnswer
     )],
     indices = [Index("activityId")]
 )
-data class ActivityHistoryEntity(
+data class ActivityScheduleEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val userId: Long,
     val activityId: Long,

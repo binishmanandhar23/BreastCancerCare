@@ -4,6 +4,6 @@ import kotlinx.datetime.LocalDate
 
 data class GeneralActivityDTO(
     val activityDTO: ActivityDTO?,
-    val activityHistoryDTO: List<ActivityHistoryDTO> = emptyList(),
+    val activityScheduleDTO: List<ActivityScheduleDTO> = emptyList(),
     val appointmentDate: LocalDate? = null
 )

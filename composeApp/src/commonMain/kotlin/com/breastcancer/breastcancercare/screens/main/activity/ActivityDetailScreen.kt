@@ -46,6 +46,9 @@ import com.breastcancer.breastcancercare.components.TimeAndDateFormat
 import com.breastcancer.breastcancercare.components.UrlImage
 import com.breastcancer.breastcancercare.components.UserCategoryTag
 import com.breastcancer.breastcancercare.components.icons.User
+import com.breastcancer.breastcancercare.components.loader.LoaderState
+import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
+import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType
 import com.breastcancer.breastcancercare.database.local.types.LivingWellActivityType
 import com.breastcancer.breastcancercare.database.local.types.StartingStrongActivityType
@@ -70,6 +73,8 @@ import kotlinx.coroutines.withContext
 fun ActivityDetailScreen(
     modifier: Modifier = Modifier.fillMaxSize(),
     activityViewModel: ActivityViewModel,
+    customSnackBarState: SnackBarState,
+    loaderState: LoaderState,
     id: Long,
     onBack: () -> Unit,
     onRegister: (activity: ActivityDTO) -> Unit
@@ -80,52 +85,69 @@ fun ActivityDetailScreen(
             activityViewModel.getActivityById(id = id)
         }
     }
+    LaunchedEffect(activityUIState){
+        if(activityUIState is ActivityUIState.Loading)
+            loaderState.show()
+        else
+            loaderState.hide()
+
+        if(activityUIState is ActivityUIState.Success)
+            if(activityUIState.registrationUIState is ActivityUIState.Success.RegistrationUIState.Registered)
+                customSnackBarState.show(overridingText = "Registered Successfully", overridingDelay = SnackBarLengthMedium)
+    }
     AnimatedContent(modifier = Modifier.fillMaxSize(), targetState = activityUIState) { state ->
         when (state) {
-            is ActivityUIState.Loading -> BreastCancerCircularLoader(
-                modifier = Modifier.fillMaxSize(),
-                size = 40.dp
-            )
-
-            is ActivityUIState.Success, is ActivityUIState.Final -> {
+            is ActivityUIState.Success -> {
                 val activity by remember { derivedStateOf { state.data } }
-                ActivityOuterContainer(modifier = modifier, activity = activity, onBackClick = onBack, bottomBar = {
-                    if (activityUIState is ActivityUIState.Success)
-                        BreastCancerButton(
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                                .padding(vertical = DefaultVerticalPaddingSmall),
-                            fontSize = MaterialTheme.typography.labelMedium.fontSize,
-                            text = when (activity?.activityType) {
-                                is StartingStrongActivityType.SupportGroups,
-                                is StartingStrongActivityType.Workshops,
-                                is LivingWellActivityType.DiscussionGroups,
-                                is LivingWellActivityType.Workshops,
-                                is LivingWellActivityType.Webinars,
-                                is LivingWellActivityType.WellnessActivities,
-                                is LivingWellActivityType.MindfulRecoveryProgram -> "Register Interest"
+                ActivityOuterContainer(
+                    modifier = modifier,
+                    activity = activity,
+                    onBackClick = onBack,
+                    bottomBar = {
+                        when (activityUIState.registrationUIState) {
+                            is ActivityUIState.Success.RegistrationUIState.Registering -> BreastCancerCircularLoader(
+                                Modifier.align(
+                                    Alignment.CenterEnd
+                                ), size = 30.dp
+                            )
+                            is ActivityUIState.Success.RegistrationUIState.Initial -> BreastCancerButton(
+                                modifier = Modifier.align(Alignment.CenterEnd)
+                                    .padding(vertical = DefaultVerticalPaddingSmall),
+                                fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                                text = when (activity?.activityType) {
+                                    is StartingStrongActivityType.SupportGroups,
+                                    is StartingStrongActivityType.Workshops,
+                                    is LivingWellActivityType.DiscussionGroups,
+                                    is LivingWellActivityType.Workshops,
+                                    is LivingWellActivityType.Webinars,
+                                    is LivingWellActivityType.WellnessActivities,
+                                    is LivingWellActivityType.MindfulRecoveryProgram -> "Register Interest"
 
-                                is GeneralActivityType.Counselling,
-                                is GeneralActivityType.Nursing -> "Book Appointment"
+                                    is GeneralActivityType.Counselling,
+                                    is GeneralActivityType.Nursing -> "Book Appointment"
 
-                                is GeneralActivityType.FinancialAndPracticalHardshipSupport -> "Enquire"
+                                    is GeneralActivityType.FinancialAndPracticalHardshipSupport -> "Enquire"
 
-                                else -> ""
-                            }, onClick = {
-                                activity?.let {
-                                    onRegister(it)
-                                }
-                            })
-                    else if (activityUIState is ActivityUIState.Final)
-                        Text(
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                                .padding(vertical = DefaultVerticalPaddingSmall),
-                            text = "Registered ✔",
-                            fontSize = MaterialTheme.typography.labelMedium.fontSize,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                }, bodyContent = {
-                    ActivityBodyContainer(activity = activity)
-                })
+                                    else -> ""
+                                }, onClick = {
+                                    activity?.let {
+                                        onRegister(it)
+                                    }
+                                })
+
+                            is ActivityUIState.Success.RegistrationUIState.Registered -> Text(
+                                modifier = Modifier.align(Alignment.CenterEnd)
+                                    .padding(vertical = DefaultVerticalPaddingSmall),
+                                text = "Registered ✔",
+                                fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            else -> Unit
+                        }
+                    },
+                    bodyContent = {
+                        ActivityBodyContainer(activity = activity)
+                    })
             }
 
             else -> Unit

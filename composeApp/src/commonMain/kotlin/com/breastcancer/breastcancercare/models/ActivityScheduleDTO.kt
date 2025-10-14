@@ -1,13 +1,13 @@
 package com.breastcancer.breastcancercare.models
 
-import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryEntity
-import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryWithActivityEntity
+import com.breastcancer.breastcancercare.database.local.entity.ActivityScheduleEntity
+import com.breastcancer.breastcancercare.database.local.entity.ActivityScheduleWithActivityEntity
 import com.breastcancer.breastcancercare.survey.model.PostSurveyAnswer
 import com.breastcancer.breastcancercare.survey.model.PreSurveyAnswer
 import kotlinx.datetime.LocalDate
 
 
-data class ActivityHistoryDTO(
+data class ActivityScheduleDTO(
     val id: Long? = null,
     val userId: Long,
     val activityId: Long,
@@ -17,7 +17,7 @@ data class ActivityHistoryDTO(
     val postSurveyAnswers: List<PostSurveyAnswer> = emptyList()
 )
 
-fun ActivityHistoryWithActivityEntity.toDTO() = ActivityHistoryDTO(
+fun ActivityScheduleWithActivityEntity.toDTO() = ActivityScheduleDTO(
     id = activityHistory.id,
     userId = activityHistory.userId,
     activityId = activityHistory.activityId,
@@ -27,8 +27,8 @@ fun ActivityHistoryWithActivityEntity.toDTO() = ActivityHistoryDTO(
     postSurveyAnswers = activityHistory.postSurveyAnswers
 )
 
-fun ActivityHistoryEntity.toDTO() =
-    ActivityHistoryDTO(
+fun ActivityScheduleEntity.toDTO() =
+    ActivityScheduleDTO(
         id = id,
         userId = userId,
         activityId = activityId,
@@ -38,7 +38,7 @@ fun ActivityHistoryEntity.toDTO() =
     )
 
 
-fun ActivityHistoryDTO.toEntity() = ActivityHistoryEntity(
+fun ActivityScheduleDTO.toEntity() = ActivityScheduleEntity(
     activityId = activityId,
     userId = userId,
     registeredForDate = registeredForDate.toString(),

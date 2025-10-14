@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberOverscrollEffect
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FloatingActionButtonElevation
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -69,6 +76,7 @@ fun HomeScreen(
     bottomSpacer: Dp = DefaultSpacerSize,
     onActivityClick: (activity: ActivityDTO) -> Unit,
     onAllBlogs: () -> Unit,
+    onAllSchedules: () -> Unit,
     onAllActivities: () -> Unit
 ) {
     val greetingText by homeViewModel.homeGreeting.collectAsStateWithLifecycle()
@@ -82,7 +90,7 @@ fun HomeScreen(
             .overscroll(overscrollEffect = overscrollEffect),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        headerHeight = spToDp(DefaultTopHeaderTextSize) * 3f,
+        headerHeight = spToDp(DefaultTopHeaderTextSize) * 4f,
         header = {
             val builtText = buildAnnotatedString {
                 withStyle(
@@ -98,13 +106,24 @@ fun HomeScreen(
                     append(" ${emojiFor()}")
                 }
             }
-            Text(
-                modifier = Modifier.padding(
-                    vertical = DefaultVerticalPaddingMedium
-                ),
-                text = builtText,
-                lineHeight = DefaultTopHeaderTextSize * 1.0f
-            )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    modifier = Modifier.weight(0.6f).padding(
+                        vertical = DefaultVerticalPaddingMedium
+                    ),
+                    text = builtText,
+                    lineHeight = DefaultTopHeaderTextSize * 1.0f
+                )
+                Box(modifier = Modifier.weight(0.4f).fillMaxHeight()){
+                    ExtendedFloatingActionButton(modifier = Modifier.align(Alignment.CenterEnd), text = {
+                        Text(text = "Schedules")
+                    }, icon = {
+                        Icon(imageVector = Icons.Default.Schedule, contentDescription = "Schedules")
+                    }, onClick = onAllSchedules, elevation = FloatingActionButtonDefaults.loweredElevation(),
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
         }
     ) {
         item {

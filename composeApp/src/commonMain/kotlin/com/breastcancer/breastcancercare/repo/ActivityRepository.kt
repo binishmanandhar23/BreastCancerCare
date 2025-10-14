@@ -3,7 +3,7 @@ package com.breastcancer.breastcancercare.repo
 import com.breastcancer.breastcancercare.database.local.dao.ActivityDAO
 import com.breastcancer.breastcancercare.database.local.types.ActivityType
 import com.breastcancer.breastcancercare.database.local.types.UserCategory
-import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
+import com.breastcancer.breastcancercare.models.ActivityScheduleDTO
 import com.breastcancer.breastcancercare.models.toActivityDTO
 import com.breastcancer.breastcancercare.models.toDTO
 import com.breastcancer.breastcancercare.models.toEntity
@@ -54,15 +54,15 @@ class ActivityRepository(val activityDAO: ActivityDAO) {
     suspend fun getActivityById(id: Long) = activityDAO.getActivityById(id = id).toActivityDTO()
 
 
-    suspend fun insertActivityHistory(activityHistoryDTO: ActivityHistoryDTO) =
-        activityDAO.insertActivityHistoryEntity(activityHistoryEntity = activityHistoryDTO.toEntity())
+    suspend fun insertActivityHistory(activityScheduleDTO: ActivityScheduleDTO) =
+        activityDAO.insertActivityHistoryEntity(activityScheduleEntity = activityScheduleDTO.toEntity())
 
     fun getActivityHistoryByActivityIdAndRegisteredDate(
         activityId: Long,
         userId: Long?,
         registeredDate: LocalDate?
-    ): Flow<ActivityHistoryDTO?> =
-        activityDAO.getActivityHistoryByActivityIdAndRegisteredDate(
+    ): Flow<ActivityScheduleDTO?> =
+        activityDAO.getActivityScheduleByActivityIdAndRegisteredDate(
             activityId = activityId,
             userId = userId,
             registeredDate = registeredDate.toString()
@@ -71,15 +71,15 @@ class ActivityRepository(val activityDAO: ActivityDAO) {
     fun getActivityHistoryByRegisteredDate(
         userId: Long?,
         registeredDate: LocalDate?
-    ): Flow<List<ActivityHistoryDTO>> =
-        activityDAO.getActivityHistoryByRegisteredDate(
+    ): Flow<List<ActivityScheduleDTO>> =
+        activityDAO.getActivityScheduleByRegisteredDate(
             userId = userId,
             registeredDate = registeredDate.toString()
         ).map { list -> list.map { it.toDTO() } }
 
-    fun getAllActivityHistoryWithActivity(userId: Long?) = activityDAO.getAllActivityHistoryWithActivity(userId = userId)
+    fun getAllActivityScheduleWithActivity(userId: Long?) = activityDAO.getAllActivityHistoryWithActivity(userId = userId)
         .map { activityHistoryWithActivityEntities -> activityHistoryWithActivityEntities.map { it.toDTO() } }
 
-    fun getActivityHistoryByActivityId(activityId: Long?, userId: Long?) =
-        activityDAO.getActivityHistoryByActivityId(activityId = activityId, userId = userId).map { activityHistories -> activityHistories?.map { it.toDTO() }?: emptyList() }
+    fun getActivityScheduleByActivityId(activityId: Long?, userId: Long?) =
+        activityDAO.getActivityScheduleByActivityId(activityId = activityId, userId = userId).map { activityHistories -> activityHistories?.map { it.toDTO() }?: emptyList() }
 }

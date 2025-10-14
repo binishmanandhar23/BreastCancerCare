@@ -3,8 +3,8 @@ package com.breastcancer.breastcancercare.database.local.entity
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class ActivityHistoryWithActivityEntity(
-    @Embedded val activityHistory: ActivityHistoryEntity,
+data class ActivityScheduleWithActivityEntity(
+    @Embedded val activityHistory: ActivityScheduleEntity,
     @Relation(
         parentColumn = "activityId",
         entityColumn = "id"

@@ -30,13 +30,14 @@ import com.breastcancer.breastcancercare.components.BreastCancerButton
 import com.breastcancer.breastcancercare.components.BreastCancerCircularLoader
 import com.breastcancer.breastcancercare.components.appDateFormat
 import com.breastcancer.breastcancercare.components.date.DatePickerModal
+import com.breastcancer.breastcancercare.components.loader.LoaderState
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthLong
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarLengthMedium
 import com.breastcancer.breastcancercare.components.snackbar.SnackBarState
 import com.breastcancer.breastcancercare.database.local.types.ActivityType
 import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType
 import com.breastcancer.breastcancercare.models.ActivityDTO
-import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
+import com.breastcancer.breastcancercare.models.ActivityScheduleDTO
 import com.breastcancer.breastcancercare.states.ActivityUIState
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
@@ -51,16 +52,17 @@ fun GeneralActivityScreen(
     modifier: Modifier = Modifier.fillMaxSize(),
     activityType: ActivityType,
     customSnackBarState: SnackBarState,
+    loaderState: LoaderState,
     activityViewModel: ActivityViewModel,
     onBack: () -> Unit,
-    onBookAppointment: (activity: ActivityDTO, activityHistories: List<ActivityHistoryDTO>, appointmentDate: LocalDate) -> Unit
+    onBookAppointment: (activity: ActivityDTO, activityHistories: List<ActivityScheduleDTO>, appointmentDate: LocalDate) -> Unit
 ) {
     val activityUIState by activityViewModel.activityUIAddState.collectAsStateWithLifecycle()
     val activityHistoryDates by remember(activityUIState) {
         derivedStateOf {
             val dates = mutableListOf<LocalDate>()
             if (activityUIState is ActivityUIState.Success)
-                dates.addAll(activityUIState.data?.activityHistoryDTO?.map { it.registeredForDate }
+                dates.addAll(activityUIState.data?.activityScheduleDTO?.map { it.registeredForDate }
                     ?: emptyList())
             dates
         }
@@ -70,18 +72,26 @@ fun GeneralActivityScreen(
         activityViewModel.getActivityByType(type = activityType)
     }
     LaunchedEffect(activityUIState) {
+        if(activityUIState is ActivityUIState.Loading)
+            loaderState.show()
+        else
+            loaderState.hide()
+
         when (activityUIState) {
-            is ActivityUIState.Final -> {
-                (activityUIState as ActivityUIState.Final).data?.appointmentDate?.let {
-                    customSnackBarState.show(
-                        overridingText = "Activity booked on ${
-                            appDateFormat(
-                                date = it
+            is ActivityUIState.Success -> {
+                (activityUIState as ActivityUIState.Success).let { success ->
+                    if(success.registrationUIState is ActivityUIState.Success.RegistrationUIState.Registered)
+                        success.data?.appointmentDate?.let {
+                            customSnackBarState.show(
+                                overridingText = "Activity booked on ${
+                                    appDateFormat(
+                                        date = it
+                                    )
+                                } successfully", overridingDelay = SnackBarLengthLong
                             )
-                        } successfully", overridingDelay = SnackBarLengthLong
-                    )
+                            onBack()
+                        }
                 }
-                onBack()
             }
 
             else -> Unit
@@ -89,39 +99,41 @@ fun GeneralActivityScreen(
     }
     AnimatedContent(modifier = Modifier.fillMaxSize(), targetState = activityUIState) { state ->
         when (state) {
-            is ActivityUIState.Loading -> BreastCancerCircularLoader(
-                modifier = Modifier.fillMaxSize(),
-                size = 40.dp
-            )
-
             is ActivityUIState.Success -> {
                 val activity by remember { derivedStateOf { state.data?.activityDTO } }
-                val activityHistories by remember { derivedStateOf { state.data?.activityHistoryDTO } }
+                val activityHistories by remember { derivedStateOf { state.data?.activityScheduleDTO } }
                 val appointmentDate by remember { derivedStateOf { state.data?.appointmentDate } }
                 ActivityOuterContainer(
                     modifier = modifier,
                     activity = activity,
                     onBackClick = onBack,
                     bottomBar = {
-                        BreastCancerButton(
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                                .padding(vertical = DefaultVerticalPaddingSmall),
-                            fontSize = MaterialTheme.typography.labelMedium.fontSize,
-                            text = when (activity?.activityType) {
-                                is GeneralActivityType.Counselling,
-                                is GeneralActivityType.Nursing -> "Book Appointment"
+                        when(activityUIState.registrationUIState){
+                            is ActivityUIState.Success.RegistrationUIState.Registering -> BreastCancerCircularLoader(
+                                Modifier.align(
+                                    Alignment.CenterEnd
+                                ), size = 30.dp
+                            )
+                            else -> BreastCancerButton(
+                                modifier = Modifier.align(Alignment.CenterEnd)
+                                    .padding(vertical = DefaultVerticalPaddingSmall),
+                                fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                                text = when (activity?.activityType) {
+                                    is GeneralActivityType.Counselling,
+                                    is GeneralActivityType.Nursing -> "Book Appointment"
 
-                                is GeneralActivityType.FinancialAndPracticalHardshipSupport -> "Enquire"
-                                else -> ""
-                            }, enabled = appointmentDate != null, onDisabledClick = {
-                                customSnackBarState.show(
-                                    overridingText = "Please select an appointment date",
-                                    overridingDelay = SnackBarLengthMedium
-                                )
-                            }, onClick = {
-                                if (appointmentDate != null && activity != null && activityHistories != null)
-                                    onBookAppointment(activity!!,activityHistories!!, appointmentDate!!)
-                            })
+                                    is GeneralActivityType.FinancialAndPracticalHardshipSupport -> "Enquire"
+                                    else -> ""
+                                }, enabled = appointmentDate != null, onDisabledClick = {
+                                    customSnackBarState.show(
+                                        overridingText = "Please select an appointment date",
+                                        overridingDelay = SnackBarLengthMedium
+                                    )
+                                }, onClick = {
+                                    if (appointmentDate != null && activity != null && activityHistories != null)
+                                        onBookAppointment(activity!!,activityHistories!!, appointmentDate!!)
+                                })
+                        }
                     },
                     bodyContent = {
                         ActivityBodyContainer(activity = activity, extraContent = {

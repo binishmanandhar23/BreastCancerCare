@@ -18,7 +18,7 @@ import com.breastcancer.breastcancercare.database.local.dao.UserDao
 import com.breastcancer.breastcancercare.database.local.entity.BlogEntity
 import com.breastcancer.breastcancercare.database.local.entity.BlogCategoryEntity
 import com.breastcancer.breastcancercare.database.local.entity.ActivityEntity
-import com.breastcancer.breastcancercare.database.local.entity.ActivityHistoryEntity
+import com.breastcancer.breastcancercare.database.local.entity.ActivityScheduleEntity
 import com.breastcancer.breastcancercare.database.local.entity.FAQEntity
 import com.breastcancer.breastcancercare.database.local.entity.LoggedInUserEntity
 import com.breastcancer.breastcancercare.database.local.entity.SuitabilityEntity
@@ -36,9 +36,9 @@ import kotlinx.coroutines.IO
         SuitabilityEntity::class,
         BlogEntity::class,
         BlogCategoryEntity::class,
-        ActivityHistoryEntity::class
+        ActivityScheduleEntity::class
     ],
-    version = 27
+    version = 28
 )
 @TypeConverters(
     FAQConverter::class, BlogConverter::class, ListConverter::class,

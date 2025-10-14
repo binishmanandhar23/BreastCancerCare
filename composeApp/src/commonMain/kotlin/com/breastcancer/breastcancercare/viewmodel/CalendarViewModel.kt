@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.breastcancer.breastcancercare.database.local.types.FrequencyType
 import com.breastcancer.breastcancercare.models.ActivityDTO
-import com.breastcancer.breastcancercare.models.ActivityHistoryDTO
+import com.breastcancer.breastcancercare.models.ActivityScheduleDTO
 import com.breastcancer.breastcancercare.models.CalendarActivityType
 import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.models.UserDTO
@@ -56,7 +56,7 @@ class CalendarViewModel(
     private var _allActivities = MutableStateFlow<List<ActivityDTO>>(emptyList())
     val allActivities = _allActivities.asStateFlow()
 
-    private var _allActivityHistory = MutableStateFlow<List<ActivityHistoryDTO>>(emptyList())
+    private var _allActivityHistory = MutableStateFlow<List<ActivityScheduleDTO>>(emptyList())
     val allActivityHistory = _allActivityHistory.asStateFlow()
 
     private var _selectedDayAvailableActivities =
@@ -130,13 +130,13 @@ class CalendarViewModel(
             .distinctUntilChanged()
             .flatMapLatest { userId ->
                 if (userId == null) flowOf(emptyList())
-                else activityRepository.getAllActivityHistoryWithActivity(userId = userId)
+                else activityRepository.getAllActivityScheduleWithActivity(userId = userId)
             }.collectLatest { activityHistory ->
                 _allActivityHistory.update { activityHistory }
             }
     }
 
-    private fun scheduleNotificationsForEvents(activityHistory: List<ActivityHistoryDTO>) {
+    private fun scheduleNotificationsForEvents(activityHistory: List<ActivityScheduleDTO>) {
         val localService = alarmeeService.local
         activityHistory.map { Triple(it.id, it.registeredForDate, it.activity) }
             .forEach { (id, registeredDate, activity) ->

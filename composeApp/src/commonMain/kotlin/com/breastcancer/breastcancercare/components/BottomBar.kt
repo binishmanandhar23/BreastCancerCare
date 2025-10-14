@@ -106,7 +106,7 @@ fun BottomBar(
             onClick = onSettings
         )
     }
-    val fabButton: @Composable () -> Unit = {
+    /*val fabButton: @Composable () -> Unit = {
         FloatingActionButton(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -120,7 +120,6 @@ fun BottomBar(
             )
         }
     }
-
     val fabContent: @Composable () -> Unit = {
         Button(
             onClick = onAddNursing,
@@ -204,8 +203,28 @@ fun BottomBar(
                     fabContent()
                 }
         }
-    }
+    }*/
     Box(modifier = outerModifier) {
+        if (isLandscape)
+            Column(
+                modifier = innerModifier.align(Alignment.CenterStart),
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                content()
+            }
+        else
+            Row(
+                modifier = innerModifier.align(Alignment.BottomCenter),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                content()
+            }
+    }
+
+    //Old Fab Design
+    /*Box(modifier = outerModifier) {
         if (isLandscape)
             Row(
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -256,14 +275,14 @@ fun BottomBar(
                     }
                 }
             }
-        /*CenterButton(modifier = Modifier.padding(bottom = 50.dp).align(Alignment.TopCenter), onSizeChange = { size ->
+        *//*CenterButton(modifier = Modifier.padding(bottom = 50.dp).align(Alignment.TopCenter), onSizeChange = { size ->
             density.convertIntSizeToDpSize(size){
                 buttonSize = it
             }
         }, onClick = {
 
-        })*/
-    }
+        })*//*
+    }*/
 }
 
 @Composable

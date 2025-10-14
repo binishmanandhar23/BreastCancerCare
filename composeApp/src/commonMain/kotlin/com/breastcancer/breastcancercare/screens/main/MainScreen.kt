@@ -44,6 +44,7 @@ import dev.icerock.moko.permissions.PermissionState
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType.Companion.GeneralActivityTypeEnum
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 
 @Composable
 fun MainScreen(
@@ -119,6 +120,12 @@ fun MainScreen(
                 Tabs.Calendar.text -> CalendarScreen(
                     bottomSpacer = bottomSpacer,
                     calendarViewModel = calendarViewModel,
+                    onAddNursing = {
+                        onSubScreenChange(Route.Main.GeneralActivityDetail(type = GeneralActivityTypeEnum.Nursing.type), false)
+                    },
+                    onAddCounselling = {
+                        onSubScreenChange(Route.Main.GeneralActivityDetail(type = GeneralActivityTypeEnum.Counselling.type), false)
+                    },
                     onSubScreenChange = onSubScreenChange
                 )
 
@@ -168,7 +175,7 @@ fun MainScreen(
                 else
                     it.fillMaxWidth()
             }.align(if (isLandscape) Alignment.CenterStart else Alignment.BottomCenter)
-                .padding(horizontal = 15.dp, vertical = 15.dp),
+                .padding(horizontal = DefaultHorizontalPaddingMedium, vertical = 5.dp),
             innerModifier = Modifier
                 .let {
                     if (isLandscape)

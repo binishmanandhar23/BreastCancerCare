@@ -18,8 +18,8 @@ ksp = "2.2.10-2.0.2"
 composeMultiplatform = "1.9.0"
 
 #Variables
-app-version-name="2.0.0"
-app-version-code="2"
+app-version-name="2.1.0"
+app-version-code="3"
 app-pkg-name="com.breastcancer.breastcancercare"
 
 #Firebase android

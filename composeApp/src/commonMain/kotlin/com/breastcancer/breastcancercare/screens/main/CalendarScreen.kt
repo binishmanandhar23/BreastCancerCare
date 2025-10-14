@@ -1,12 +1,19 @@
 package com.breastcancer.breastcancercare.screens.main
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,9 +41,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.outlined.HourglassEmpty
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -72,6 +84,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.breastcancer.breastcancercare.components.ActivityDesign
 import com.breastcancer.breastcancercare.components.LazyColumnWithStickyFooter
+import com.breastcancer.breastcancercare.components.icons.Counselling
+import com.breastcancer.breastcancercare.components.icons.Nurse
 import com.breastcancer.breastcancercare.database.local.types.GeneralActivityType
 import com.breastcancer.breastcancercare.models.ActivityDTO
 import com.breastcancer.breastcancercare.models.CalendarActivityType
@@ -79,12 +93,16 @@ import com.breastcancer.breastcancercare.models.SuitabilityDTO
 import com.breastcancer.breastcancercare.screens.Route
 import com.breastcancer.breastcancercare.theme.ColorSand
 import com.breastcancer.breastcancercare.theme.ColorSunshine
+import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultHorizontalPaddingSmall
 import com.breastcancer.breastcancercare.theme.DefaultSpacerSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.theme.OffBackground
+import com.breastcancer.breastcancercare.utils.DefaultSpacer
+import com.breastcancer.breastcancercare.utils.rememberIsLandscape
 import com.breastcancer.breastcancercare.viewmodel.CalendarViewModel
+import com.kizitonwose.calendar.compose.ContentHeightMode
 import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
@@ -100,6 +118,8 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.math.abs
+import kotlin.math.exp
 import kotlin.math.roundToInt
 import kotlin.time.ExperimentalTime
 
@@ -108,6 +128,8 @@ import kotlin.time.ExperimentalTime
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = koinViewModel(),
     bottomSpacer: Dp = DefaultSpacerSize,
+    onAddNursing: () -> Unit,
+    onAddCounselling: () -> Unit,
     onSubScreenChange: (Route, clearStack: Boolean) -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
@@ -152,9 +174,9 @@ fun CalendarScreen(
                 }
                 if (it.position == DayPosition.MonthDate)
                     Day(
-                        it,
+                        day = it,
                         selectedDate = selectedDate,
-                        hasActivitiesAVailable = hasActivitiesAvailable,
+                        hasActivitiesAvailable = hasActivitiesAvailable,
                         hasActivitiesRegistered = hasActivitiesRegistered,
                         onDateClicked = onDateClicked
                     )
@@ -165,6 +187,7 @@ fun CalendarScreen(
                     container.invoke()
                 }
             },
+            contentHeightMode = ContentHeightMode.Wrap,
             contentPadding = PaddingValues(
                 horizontal = DefaultHorizontalPaddingSmall,
                 vertical = DefaultVerticalPaddingMedium
@@ -200,12 +223,10 @@ fun CalendarScreen(
             modifier = Modifier.align(alignment = Alignment.BottomCenter),
             selectedTab = selectedTab,
             selectedDayAvailableActivities = selectedDayAvailableActivities,
-            allSuitabilities = allSuitabilities,
             bottomSpacer = bottomSpacer,
-            selectedSuitability = selectedSuitability,
             selectedDate = selectedDate,
-            onTabSelected = calendarViewModel::changeTab,
-            onSuitabilitySelected = calendarViewModel::updateSelectedSuitability,
+            onAddNursing = onAddNursing,
+            onAddCounselling = onAddCounselling,
             onActivityClick = { activity ->
                 onSubScreenChange(
                     if (activity.activityType is GeneralActivityType)
@@ -222,14 +243,15 @@ fun CalendarScreen(
 @OptIn(ExperimentalTime::class)
 @Composable
 fun Day(
+    modifier: Modifier = Modifier,
     day: CalendarDay,
     selectedDate: LocalDate,
-    hasActivitiesAVailable: Boolean,
+    hasActivitiesAvailable: Boolean,
     hasActivitiesRegistered: Boolean,
     onDateClicked: (selectedDate: LocalDate) -> Unit
 ) {
+    val isLandscape = rememberIsLandscape()
     val currentDate by remember { mutableStateOf(LocalDate.now()) }
-
     val dayText: @Composable (selected: Boolean) -> Unit = { selected ->
         Box(
             modifier = Modifier.background(
@@ -253,7 +275,7 @@ fun Day(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                if (hasActivitiesAVailable)
+                if (hasActivitiesAvailable)
                     Indicator()
                 if (hasActivitiesRegistered)
                     Indicator(color = ColorSunshine)
@@ -261,8 +283,8 @@ fun Day(
         }
     }
     Box(
-        modifier = Modifier
-            .aspectRatio(1f).clickable(
+        modifier = modifier
+            .aspectRatio(if (isLandscape) 2f else 1f).clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = null
             ) {
@@ -314,113 +336,237 @@ private fun MonthHeader(calendarMonth: CalendarMonth) {
 fun BottomInfoCard(
     modifier: Modifier = Modifier,
     selectedTab: Int,
-    openHeightFraction: Float = 0.8f,     // sheet height
-    closedVisibleFraction: Float = 0.4f,  // visible part when closed
+    openHeightFraction: Float = 0.73f,     // sheet height
+    halfVisibleFraction: Float = 0.53f,  // visible part of the SHEET in Half state (0..1 of sheet height)
+    peekVisibleFraction: Float = 0.23f, // visible part of the SCREEN in Peek state (0..1 of screen)
+    initialValue: SheetValue = SheetValue.Half,
+    velocityThresholdPx: Float = 1500f, // fling threshold
     selectedDate: LocalDate,
     bottomSpacer: Dp,
-    allSuitabilities: List<SuitabilityDTO>,
-    selectedSuitability: SuitabilityDTO?,
     selectedDayAvailableActivities: Map<CalendarActivityType, List<ActivityDTO>>,
-    onTabSelected: (index: Int) -> Unit,
-    onSuitabilitySelected: (suitability: SuitabilityDTO?) -> Unit,
+    onAddNursing: () -> Unit,
+    onAddCounselling: () -> Unit,
     onActivityClick: (activity: ActivityDTO) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
+    val coroutineScope = rememberCoroutineScope()
+    var expanded by remember { mutableStateOf(false) }
+
     // Parent size needed to compute pixel offsets
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val scope = rememberCoroutineScope()
-        val parentHeightPx = with(LocalDensity.current) { maxHeight.toPx() }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val density = LocalDensity.current
+        val parentH = with(density) { maxHeight.toPx() }.coerceAtLeast(1f)
+        val sheetH = (parentH * openHeightFraction).coerceAtLeast(1f)
 
-        // Height of the sheet in px (fixed at 50% of screen by default)
-        val sheetHeightPx = parentHeightPx * openHeightFraction
+        // --- anchor offsets (from top of container) ---
+        val open = 0f
+        val half = (sheetH - sheetH * halfVisibleFraction).coerceIn(open, sheetH)
+        val peek = (sheetH - parentH * peekVisibleFraction).coerceIn(open, sheetH)
+        // ensure sorted order: Open <= Half <= Peek
+        val anchors = remember(open, half, peek) {
+            listOf(
+                open,
+                maxOf(half, open),
+                maxOf(peek, maxOf(half, open))
+            )
+        }
 
-        // Closed offset pushes the sheet down so that only `closedVisibleFraction` is visible
-        val closedOffsetPx = (sheetHeightPx - parentHeightPx * closedVisibleFraction)
-            .coerceAtLeast(0f)
+        // initial offset based on initialValue
+        val initialOffset = when (initialValue) {
+            SheetValue.Open -> anchors[0]
+            SheetValue.Half -> anchors[1]
+            SheetValue.Peek -> anchors[2]
+        }
 
-        // 0f = fully open, closedOffsetPx = fully closed
-        val offsetAnim = remember { Animatable(closedOffsetPx) }
+        val offset = remember { Animatable(initialOffset) }
 
-        // Gesture handling
-        val dragState = rememberDraggableState { delta ->
-            val new = (offsetAnim.value + delta).coerceIn(0f, closedOffsetPx)
-            scope.launch {
-                offsetAnim.snapTo(new)
+        // helper: closest/next/prev anchors
+        fun nearestAnchor(x: Float): Float = anchors.minBy { abs(it - x) }
+        fun nextAnchor(x: Float): Float = anchors.firstOrNull { it > x } ?: anchors.last()
+        fun prevAnchor(x: Float): Float = anchors.lastOrNull { it < x } ?: anchors.first()
+
+        suspend fun animateTo(target: Float) {
+            offset.animateTo(
+                target,
+                spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)
+            )
+        }
+
+        // drag handling
+        val dragState = rememberDraggableState { dy ->
+            val newY = (offset.value + dy).coerceIn(anchors.first(), anchors.last())
+            // snap during drag for responsiveness
+            coroutineScope.launch {
+                offset.snapTo(newY)
             }
         }
 
-        val isOpen by remember {
-            derivedStateOf { offsetAnim.value < closedOffsetPx / 2f }
-        }
-
-        val animateToOffset = { target: Float ->
-            scope.launch {
-                offsetAnim.animateTo(
-                    target,
-                    spring(
-                        dampingRatio = Spring.DampingRatioLowBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                )
+        // current state (optional to expose)
+        val currentValue by remember {
+            derivedStateOf {
+                when (nearestAnchor(offset.value)) {
+                    anchors[0] -> SheetValue.Open
+                    anchors[1] -> SheetValue.Half
+                    else -> SheetValue.Peek
+                }
             }
         }
 
-        // The card itself
-        Card(
+        Column(
             modifier = modifier
-                .fillMaxWidth()
-                .fillMaxHeight(openHeightFraction)
-                .offset { IntOffset(0, offsetAnim.value.roundToInt()) }
-                .draggable(
-                    state = dragState,
-                    orientation = Orientation.Vertical,
-                    onDragStopped = { velocity ->
-                        // Snap to the nearest anchor (open/closed)
-                        val midpoint = closedOffsetPx / 2f
-                        val target = when {
-                            velocity > 1500f -> closedOffsetPx // fling down
-                            velocity < -1500f -> 0f            // fling up
-                            offsetAnim.value > midpoint -> closedOffsetPx
-                            else -> 0f
-                        }
-                        animateToOffset(target)
+            .fillMaxWidth()
+            .fillMaxHeight(openHeightFraction) // sheet height when fully open
+            .offset { IntOffset(0, offset.value.roundToInt()) }
+            .draggable(
+                state = dragState,
+                orientation = Orientation.Vertical,
+                onDragStopped = { velocity ->
+                    val v = velocity // +down, -up
+                    val target = when {
+                        v > velocityThresholdPx -> nextAnchor(offset.value) // fling down
+                        v < -velocityThresholdPx -> prevAnchor(offset.value) // fling up
+                        else -> nearestAnchor(offset.value)                   // snap to nearest
                     }
-                ),
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-            colors = CardDefaults.cardColors(containerColor = ColorSand),
+                    // If we flung “past” the nearest, ensure we move at least to the next/prev
+                    // (nearestAnchor already handles gentle releases)
+                    // animate to target anchor
+                    // launch in composition scope:
+                    coroutineScope.launch { animateTo(target) }
+                })
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = DefaultHorizontalPaddingSmall,
-                        vertical = DefaultVerticalPaddingMedium
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                val interaction = remember { MutableInteractionSource() }
-                Box(
-                    modifier = Modifier
-                        .padding(bottom = 20.dp)
-                        .height(10.dp)
-                        .width(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .clickable(
-                            interactionSource = interaction,
-                            indication = ripple(bounded = false)
+            Column(modifier = Modifier.height(50.dp)) {
+                AnimatedVisibility(
+                    visible = expanded,
+                    enter = (
+                            slideInVertically(
+                                initialOffsetY = { it / 2 },
+                                animationSpec = spring()
+                            )) + scaleIn(
+                        transformOrigin = TransformOrigin(
+                            0.9f,
+                            1f
+                        )
+                    ) + fadeIn(),
+                    exit = (
+                            slideOutVertically(
+                                targetOffsetY = { it / 2 },
+                                animationSpec = spring()
+                            )) + scaleOut(
+                        transformOrigin = TransformOrigin(
+                            0.9f,
+                            1f
+                        )
+                    ) + fadeOut()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = DefaultHorizontalPaddingMedium),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = onAddNursing,
+                            colors = ButtonDefaults.buttonColors(
+                                contentColor = MaterialTheme.colorScheme.onTertiary,
+                                containerColor = MaterialTheme.colorScheme.tertiary
+                            )
                         ) {
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.VirtualKey)
-                            animateToOffset(if (isOpen) closedOffsetPx else 0f)
-                        }.semantics { role = Role.Button }
-                )
-                ActivitySection(
-                    modifier = Modifier.fillMaxSize(),
-                    selectedDate = selectedDate,
-                    selectedDayAvailableActivities = selectedDayAvailableActivities,
-                    bottomSpacer = with(LocalDensity.current) { offsetAnim.value.toDp() + bottomSpacer },
-                    onActivityClick = onActivityClick
-                )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Nurse,
+                                    contentDescription = "Book a Nursing session"
+                                )
+                                Text(text = "Nursing")
+                            }
+                        }
+                        DefaultSpacer(DefaultHorizontalPaddingSmall)
+                        Button(
+                            onClick = onAddCounselling,
+                            colors = ButtonDefaults.buttonColors(
+                                contentColor = MaterialTheme.colorScheme.onTertiary,
+                                containerColor = MaterialTheme.colorScheme.tertiary
+                            )
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Counselling,
+                                    contentDescription = "Book a Counselling Session"
+                                )
+                                Text(text = "Counselling")
+                            }
+                        }
+                    }
+                }
+            }
+            Card(
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+                colors = CardDefaults.cardColors(containerColor = ColorSand)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = DefaultHorizontalPaddingSmall,
+                            vertical = DefaultVerticalPaddingMedium
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val interaction = remember { MutableInteractionSource() }
+                    Box(modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(bottom = 20.dp)
+                                .height(10.dp)
+                                .width(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                                .clickable(
+                                    interactionSource = interaction,
+                                    indication = ripple(bounded = false)
+                                ) {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                                    coroutineScope.launch {
+                                        animateTo(
+                                            when (currentValue) {
+                                                SheetValue.Open -> anchors[2]
+                                                SheetValue.Half -> anchors[0]
+                                                SheetValue.Peek -> anchors[1]
+                                            }
+                                        )
+                                    }
+                                }.semantics { role = Role.Button }
+                        )
+                        ExtendedFloatingActionButton(
+                            modifier = Modifier.align(Alignment.CenterEnd),
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            expanded = !expanded,
+                            elevation = FloatingActionButtonDefaults.loweredElevation(),
+                            text = { Text(text = "Book", fontWeight = FontWeight.Bold) },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Default.EditCalendar,
+                                    contentDescription = "Book activity"
+                                )
+                            },
+                            onClick = {
+                                expanded = !expanded
+                            })
+                    }
+                    ActivitySection(
+                        modifier = Modifier.fillMaxSize(),
+                        selectedDate = selectedDate,
+                        selectedDayAvailableActivities = selectedDayAvailableActivities,
+                        bottomSpacer = with(LocalDensity.current) { offset.value.toDp() + bottomSpacer },
+                        onActivityClick = onActivityClick
+                    )
+                }
             }
         }
     }
@@ -520,3 +666,6 @@ private fun Indicator(size: Dp = 7.dp, color: Color = MaterialTheme.colorScheme.
         shape = CircleShape
     )
 )
+
+
+enum class SheetValue { Open, Half, Peek }

@@ -438,6 +438,7 @@ fun App() {
                                         id = id,
                                         activityViewModel = activityViewModel,
                                         loaderState = loaderState,
+                                        customSnackBarState = customSnackBarState,
                                         onBack = {
                                             navigator.popBackStack()
                                         },

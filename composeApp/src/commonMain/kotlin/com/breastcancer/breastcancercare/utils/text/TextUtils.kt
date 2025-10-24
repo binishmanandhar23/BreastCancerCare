@@ -1,21 +1,32 @@
 package com.breastcancer.breastcancercare.utils.text
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import kotlin.math.roundToInt
 
 class LinkScope(
     private val b: Builder,
@@ -43,6 +54,32 @@ fun ClickableText(
         LinkScope(this, onClick).builder()
     }
     Text(modifier = modifier, text = text, style = textStyle)
+}
+
+@Composable
+fun TextWithHeight(modifier: Modifier, text: AnnotatedString, fontSize: TextUnit, onHeightChanged: (height: Dp) -> Unit) {
+    val textMeasurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+
+    BoxWithConstraints(modifier = modifier) {
+        val style = TextStyle(fontSize = fontSize, fontWeight = FontWeight.Bold)
+        val textLayoutResult: TextLayoutResult = textMeasurer.measure(
+            text = text,
+            style = style,
+            constraints = Constraints(maxWidth = constraints.maxWidth) // Pass the available width
+        )
+        val textHeight = with(density) { (textLayoutResult.size.height * 1.3f).toDp() }
+
+        LaunchedEffect(textHeight){
+           onHeightChanged(textHeight)
+        }
+
+        Text(
+            text = text,
+            style = style,
+            modifier = Modifier.height(textHeight) // Apply the measured height if needed
+        )
+    }
 }
 
 object TextUtils {

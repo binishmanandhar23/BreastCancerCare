@@ -2,6 +2,7 @@ package com.breastcancer.breastcancercare.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -27,4 +28,17 @@ val DefaultTopBarIconSize = 30.dp
 @Composable
 fun spToDp(sp: TextUnit): Dp = with(LocalDensity.current) {
     sp.toPx().toDp()   // sp -> px (uses fontScale) -> dp (uses density)
+}
+
+fun spToDp(sp: TextUnit, density: Density): Dp = with(density) {
+    sp.toPx().toDp()   // sp -> px (uses fontScale) -> dp (uses density)
+}
+
+@Composable
+fun pxToDp(px: Float): Dp = with(LocalDensity.current) {
+    px.toDp()
+}
+
+fun pxToDp(px: Float, density: Density): Dp = with(density) {
+    px.toDp()
 }

@@ -29,10 +29,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -61,13 +66,16 @@ import com.breastcancer.breastcancercare.theme.DefaultTopHeaderTextSize
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingMedium
 import com.breastcancer.breastcancercare.theme.DefaultVerticalPaddingSmall
 import com.breastcancer.breastcancercare.theme.OffBackground
+import com.breastcancer.breastcancercare.theme.pxToDp
 import com.breastcancer.breastcancercare.theme.spToDp
 import com.breastcancer.breastcancercare.utils.DefaultSpacer
 import com.breastcancer.breastcancercare.utils.emojiFor
 import com.breastcancer.breastcancercare.utils.getDateForNextSession
+import com.breastcancer.breastcancercare.utils.text.TextWithHeight
 import com.breastcancer.breastcancercare.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.math.max
 
 @Composable
 fun HomeScreen(
@@ -83,6 +91,10 @@ fun HomeScreen(
     val recommendedBlogsUIState by homeViewModel.recommendedBlogsUIState.collectAsStateWithLifecycle()
     val upcomingEventsUIState by homeViewModel.upcomingEventsUIState.collectAsStateWithLifecycle()
     val overscrollEffect = rememberOverscrollEffect()
+    val density = LocalDensity.current
+    var headerTextHeight by remember {
+        mutableStateOf(spToDp(DefaultTopHeaderTextSize, density = density) * 4f)
+    }
     LazyColumnCollapsibleHeader(
         modifier = Modifier
             .fillMaxSize()
@@ -90,7 +102,7 @@ fun HomeScreen(
             .overscroll(overscrollEffect = overscrollEffect),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        headerHeight = spToDp(DefaultTopHeaderTextSize) * 4f,
+        headerHeight = headerTextHeight,
         header = {
             val builtText = buildAnnotatedString {
                 withStyle(
@@ -107,19 +119,30 @@ fun HomeScreen(
                 }
             }
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
+                TextWithHeight(
                     modifier = Modifier.weight(0.6f).padding(
                         vertical = DefaultVerticalPaddingMedium
                     ),
                     text = builtText,
-                    lineHeight = DefaultTopHeaderTextSize * 1.0f
+                    fontSize = DefaultTopHeaderTextSize, onHeightChanged = { height ->
+                        println("TextSize Height: $height")
+                        headerTextHeight = height
+                    }
                 )
-                Box(modifier = Modifier.weight(0.4f).fillMaxHeight()){
-                    ExtendedFloatingActionButton(modifier = Modifier.align(Alignment.CenterEnd), text = {
-                        Text(text = "Schedules")
-                    }, icon = {
-                        Icon(imageVector = Icons.Default.Schedule, contentDescription = "Schedules")
-                    }, onClick = onAllSchedules, elevation = FloatingActionButtonDefaults.loweredElevation(),
+                Box(modifier = Modifier.weight(0.4f).fillMaxHeight()) {
+                    ExtendedFloatingActionButton(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        text = {
+                            Text(text = "Schedules")
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Schedule,
+                                contentDescription = "Schedules"
+                            )
+                        },
+                        onClick = onAllSchedules,
+                        elevation = FloatingActionButtonDefaults.loweredElevation(),
                         containerColor = MaterialTheme.colorScheme.secondary
                     )
                 }
@@ -235,7 +258,10 @@ private fun ActivityCard(activity: ActivityDTO, onClick: (event: ActivityDTO) ->
                     modifier = Modifier.padding(bottom = DefaultVerticalPaddingSmall),
                     iconModifier = Modifier.size(15.dp),
                     activityType = activity.activityType,
-                    paddingValues = PaddingValues(horizontal = DefaultHorizontalPaddingSmall, vertical = 3.dp),
+                    paddingValues = PaddingValues(
+                        horizontal = DefaultHorizontalPaddingSmall,
+                        vertical = 3.dp
+                    ),
                     textStyle = MaterialTheme.typography.labelSmall
                 )
             }
